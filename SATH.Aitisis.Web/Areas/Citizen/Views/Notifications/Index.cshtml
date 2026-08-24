@@ -1,0 +1,122 @@
+﻿@model IReadOnlyCollection<SATH.Aitisis.Web.Areas.Citizen.ViewModels.Notifications.NotificationListItemViewModel>
+
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+        <h2 class="mb-1">
+            Notifications
+        </h2>
+
+        <p class="text-muted mb-0">
+            View updates about your submitted applications.
+        </p>
+    </div>
+
+    <a asp-area="Citizen"
+       asp-controller="Dashboard"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+        Back to Dashboard
+    </a>
+
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+
+            <h5 class="mb-2">
+                No notifications
+            </h5>
+
+            <p class="text-muted mb-0">
+                You do not have any notifications yet.
+            </p>
+
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+
+        @foreach (var notification in Model)
+        {
+            <div class="col-12">
+                <div class="card shadow-sm @(notification.IsRead ? "" : "border-primary")">
+
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between align-items-start gap-3">
+
+                            <div>
+
+                                <div class="d-flex align-items-center gap-2 mb-2">
+
+                                    <h5 class="mb-0">
+                                        @notification.Title
+                                    </h5>
+
+                                    <span class="badge @notification.BadgeCssClass">
+                                        @notification.BadgeText
+                                    </span>
+
+                                </div>
+
+                                <p class="mb-2 notification-message">
+                                    @notification.Message
+                                </p>
+
+                                <small class="text-muted">
+                                    @(notification.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                                </small>
+
+                            </div>
+
+                            <div class="text-end">
+
+                                @if (notification.ApplicationId.HasValue)
+                                {
+                                    <a asp-area="Citizen"
+                                       asp-controller="Applications"
+                                       asp-action="MyApplications"
+                                       class="btn btn-sm btn-outline-primary mb-2">
+                                        My Applications
+                                    </a>
+                                }
+
+                                @if (!notification.IsRead)
+                                {
+                                    <form asp-area="Citizen"
+                                          asp-controller="Notifications"
+                                          asp-action="MarkAsRead"
+                                          asp-route-id="@notification.Id"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-secondary">
+                                            Mark as read
+                                        </button>
+
+                                    </form>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        }
+
+    </div>
+}

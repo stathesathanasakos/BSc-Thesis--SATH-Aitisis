@@ -1,0 +1,15 @@
+﻿namespace SATH.Aitisis.Web.Areas.Citizen.ViewModels.Applications
+{
+    public sealed class AvailableApplicationTypeViewModel
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; } = string.Empty;
+
+        public string? Description { get; set; }
+
+        public bool RequiresPayment { get; set; }
+
+        public decimal? FeeAmount { get; set; }
+    }
+}

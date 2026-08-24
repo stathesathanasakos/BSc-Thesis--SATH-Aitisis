@@ -1,0 +1,39 @@
+@model SATH.Aitisis.Web.ViewModels.Account.LoginViewModel
+
+<div class="card auth-card">
+    <div class="card-body">
+        <h5 class="card-title mb-2">Sign in to SATH-Aitisis</h5>
+        <p class="text-muted small mb-3">Secure access for citizens and staff</p>
+
+        <form asp-controller="Account" asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-check-label"></label>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <button type="submit" class="btn btn-primary">Login</button>
+
+                <a asp-controller="Account" asp-action="Register" class="btn btn-link">Register</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Partial views must not define sections. Validation scripts are rendered in parent views. *@

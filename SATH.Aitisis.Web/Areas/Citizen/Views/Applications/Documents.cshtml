@@ -1,0 +1,239 @@
+﻿@model SATH.Aitisis.Web.Areas.Citizen.ViewModels.Applications.ApplicationDocumentsViewModel
+
+@{
+    ViewData["Title"] = "Supporting Documents";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Supporting Documents</h2>
+
+        <p class="text-muted mb-0">
+            Upload the PDF documents required for
+            <strong>@Model.ApplicationTypeName</strong>.
+        </p>
+    </div>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Back to Applications
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+                <h4 class="mb-1">
+                    Document Requirements
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Required documents must be uploaded before you can continue.
+                </p>
+            </div>
+
+            @if (Model.RequiredDocumentsCompleted)
+            {
+                <span class="badge bg-success">
+                    Required Documents Completed
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark">
+                    Documents Pending
+                </span>
+            }
+
+        </div>
+
+        @if (Model.DocumentRequirements.Count == 0)
+        {
+            <div class="alert alert-light border mb-0">
+
+                <h5 class="mb-1">
+                    No supporting documents required
+                </h5>
+
+                <p class="text-muted mb-0">
+                    This application type does not require any supporting PDF documents.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Document</th>
+                            <th>Description</th>
+                            <th>Requirement</th>
+                            <th>Status / Upload</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var requirement in
+                                            Model.DocumentRequirements.OrderBy(x => x.DisplayOrder))
+                        {
+                            <tr>
+
+                                <td class="fw-semibold">
+                                    @requirement.Name
+                                </td>
+
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(requirement.Description))
+                                    {
+                                        <span class="text-muted">
+                                            —
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @requirement.Description
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (requirement.IsRequired)
+                                    {
+                                        <span class="badge bg-danger">
+                                            Required
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Optional
+                                        </span>
+                                    }
+                                </td>
+
+                                <td style="min-width: 340px;">
+
+                                    @if (requirement.IsUploaded)
+                                    {
+                                        <div class="d-flex align-items-center gap-2">
+
+                                            <span class="badge bg-success">
+                                                Uploaded ✓
+                                            </span>
+
+                                            <span class="text-muted small">
+                                                Document successfully received.
+                                            </span>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="UploadDocument"
+                                              method="post"
+                                              enctype="multipart/form-data">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="ApplicationId"
+                                                   value="@Model.ApplicationId" />
+
+                                            <input type="hidden"
+                                                   name="ApplicationTypeId"
+                                                   value="@Model.ApplicationTypeId" />
+
+                                            <input type="hidden"
+                                                   name="DocumentRequirementId"
+                                                   value="@requirement.Id" />
+
+                                            <div class="input-group">
+
+                                                <input type="file"
+                                                       name="File"
+                                                       accept=".pdf,application/pdf"
+                                                       class="form-control"
+                                                       required />
+
+                                                <button type="submit"
+                                                        class="btn btn-outline-primary">
+                                                    Upload
+                                                </button>
+
+                                            </div>
+
+                                        </form>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+</div>
+
+<div class="alert alert-info mb-4">
+    Only PDF files up to 10 MB are accepted.
+</div>
+
+@if (!Model.RequiredDocumentsCompleted)
+{
+    <div class="alert alert-warning">
+        Please upload all required documents before continuing.
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+
+    @if (Model.RequiredDocumentsCompleted)
+    {
+        <a asp-action="ContinueSubmission"
+           asp-route-applicationId="@Model.ApplicationId"
+           class="btn btn-primary">
+            Continue
+        </a>
+    }
+    else
+    {
+        <button type="button"
+                class="btn btn-primary"
+                disabled>
+            Continue
+        </button>
+    }
+
+</div>

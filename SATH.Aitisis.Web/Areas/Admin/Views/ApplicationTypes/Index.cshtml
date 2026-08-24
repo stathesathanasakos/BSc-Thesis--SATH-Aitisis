@@ -1,0 +1,174 @@
+﻿@model IReadOnlyCollection<SATH.Aitisis.Web.Areas.Admin.ViewModels.ApplicationTypes.ApplicationTypeListViewModel>
+
+@{
+    ViewData["Title"] = "Application Types";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2>Application Type Management</h2>
+
+        <p class="text-muted mb-0">
+            Create and manage the available application types used by citizens.
+        </p>
+    </div>
+
+    <div>
+        <a asp-action="Create"
+           class="btn btn-primary">
+            Create Application Type
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="card">
+        <div class="card-body">
+
+            <h5 class="card-title">
+                No application types
+            </h5>
+
+            <p class="card-text text-muted">
+                No application types have been created yet.
+            </p>
+
+            <a asp-action="Create"
+               class="btn btn-primary">
+                Create Application Type
+            </a>
+
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover table-striped align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Payment</th>
+                            <th>Fee</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var applicationType in Model)
+                        {
+                            <tr>
+
+                                <td class="align-middle fw-semibold">
+                                    @applicationType.Name
+                                </td>
+
+                                <td class="align-middle">
+                                    @if (string.IsNullOrWhiteSpace(applicationType.Description))
+                                    {
+                                        <span class="text-muted">
+                                            —
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @applicationType.Description
+                                    }
+                                </td>
+
+                                <td class="align-middle">
+                                    @if (applicationType.RequiresPayment)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            Required
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Not Required
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="align-middle">
+                                    @if (applicationType.RequiresPayment &&
+                                                                applicationType.FeeAmount.HasValue)
+                                    {
+                                        <span>
+                                            @applicationType.FeeAmount.Value.ToString("0.00") €
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            —
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="align-middle">
+                                    @if (applicationType.IsActive)
+                                    {
+                                        <span class="badge bg-success">
+                                            Active
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Inactive
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="align-middle">
+                                    @applicationType.CreatedAt
+                                    .ToLocalTime()
+                                    .ToString("dd/MM/yyyy HH:mm")
+                                </td>
+
+                                <td class="align-middle">
+                                    <a asp-action="Details"
+                                       asp-route-id="@applicationType.Id"
+                                       class="btn btn-sm btn-outline-primary">
+                                        Configure
+                                    </a>
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+}

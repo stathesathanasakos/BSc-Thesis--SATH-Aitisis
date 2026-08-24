@@ -1,0 +1,361 @@
+﻿@model SATH.Aitisis.Web.Areas.Admin.ViewModels.ApplicationTypes.ApplicationTypeDetailsViewModel
+@using SATH.Aitisis.Domain.Enums
+
+@{
+    ViewData["Title"] = "Configure Application Type";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">@Model.Name</h2>
+        <p class="text-muted mb-0">
+            Configure the form fields and required documents for this application type.
+        </p>
+    </div>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Back to Application Types
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<!-- Application Type Information -->
+<div class="card mb-4">
+    <div class="card-body">
+
+        <h5 class="card-title mb-3">
+            Application Type Information
+        </h5>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <p class="text-muted">
+                @Model.Description
+            </p>
+        }
+
+        <div class="d-flex gap-2 flex-wrap">
+
+            @if (Model.IsActive)
+            {
+                <span class="badge bg-success">
+                    Active
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">
+                    Inactive
+                </span>
+            }
+
+            @if (Model.RequiresPayment)
+            {
+                <span class="badge bg-warning text-dark">
+                    Payment Required
+                    @if (Model.FeeAmount.HasValue)
+                    {
+                        <span>
+                            - @Model.FeeAmount.Value.ToString("0.00") €
+                        </span>
+                    }
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">
+                    No Payment Required
+                </span>
+            }
+
+        </div>
+    </div>
+</div>
+
+<!-- FORM FIELDS -->
+<div class="card mb-4">
+    <div class="card-body">
+
+        <h4 class="mb-1">Form Fields</h4>
+
+        <p class="text-muted">
+            Define the information that citizens must provide when completing this application.
+        </p>
+
+        @if (Model.Fields.Count == 0)
+        {
+            <div class="alert alert-light border">
+                No form fields have been configured yet.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive mb-4">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Label</th>
+                            <th>Technical Name</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var field in Model.Fields.OrderBy(x => x.DisplayOrder))
+                        {
+                            <tr>
+                                <td class="fw-semibold">
+                                    @field.Label
+                                </td>
+
+                                <td>
+                                    <code>@field.Name</code>
+                                </td>
+
+                                <td>
+                                    @field.FieldType
+                                </td>
+
+                                <td>
+                                    @if (field.IsRequired)
+                                    {
+                                        <span class="badge bg-success">
+                                            Required
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Optional
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <hr />
+
+        <h5 class="mb-3">Add Field</h5>
+
+        <form asp-action="AddField" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="ApplicationTypeId"
+                   value="@Model.Id" />
+
+            <div class="row">
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">
+                        Technical Name
+                    </label>
+
+                    <input name="Name"
+                           class="form-control"
+                           placeholder="AnnualIncome"
+                           required />
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">
+                        Label
+                    </label>
+
+                    <input name="Label"
+                           class="form-control"
+                           placeholder="Annual Income"
+                           required />
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">
+                        Field Type
+                    </label>
+
+                    <select name="FieldType"
+                            class="form-select"
+                            asp-items="Html.GetEnumSelectList<ApplicationFieldType>()">
+                    </select>
+                </div>
+
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <div class="form-check mb-2">
+                        <input name="IsRequired"
+                               value="true"
+                               class="form-check-input"
+                               type="checkbox"
+                               id="fieldRequired" />
+
+                        <label class="form-check-label"
+                               for="fieldRequired">
+                            Required
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Add Field
+            </button>
+        </form>
+
+    </div>
+</div>
+
+<!-- DOCUMENT REQUIREMENTS -->
+<div class="card mb-4">
+    <div class="card-body">
+
+        <h4 class="mb-1">Document Requirements</h4>
+
+        <p class="text-muted">
+            Define the supporting PDF documents citizens must provide.
+        </p>
+
+        @if (Model.DocumentRequirements.Count == 0)
+        {
+            <div class="alert alert-light border">
+                No document requirements have been configured yet.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive mb-4">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Document</th>
+                            <th>Description</th>
+                            <th>Required</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var requirement in
+                                            Model.DocumentRequirements.OrderBy(x => x.DisplayOrder))
+                        {
+                            <tr>
+                                <td class="fw-semibold">
+                                    @requirement.Name
+                                </td>
+
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(requirement.Description))
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                    else
+                                    {
+                                        @requirement.Description
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (requirement.IsRequired)
+                                    {
+                                        <span class="badge bg-success">
+                                            Required
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Optional
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <hr />
+
+        <h5 class="mb-3">
+            Add Document Requirement
+        </h5>
+
+        <form asp-action="AddDocumentRequirement"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="ApplicationTypeId"
+                   value="@Model.Id" />
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">
+                        Document Name
+                    </label>
+
+                    <input name="Name"
+                           class="form-control"
+                           placeholder="Tax Statement"
+                           required />
+                </div>
+
+                <div class="col-md-5 mb-3">
+                    <label class="form-label">
+                        Description
+                    </label>
+
+                    <input name="Description"
+                           class="form-control"
+                           placeholder="Latest annual tax statement" />
+                </div>
+
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <div class="form-check mb-2">
+
+                        <input name="IsRequired"
+                               value="true"
+                               class="form-check-input"
+                               type="checkbox"
+                               id="documentRequired" />
+
+                        <label class="form-check-label"
+                               for="documentRequired">
+                            Required
+                        </label>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Add Document Requirement
+            </button>
+
+        </form>
+
+    </div>
+</div>

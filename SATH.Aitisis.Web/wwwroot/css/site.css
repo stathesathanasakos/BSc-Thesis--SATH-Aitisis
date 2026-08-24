@@ -1,0 +1,132 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* UI/UX custom styles for SATH-Aitisis */
+
+body {
+  background-color: #f6f9fc;
+  color: #222;
+}
+
+.hero-card {
+  border-radius: 0.5rem;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+}
+
+.auth-card {
+  border-radius: 0.5rem;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+}
+
+.card {
+  border-radius: 0.5rem;
+}
+
+h1.display-5, h2, h3 {
+  color: #0b3a66;
+}
+
+.navbar .nav-link {
+  padding: 0.5rem 0.75rem;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* subtle button transitions */
+.btn {
+  transition: box-shadow 150ms ease, transform 60ms ease;
+}
+
+.btn:active {
+  transform: translateY(0.5px);
+}
+
+/* dashboard cards */
+.card .card-title {
+  font-weight: 600;
+}
+
+/* small utilities */
+.text-muted.small {
+  font-size: 0.9rem;
+}
+
+
+.notification-message {
+    white-space: pre-line;
+}
+
+
+/* dashboard calendar widget */
+
+.dashboard-calendar-card {
+    overflow: hidden;
+}
+
+.dashboard-calendar-month {
+    color: #0b3a66;
+    font-weight: 600;
+}
+
+.dashboard-calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.dashboard-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.35rem;
+}
+
+.dashboard-calendar-day {
+    min-height: 42px;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+.dashboard-calendar-empty {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.dashboard-calendar-today {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 0.25rem 0.75rem rgba(13, 110, 253, 0.25);
+}

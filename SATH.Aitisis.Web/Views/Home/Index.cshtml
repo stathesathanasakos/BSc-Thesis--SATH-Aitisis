@@ -1,0 +1,51 @@
+﻿@using SATH.Aitisis.App.Common.Constants
+@{
+    ViewData["Title"] = "SATH-Aitisis";
+}
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="card mt-4">
+        <div class="card-body">
+            <h2 class="card-title">Welcome back</h2>
+            <p class="card-text">You are signed in as @User.Identity.Name.</p>
+
+            @if (User.IsInRole(AppRoles.Admin))
+            {
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Go to Dashboard</a>
+            }
+            else if (User.IsInRole(AppRoles.Employee))
+            {
+                <a asp-area="Employee" asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Go to Dashboard</a>
+            }
+            else
+            {
+                <a asp-area="Citizen" asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Go to Dashboard</a>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="row align-items-center mt-4">
+        <div class="col-md-7">
+            <div class="card hero-card mb-3">
+                <div class="card-body">
+                    <h1 class="display-5">SATH-Aitisis</h1>
+                    <p class="lead text-muted">A simple electronic submission and tracking system for university administrative processes.</p>
+
+                    <ul class="list-unstyled mt-3 mb-0">
+                        <li class="mb-2">• Electronic application submission</li>
+                        <li class="mb-2">• PDF supporting documents</li>
+                        <li class="mb-2">• Application status tracking</li>
+                        <li class="mb-2">• Secure account access</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            @await Html.PartialAsync("_LoginForm", new SATH.Aitisis.Web.ViewModels.Account.LoginViewModel())
+        </div>
+    </div>
+}
