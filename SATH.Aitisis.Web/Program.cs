@@ -17,8 +17,9 @@ using SATH.Aitisis.Infrastructure.Services.Employees;
 using SATH.Aitisis.Infrastructure.Storage;
 using SATH.Aitisis.App.Services.ApprovalCertificates;
 using SATH.Aitisis.Infrastructure.Services.ApprovalCertificates;
-
-
+using SATH.Aitisis.App.Services.Payments;
+using SATH.Aitisis.Infrastructure.Repositories.Payments;
+using SATH.Aitisis.Infrastructure.Payments.Stripe;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -89,6 +90,13 @@ builder.Services.AddScoped<IApplicationStatusTransitionPolicy, ApplicationStatus
 // for the pdfs 
 builder.Services.AddScoped<IApprovalCertificateService, ApprovalCertificateService>();
 builder.Services.AddScoped<IApprovalCertificatePdfGenerator, QuestPdfApprovalCertificateGenerator>();
+
+
+// for the payments
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPaymentGateway, StripePaymentGatewayAdapter>();
+builder.Services.Configure<StripePaymentOptions>(builder.Configuration.GetSection("Stripe"));
 
 
 

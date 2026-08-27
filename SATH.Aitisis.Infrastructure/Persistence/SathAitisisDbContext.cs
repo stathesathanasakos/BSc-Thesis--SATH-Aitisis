@@ -41,8 +41,7 @@ namespace SATH.Aitisis.Infrastructure.Persistence
             base.OnModelCreating(builder);
 
             // Automatically loads all EF Core entity configurations defined in the Infrastructure assembly
-            builder.ApplyConfigurationsFromAssembly(
-                typeof(SathAitisisDbContext).Assembly);
+            builder.ApplyConfigurationsFromAssembly(typeof(SathAitisisDbContext).Assembly);
         }
     }
 }
