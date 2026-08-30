@@ -482,3 +482,9 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+appsettings.Development.json
+**/SATH.Aitisis.web.Storage/
+
+appsettings.Development.json
+**/Storage/

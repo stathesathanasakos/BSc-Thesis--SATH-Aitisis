@@ -85,22 +85,34 @@ namespace SATH.Aitisis.Infrastructure.Repositories.Applications
             return await _dbContext.Applications
                 .AsNoTracking()
                 .Include(x => x.ApplicationType)
+                .Include(x => x.Payment)
                 .Where(x => x.CitizenId == citizenId)
                 .OrderByDescending(x => x.SubmissionDate)
-                .ToArrayAsync();
+                .ToListAsync();
+
         }
 
 
         // for the employee to get the pending applications
         public async Task<IReadOnlyCollection<DomainApplication>>GetPendingApplicationsAsync()
         {
+            // I need only the application that are submitted and if the application type requires payment, then the payment must be completed
             return await _dbContext.Applications
                 .AsNoTracking()
                 .Include(x => x.ApplicationType)
-                .Where(x => x.Status == ApplicationStatus.Submitted)
+                .Where(x =>
+                    x.Status == ApplicationStatus.Submitted &&
+                        (
+                            !x.ApplicationType.RequiresPayment ||
+                        (
+                            x.Payment != null &&
+                            x.Payment.Status == PaymentStatus.Completed
+                        )
+                ))
                 .OrderBy(x => x.SubmissionDate)
                 .ToArrayAsync();
         }
+
 
         public async Task<DomainApplication?> GetApplicationForReviewAsync(int applicationId)
         {
@@ -141,6 +153,8 @@ namespace SATH.Aitisis.Infrastructure.Repositories.Applications
                     x.Id == applicationId &&
                     x.CitizenId == citizenId);
         }
+
+
 
         // to use for the timeline of each application for employee
         public async Task<DomainApplication?> GetTimelineForEmployeeAsync(int applicationId)

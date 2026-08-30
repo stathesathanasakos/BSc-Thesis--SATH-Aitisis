@@ -17,24 +17,22 @@ namespace SATH.Aitisis.Infrastructure.Repositories.DashboardStatistics
 
         public async Task<AdminDashboardStatistics> GetAdminStatisticsAsync()
         {
-            var totalApplications =
-                await _dbContext.Applications.CountAsync();
+            var totalApplications = await _dbContext.Applications.CountAsync();
 
-            var pendingApplications =
-                await _dbContext.Applications.CountAsync(x =>
-                    x.Status == ApplicationStatus.Submitted);
+            var pendingApplications = await _dbContext.Applications.CountAsync(x => x.Status == ApplicationStatus.Submitted &&
+                (
+                    !x.ApplicationType.RequiresPayment ||
+                (
+                    x.Payment != null &&
+                    x.Payment.Status == PaymentStatus.Completed
+                )
+            ));
 
-            var approvedApplications =
-                await _dbContext.Applications.CountAsync(x =>
-                    x.Status == ApplicationStatus.Approved);
+            var approvedApplications = await _dbContext.Applications.CountAsync(x => x.Status == ApplicationStatus.Approved);
 
-            var rejectedApplications =
-                await _dbContext.Applications.CountAsync(x =>
-                    x.Status == ApplicationStatus.Rejected);
+            var rejectedApplications = await _dbContext.Applications.CountAsync(x => x.Status == ApplicationStatus.Rejected);
 
-            var activeApplicationTypes =
-                await _dbContext.ApplicationTypes.CountAsync(x =>
-                    x.IsActive);
+            var activeApplicationTypes = await _dbContext.ApplicationTypes.CountAsync(x => x.IsActive);
 
             return new AdminDashboardStatistics
             {
@@ -48,19 +46,22 @@ namespace SATH.Aitisis.Infrastructure.Repositories.DashboardStatistics
 
         public async Task<EmployeeDashboardStatistics> GetEmployeeStatisticsAsync(string employeeId)
         {
+            // I need to count only the applications that are submitted and either do not require payment or have completed payment. This is because employees should only see applications that are ready for review
             var pendingApplications =
-                await _dbContext.Applications.CountAsync(x =>
-                    x.Status == ApplicationStatus.Submitted);
+                await _dbContext.Applications
+                    .CountAsync(x =>
+                        x.Status == ApplicationStatus.Submitted &&
+                        (
+                            !x.ApplicationType.RequiresPayment ||
+                        (
+                            x.Payment != null &&
+                            x.Payment.Status == PaymentStatus.Completed
+                        )
+                    ));
 
-            var approvedByMe =
-                await _dbContext.Applications.CountAsync(x =>
-                    x.Status == ApplicationStatus.Approved &&
-                    x.ReviewedByUserId == employeeId);
+            var approvedByMe = await _dbContext.Applications.CountAsync(x => x.Status == ApplicationStatus.Approved && x.ReviewedByUserId == employeeId);
 
-            var rejectedByMe =
-                await _dbContext.Applications.CountAsync(x =>
-                    x.Status == ApplicationStatus.Rejected &&
-                    x.ReviewedByUserId == employeeId);
+            var rejectedByMe = await _dbContext.Applications.CountAsync(x => x.Status == ApplicationStatus.Rejected && x.ReviewedByUserId == employeeId);
 
             return new EmployeeDashboardStatistics
             {
@@ -73,24 +74,13 @@ namespace SATH.Aitisis.Infrastructure.Repositories.DashboardStatistics
 
         public async Task<CitizenDashboardStatistics> GetCitizenStatisticsAsync(string citizenId)
         {
-            var totalApplications =
-                await _dbContext.Applications.CountAsync(x =>
-                    x.CitizenId == citizenId);
+            var totalApplications = await _dbContext.Applications.CountAsync(x => x.CitizenId == citizenId);
 
-            var pendingApplications =
-                await _dbContext.Applications.CountAsync(x =>
-                    x.CitizenId == citizenId &&
-                    x.Status == ApplicationStatus.Submitted);
+            var pendingApplications = await _dbContext.Applications.CountAsync(x => x.CitizenId == citizenId && x.Status == ApplicationStatus.Submitted);
 
-            var approvedApplications =
-                await _dbContext.Applications.CountAsync(x =>
-                    x.CitizenId == citizenId &&
-                    x.Status == ApplicationStatus.Approved);
+            var approvedApplications = await _dbContext.Applications.CountAsync(x => x.CitizenId == citizenId && x.Status == ApplicationStatus.Approved);
 
-            var rejectedApplications =
-                await _dbContext.Applications.CountAsync(x =>
-                    x.CitizenId == citizenId &&
-                    x.Status == ApplicationStatus.Rejected);
+            var rejectedApplications = await _dbContext.Applications.CountAsync(x => x.CitizenId == citizenId && x.Status == ApplicationStatus.Rejected);
 
             return new CitizenDashboardStatistics
             {

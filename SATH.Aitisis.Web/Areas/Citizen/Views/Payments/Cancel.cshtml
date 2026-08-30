@@ -1,6 +1,45 @@
-﻿namespace SATH.Aitisis.Web.Areas.Citizen.Views.Payments
-{
-    public class Cancel
-    {
-    }
+﻿@model int
+
+@{
+    ViewData["Title"] = "Payment Cancelled";
 }
+
+<div class="card shadow-sm">
+    <div class="card-body text-center py-5">
+
+        <div class="mb-3">
+            <span class="badge bg-warning text-dark fs-6">
+                Payment Cancelled
+            </span>
+        </div>
+
+        <h2 class="mb-3">
+            The payment was cancelled.
+        </h2>
+
+        <p class="text-muted mb-4">
+            No payment was completed. You can return to the payment page and
+            try again.
+        </p>
+
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+            <a asp-area="Citizen"
+               asp-controller="Payments"
+               asp-action="Details"
+               asp-route-applicationId="@Model"
+               class="btn btn-primary">
+                Try Again
+            </a>
+
+            <a asp-area="Citizen"
+               asp-controller="Applications"
+               asp-action="MyApplications"
+               class="btn btn-outline-secondary">
+                Back to My Applications
+            </a>
+
+        </div>
+
+    </div>
+</div>

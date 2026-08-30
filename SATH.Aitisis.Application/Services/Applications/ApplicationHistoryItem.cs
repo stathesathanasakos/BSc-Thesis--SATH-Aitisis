@@ -15,5 +15,11 @@ namespace SATH.Aitisis.App.Services.Applications
         public string? ProtocolNumber { get; init; }
 
         public DateTime? DecisionDate { get; init; }
+
+        public bool RequiresPayment { get; init; }
+
+        public PaymentStatus? PaymentStatus { get; init; }
+
+        public bool CanPay { get; init; }
     }
 }

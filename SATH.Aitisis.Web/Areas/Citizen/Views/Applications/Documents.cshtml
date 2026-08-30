@@ -221,11 +221,23 @@
 
     @if (Model.RequiredDocumentsCompleted)
     {
-        <a asp-action="ContinueSubmission"
-           asp-route-applicationId="@Model.ApplicationId"
-           class="btn btn-primary">
-            Continue
-        </a>
+        <form asp-area="Citizen"
+              asp-controller="Applications"
+              asp-action="ContinueSubmission"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="applicationId"
+                   value="@Model.ApplicationId" />
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Continue
+            </button>
+
+        </form>
     }
     else
     {

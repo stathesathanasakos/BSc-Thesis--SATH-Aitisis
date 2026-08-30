@@ -204,10 +204,7 @@ namespace SATH.Aitisis.App.Services.Applications
                 };
             }
 
-            var application =
-                await _repository.GetApplicationForDocumentUploadAsync(
-                    request.ApplicationId,
-                    request.CitizenId);
+            var application = await _repository.GetApplicationForDocumentUploadAsync(request.ApplicationId, request.CitizenId);
 
             if (application == null)
             {
@@ -222,25 +219,15 @@ namespace SATH.Aitisis.App.Services.Applications
             }
 
             // Only PDF documents are accepted.
-            var extension =
-                Path.GetExtension(request.OriginalFileName);
+            var extension = Path.GetExtension(request.OriginalFileName);
 
-            if (!string.Equals(
-                    extension,
-                    ".pdf",
-                    StringComparison.OrdinalIgnoreCase) ||
-                !string.Equals(
-                    request.ContentType,
-                    "application/pdf",
-                    StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) || !string.Equals( request.ContentType, "application/pdf", StringComparison.OrdinalIgnoreCase))
             {
                 return new UploadApplicationDocumentResult
                 {
                     Succeeded = false,
                     Errors = new[]
-                    {
-                "Only PDF files are allowed."
-            }
+                    { "Only PDF files are allowed."}
                 };
             }
 
@@ -273,9 +260,7 @@ namespace SATH.Aitisis.App.Services.Applications
                     {
                         Succeeded = false,
                         Errors = new[]
-                        {
-                    "The selected document requirement is invalid."
-                }
+                        {"The selected document requirement is invalid."}
                     };
                 }
             }
@@ -362,15 +347,27 @@ namespace SATH.Aitisis.App.Services.Applications
             var applications = await _repository.GetByCitizenIdAsync(citizenId);
 
             return applications
-                .Select(x => new ApplicationHistoryItem
+                .Select(application =>
                 {
-                    Id = x.Id,
-                    ApplicationTypeName = x.ApplicationType.Name,
-                    Status = x.Status,
-                    SubmissionDate = x.SubmissionDate,
-                    ProtocolNumber = x.ProtocolNumber,
-                    DecisionDate = x.DecisionDate
-                })
+                    var requiresPayment = application.ApplicationType.RequiresPayment;
+
+                    var paymentStatus = application.Payment?.Status;
+
+                    var canPay = requiresPayment && application.ApplicationType.FeeAmount.HasValue && application.ApplicationType.FeeAmount.Value > 0 && paymentStatus != PaymentStatus.Completed;
+
+                    return new ApplicationHistoryItem
+                        {
+                            Id = application.Id,
+                            ApplicationTypeName = application.ApplicationType.Name,
+                            Status = application.Status,
+                            SubmissionDate = application.SubmissionDate, 
+                            ProtocolNumber = application.ProtocolNumber,
+                            DecisionDate = application.DecisionDate,
+                            RequiresPayment = requiresPayment,
+                            PaymentStatus = paymentStatus,
+                            CanPay = canPay
+                        };
+                 })
                 .ToArray();
         }
 

@@ -1,4 +1,6 @@
-﻿namespace SATH.Aitisis.Web.Areas.Citizen.ViewModels.Applications
+﻿using SATH.Aitisis.Domain.Enums;
+
+namespace SATH.Aitisis.Web.Areas.Citizen.ViewModels.Applications
 {
     public sealed class MyApplicationListItemViewModel
     {
@@ -15,5 +17,11 @@
         public string? ProtocolNumber { get; set; }
 
         public DateTime? DecisionDate { get; set; }
+
+        public bool RequiresPayment { get; set; }
+
+        public PaymentStatus? PaymentStatus { get; set; }
+
+        public bool CanPay { get; set; }
     }
 }

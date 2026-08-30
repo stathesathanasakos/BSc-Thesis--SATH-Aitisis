@@ -8,6 +8,7 @@ using SATH.Aitisis.Web.Areas.Citizen.ViewModels.Applications;
 using System.Security.Claims;
 using SATH.Aitisis.Web.ViewModels.Applications;
 using SATH.Aitisis.App.Services.ApprovalCertificates;
+using SATH.Aitisis.App.Services.Payments;
 
 
 
@@ -19,11 +20,13 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
     {
         private readonly IApplicationService _applicationService;
         private readonly IApprovalCertificateService _approvalCertificateService;
+        private readonly IPaymentService _paymentService;
 
-        public ApplicationsController(IApplicationService applicationService, IApprovalCertificateService approvalCertificateService)
+        public ApplicationsController(IApplicationService applicationService, IApprovalCertificateService approvalCertificateService, IPaymentService paymentService)
         {
             _applicationService = applicationService;
             _approvalCertificateService = approvalCertificateService;
+            _paymentService = paymentService;
         }
 
 
@@ -269,7 +272,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         }
 
 
-
+        /*
         [HttpGet]
         public async Task<IActionResult> ContinueSubmission(int applicationId)
         {
@@ -302,6 +305,55 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
 
             return RedirectToAction(nameof(Confirmation), new { applicationId });
         }
+        */
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ContinueSubmission(int applicationId)
+        {
+            var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(citizenId))
+            {
+                return Unauthorized();
+            }
+
+            var documentsInfo = await _applicationService.GetApplicationDocumentsInfoAsync(applicationId, citizenId);
+
+            if (documentsInfo == null)
+            {
+                return NotFound();
+            }
+
+            if (!documentsInfo.RequiredDocumentsCompleted)
+            {
+                TempData["ErrorMessage"] = "Please upload all required documents before continuing.";
+                return RedirectToAction(nameof(Documents), new { applicationId });
+            }
+
+            var paymentDetails = await _paymentService.GetPaymentDetailsAsync(applicationId, citizenId);
+
+            if (paymentDetails == null)
+            {
+                return NotFound();
+            }
+
+            if (paymentDetails.RequiresPayment && paymentDetails.CanStartPayment)
+            {
+                return RedirectToAction(
+                    "Details",
+                    "Payments",
+                    new
+                    {
+                        area = "Citizen",
+                        applicationId
+                    });
+            }
+
+            return RedirectToAction(nameof(Confirmation), new { applicationId });
+        }
+
+
 
 
         [HttpGet]
@@ -334,11 +386,25 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
 
 
 
-
+        /*
         [HttpGet]
         public IActionResult Payment(int applicationId)
         {
             return View();
+        }
+        */
+
+        [HttpGet]
+        public IActionResult Payment(int applicationId)
+        {
+            return RedirectToAction(
+                "Details",
+                "Payments",
+                new
+                {
+                    area = "Citizen",
+                    applicationId
+                });
         }
 
 
@@ -360,6 +426,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                 {
                     Id = x.Id,
                     ApplicationTypeName = x.ApplicationTypeName,
+
                     StatusText = x.Status switch
                     {
                         ApplicationStatus.Submitted => "Pending",
@@ -367,6 +434,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                         ApplicationStatus.Rejected => "Rejected",
                         _ => x.Status.ToString()
                     },
+
                     StatusCssClass = x.Status switch
                     {
                         ApplicationStatus.Submitted => "bg-warning text-dark",
@@ -374,9 +442,14 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                         ApplicationStatus.Rejected => "bg-danger",
                         _ => "bg-secondary"
                     },
+
                     SubmissionDate = x.SubmissionDate,
                     ProtocolNumber = x.ProtocolNumber,
-                    DecisionDate = x.DecisionDate
+                    DecisionDate = x.DecisionDate,
+
+                    RequiresPayment = x.RequiresPayment,
+                    PaymentStatus = x.PaymentStatus,
+                    CanPay = x.CanPay
                 })
                 .ToList();
 
