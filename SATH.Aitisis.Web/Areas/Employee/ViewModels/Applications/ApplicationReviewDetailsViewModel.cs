@@ -18,6 +18,8 @@
 
         public string? Description { get; set; }
 
+        public AiReviewSummaryViewModel? AiReviewSummary { get; set; }
+
         public List<ApplicationReviewFieldViewModel> Fields { get; set; } = new();
 
         public List<ApplicationReviewDocumentViewModel> Documents { get; set; } = new();
@@ -45,5 +47,17 @@
         public DateTime UploadDate { get; set; }
 
         public bool IsRequired { get; set; }
+    }
+
+
+    public sealed class AiReviewSummaryViewModel
+    {
+        public string Summary { get; set; } = string.Empty;
+
+        public List<string> KeyInformation { get; set; } = new();
+
+        public List<string> PdfReviewFocus { get; set; } = new();
+
+        public string Disclaimer { get; set; } = string.Empty;
     }
 }

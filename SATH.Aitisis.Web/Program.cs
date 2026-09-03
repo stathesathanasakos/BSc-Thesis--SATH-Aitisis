@@ -1,25 +1,28 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SATH.Aitisis.App.Common.Users;
+using SATH.Aitisis.App.Services.AiReview;
 using SATH.Aitisis.App.Services.Applications;
 using SATH.Aitisis.App.Services.Applications.StatusTransitions;
 using SATH.Aitisis.App.Services.ApplicationTypes;
+using SATH.Aitisis.App.Services.ApprovalCertificates;
 using SATH.Aitisis.App.Services.DashboardStatistics;
 using SATH.Aitisis.App.Services.Employees;
 using SATH.Aitisis.App.Services.Notifications;
+using SATH.Aitisis.App.Services.Payments;
+using SATH.Aitisis.Infrastructure.Ai.Groq;
 using SATH.Aitisis.Infrastructure.Identity;
+using SATH.Aitisis.Infrastructure.Payments.Stripe;
 using SATH.Aitisis.Infrastructure.Persistence;
 using SATH.Aitisis.Infrastructure.Repositories.Applications;
 using SATH.Aitisis.Infrastructure.Repositories.ApplicationTypes;
 using SATH.Aitisis.Infrastructure.Repositories.DashboardStatistics;
 using SATH.Aitisis.Infrastructure.Repositories.Notifications;
+using SATH.Aitisis.Infrastructure.Repositories.Payments;
+using SATH.Aitisis.Infrastructure.Services.ApprovalCertificates;
 using SATH.Aitisis.Infrastructure.Services.Employees;
 using SATH.Aitisis.Infrastructure.Storage;
-using SATH.Aitisis.App.Services.ApprovalCertificates;
-using SATH.Aitisis.Infrastructure.Services.ApprovalCertificates;
-using SATH.Aitisis.App.Services.Payments;
-using SATH.Aitisis.Infrastructure.Repositories.Payments;
-using SATH.Aitisis.Infrastructure.Payments.Stripe;
+
 
 
 
@@ -99,6 +102,11 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPaymentGateway, StripePaymentGatewayAdapter>();
 builder.Services.Configure<StripePaymentOptions>(builder.Configuration.GetSection("Stripe"));
 
+
+// for the AI review feature
+builder.Services.Configure<GroqAiOptions>(builder.Configuration.GetSection("Groq"));
+builder.Services.AddScoped<IApplicationAiReviewService, ApplicationAiReviewService>();
+builder.Services.AddHttpClient<IAiReviewAssistant, GroqAiReviewAssistantAdapter>();
 
 
 // Add services to the container

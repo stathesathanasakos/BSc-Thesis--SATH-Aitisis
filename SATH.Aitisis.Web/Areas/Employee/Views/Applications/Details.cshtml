@@ -61,6 +61,51 @@
     </div>
 }
 
+<!-- AI Review Assistant -->
+<div class="card shadow-sm mb-4 border-primary">
+
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-0">
+                AI Review Assistant
+            </h5>
+
+            <small class="text-muted">
+                Generate a structured summary based on the submitted application fields.
+            </small>
+        </div>
+
+        <span class="badge bg-primary">
+            Assistant
+        </span>
+    </div>
+
+    <div class="card-body">
+
+        <p class="text-muted">
+            The assistant uses the application type and the submitted form fields.
+            Uploaded PDF files are not sent to the AI provider.
+        </p>
+
+        <form asp-area="Employee"
+              asp-controller="Applications"
+              asp-action="GenerateAiReviewSummary"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit"
+                    class="btn btn-outline-primary">
+                Generate AI Review Summary
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
 <!-- Application Summary -->
 <div class="card shadow-sm mb-4">
 
@@ -479,3 +524,115 @@
     </div>
 
 </div>
+
+@if (Model.AiReviewSummary != null)
+{
+    <div class="modal fade"
+         id="aiReviewModal"
+         tabindex="-1"
+         aria-labelledby="aiReviewModalLabel"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        id="aiReviewModalLabel">
+                        AI Review Summary
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="alert alert-warning">
+                        @Model.AiReviewSummary.Disclaimer
+                    </div>
+
+                    <h6>
+                        Summary
+                    </h6>
+
+                    <p>
+                        @Model.AiReviewSummary.Summary
+                    </p>
+
+                    <hr />
+
+                    <h6>
+                        Key Information
+                    </h6>
+
+                    @if (Model.AiReviewSummary.KeyInformation.Any())
+                    {
+                        <ul>
+                            @foreach (var item in Model.AiReviewSummary.KeyInformation)
+                            {
+                                <li>
+                                    @item
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">
+                            No key information was returned.
+                        </p>
+                    }
+
+                    <hr />
+
+                    <h6>
+                        PDF Review Focus
+                    </h6>
+
+                    @if (Model.AiReviewSummary.PdfReviewFocus.Any())
+                    {
+                        <ul>
+                            @foreach (var item in Model.AiReviewSummary.PdfReviewFocus)
+                            {
+                                <li>
+                                    @item
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">
+                            No PDF review focus points were returned.
+                        </p>
+                    }
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function () {
+            const modalElement = document.getElementById('aiReviewModal');
+
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            }
+        });
+    </script>
+}

@@ -5,6 +5,7 @@ using SATH.Aitisis.App.Services.Applications;
 using SATH.Aitisis.Web.Areas.Employee.ViewModels.Applications;
 using System.Security.Claims;
 using SATH.Aitisis.Web.ViewModels.Applications;
+using SATH.Aitisis.App.Services.AiReview;
 
 
 
@@ -15,10 +16,12 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
     public class ApplicationsController : Controller
     {
         private readonly IApplicationService _applicationService;
+        private readonly IApplicationAiReviewService _applicationAiReviewService;
 
-        public ApplicationsController(IApplicationService applicationService)
+        public ApplicationsController(IApplicationService applicationService, IApplicationAiReviewService applicationAiReviewService)
         {
             _applicationService = applicationService;
+            _applicationAiReviewService = applicationAiReviewService;
         }
 
         [HttpGet]
@@ -52,42 +55,7 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
                 return NotFound();
             }
 
-            var model = new ApplicationReviewDetailsViewModel
-            {
-                Id = application.Id,
-                ApplicationTypeName = application.ApplicationTypeName,
-
-                CitizenFirstName = application.CitizenFirstName,
-                CitizenLastName = application.CitizenLastName,
-                CitizenEmail = application.CitizenEmail,
-
-                SubmissionDate = application.SubmissionDate,
-
-                Status = application.Status,
-
-                Description = application.Description,
-
-                Fields = application.Fields
-                    .OrderBy(x => x.DisplayOrder)
-                    .Select(x => new ApplicationReviewFieldViewModel
-                    {
-                        Label = x.Label,
-                        Value = x.Value,
-                        DisplayOrder = x.DisplayOrder
-                    })
-                    .ToList(),
-
-                Documents = application.Documents
-                    .Select(x => new ApplicationReviewDocumentViewModel
-                    {
-                        DocumentId = x.DocumentId,
-                        RequirementName = x.RequirementName,
-                        OriginalFileName = x.OriginalFileName,
-                        UploadDate = x.UploadDate,
-                        IsRequired = x.IsRequired
-                    })
-                    .ToList()
-            };
+            var model = MapToApplicationReviewDetailsViewModel(application);
 
             return View(model);
         }
@@ -209,6 +177,86 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
             };
 
             return View(model);
+        }
+
+
+
+        // to generate AI review for an application
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateAiReviewSummary(int id)
+        {
+            var application = await _applicationService.GetApplicationForReviewAsync(id);
+
+            if (application == null)
+            {
+                return NotFound();
+            }
+
+            var model = MapToApplicationReviewDetailsViewModel(application);
+
+            var aiResult = await _applicationAiReviewService.GenerateForApplicationAsync(id);
+
+            if (!aiResult.Succeeded)
+            {
+                TempData["ErrorMessage"] = aiResult.ErrorMessage ?? "The AI assistant is currently unavailable!";
+
+                return View("Details", model);
+            }
+
+            model.AiReviewSummary = new AiReviewSummaryViewModel
+            {
+                Summary = aiResult.Summary,
+                KeyInformation = aiResult.KeyInformation.ToList(),
+                PdfReviewFocus = aiResult.PdfReviewFocus.ToList(),
+                Disclaimer = aiResult.Disclaimer
+            };
+
+            return View("Details", model);
+        }
+
+
+
+
+        // util mapping method 
+        private static ApplicationReviewDetailsViewModel MapToApplicationReviewDetailsViewModel(ApplicationReviewDetails application)
+        {
+            return new ApplicationReviewDetailsViewModel
+            {
+                Id = application.Id,
+                ApplicationTypeName = application.ApplicationTypeName,
+
+                CitizenFirstName = application.CitizenFirstName,
+                CitizenLastName = application.CitizenLastName,
+                CitizenEmail = application.CitizenEmail,
+
+                SubmissionDate = application.SubmissionDate,
+
+                Status = application.Status,
+
+                Description = application.Description,
+
+                Fields = application.Fields
+                    .OrderBy(x => x.DisplayOrder)
+                    .Select(x => new ApplicationReviewFieldViewModel
+                    {
+                        Label = x.Label,
+                        Value = x.Value,
+                        DisplayOrder = x.DisplayOrder
+                    })
+                    .ToList(),
+
+                Documents = application.Documents
+                    .Select(x => new ApplicationReviewDocumentViewModel
+                    {
+                        DocumentId = x.DocumentId,
+                        RequirementName = x.RequirementName,
+                        OriginalFileName = x.OriginalFileName,
+                        UploadDate = x.UploadDate,
+                        IsRequired = x.IsRequired
+                    })
+                    .ToList()
+            };
         }
     }
 }
