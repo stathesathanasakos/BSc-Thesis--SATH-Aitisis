@@ -1,32 +1,31 @@
 ﻿@model SATH.Aitisis.Web.ViewComponents.DashboardCalendarViewModel
 
-<div class="card shadow-sm dashboard-calendar-card">
+<div class="card shadow-sm dashboard-calendar-card premium-calendar h-100">
 
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <div class="premium-calendar-header">
+
         <div>
-            <h5 class="mb-0">
-                Calendar
-            </h5>
+            <span class="premium-calendar-eyebrow">
+                Monthly Overview
+            </span>
 
-            <small class="text-muted">
-                Current month overview
-            </small>
+            <h5 class="premium-calendar-title">
+                @Model.MonthName
+            </h5>
         </div>
 
-        <span class="badge bg-primary">
-            Today: @Model.TodayText
-        </span>
+        <div class="premium-calendar-today-pill">
+            Today
+            <span>
+                @Model.TodayText
+            </span>
+        </div>
+
     </div>
 
-    <div class="card-body">
+    <div class="card-body p-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="mb-0 dashboard-calendar-month">
-                @Model.MonthName
-            </h6>
-        </div>
-
-        <div class="dashboard-calendar-weekdays">
+        <div class="dashboard-calendar-weekdays premium-calendar-weekdays">
             <div>Mon</div>
             <div>Tue</div>
             <div>Wed</div>
@@ -36,18 +35,18 @@
             <div>Sun</div>
         </div>
 
-        <div class="dashboard-calendar-grid">
+        <div class="dashboard-calendar-grid premium-calendar-grid">
 
             @foreach (var day in Model.Days)
             {
                 if (day.IsEmpty)
                 {
-                    <div class="dashboard-calendar-day dashboard-calendar-empty">
+                    <div class="dashboard-calendar-day dashboard-calendar-empty premium-calendar-day premium-calendar-empty">
                     </div>
                 }
                 else if (day.IsToday)
                 {
-                    <div class="dashboard-calendar-day dashboard-calendar-today">
+                    <div class="dashboard-calendar-day dashboard-calendar-today premium-calendar-day premium-calendar-current">
                         <span>
                             @day.DayNumber
                         </span>
@@ -55,7 +54,7 @@
                 }
                 else
                 {
-                    <div class="dashboard-calendar-day">
+                    <div class="dashboard-calendar-day premium-calendar-day">
                         <span>
                             @day.DayNumber
                         </span>
@@ -65,9 +64,23 @@
 
         </div>
 
-        <div class="alert alert-light border mt-3 mb-0">
-            Use this dashboard to monitor your activity and continue working
-            with the available system actions.
+        <div class="premium-calendar-note mt-4">
+
+            <div class="premium-calendar-note-icon">
+                i
+            </div>
+
+            <div>
+                <div class="premium-calendar-note-title">
+                    Daily workspace
+                </div>
+
+                <p class="premium-calendar-note-text">
+                    Use this page as your starting point for today’s actions
+                    and application-related tasks.
+                </p>
+            </div>
+
         </div>
 
     </div>

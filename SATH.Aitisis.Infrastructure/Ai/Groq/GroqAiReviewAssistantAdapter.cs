@@ -34,10 +34,7 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
 
             using var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
 
-            httpRequest.Headers.Authorization =
-                new AuthenticationHeaderValue(
-                    "Bearer",
-                    _options.ApiKey);
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
 
             var payload = BuildPayload(request);
 
@@ -50,12 +47,10 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-
                     return AiReviewResult.Failure($"Groq request failed with status {(int)response.StatusCode}: {errorContent}");
                 }
 
                 var groqResponse = await response.Content.ReadFromJsonAsync<GroqChatCompletionResponse>();
-
                 var content = groqResponse?.Choices?.FirstOrDefault()?.Message?.Content;
 
                 if (string.IsNullOrWhiteSpace(content))
@@ -63,8 +58,7 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
                     return AiReviewResult.Failure("Groq returned an empty response.");
                 }
 
-                var structuredResult =
-                    JsonSerializer.Deserialize<GroqAiStructuredReview>(content, JsonOptions());
+                var structuredResult = JsonSerializer.Deserialize<GroqAiStructuredReview>(content, JsonOptions());
 
                 if (structuredResult == null)
                 {
@@ -194,13 +188,13 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
                 "Do not decide whether the application should be approved. " +
                 "Do not infer facts that are not present in the data. " +
                 "You can't read pdf files and other documents. " +
-                "Return a concise summary, key information, and 3 practical PDF review focus points. " +
+                "Return a concise summary, key information, and 3-4 practical PDF review focus points. " +
                 "The PDF review focus should tell the employee what evidence to compare against the submitted fields.";
         }
 
         private static string DefaultDisclaimer()
         {
-            return "This AI-generated review summary is an assistant note only and does not replace manual employee review.";
+            return "This AI-generated review summary is an assistant note only and does not replace manual employee review!";
         }
 
         private static JsonSerializerOptions JsonOptions()

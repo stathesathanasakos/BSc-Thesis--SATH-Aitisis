@@ -1,0 +1,277 @@
+﻿@using System.Globalization
+@model SATH.Aitisis.Web.Areas.Employee.ViewModels.Dashboard.EmployeeDashboardViewModel
+
+@{
+    ViewData["Title"] = "Statistics";
+
+    var decisionTotal = Model.ApprovedByMe + Model.RejectedByMe;
+
+    var approvedPercent = decisionTotal == 0
+        ? 0
+        : Math.Round((double)Model.ApprovedByMe / decisionTotal * 100, 1);
+
+    var rejectedPercent = decisionTotal == 0
+        ? 0
+        : Math.Round((double)Model.RejectedByMe / decisionTotal * 100, 1);
+
+    var maxDecisionValue = Math.Max(Model.ApprovedByMe, Model.RejectedByMe);
+
+    var approvedHeight = maxDecisionValue == 0
+        ? 0
+        : Math.Round((double)Model.ApprovedByMe / maxDecisionValue * 100, 1);
+
+    var rejectedHeight = maxDecisionValue == 0
+        ? 0
+        : Math.Round((double)Model.RejectedByMe / maxDecisionValue * 100, 1);
+
+    var workloadTotal = Model.PendingApplications + Model.TotalDecisionsByMe;
+
+    var pendingWorkloadPercent = workloadTotal == 0
+        ? 0
+        : Math.Round((double)Model.PendingApplications / workloadTotal * 100, 1);
+
+    var completedWorkloadPercent = workloadTotal == 0
+        ? 0
+        : Math.Round((double)Model.TotalDecisionsByMe / workloadTotal * 100, 1);
+
+    var approvedPercentText = approvedPercent.ToString("0.#", CultureInfo.InvariantCulture);
+    var rejectedPercentText = rejectedPercent.ToString("0.#", CultureInfo.InvariantCulture);
+
+    var approvedHeightText = approvedHeight.ToString("0.#", CultureInfo.InvariantCulture);
+    var rejectedHeightText = rejectedHeight.ToString("0.#", CultureInfo.InvariantCulture);
+
+    var pendingWorkloadPercentText = pendingWorkloadPercent.ToString("0.#", CultureInfo.InvariantCulture);
+    var completedWorkloadPercentText = completedWorkloadPercent.ToString("0.#", CultureInfo.InvariantCulture);
+}
+
+<div class="statistics-page">
+
+    <div class="statistics-header mb-4">
+        <div>
+            <span class="statistics-eyebrow">
+                Employee analytics
+            </span>
+
+            <h1 class="statistics-title">
+                Review Statistics
+            </h1>
+
+            <p class="statistics-subtitle">
+                A focused overview of review-ready workload and your personal decision activity.
+            </p>
+        </div>
+
+        <a asp-area="Employee"
+           asp-controller="Applications"
+           asp-action="Index"
+           class="btn btn-outline-primary">
+            Review Applications
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-metric-card stat-metric-card-warning">
+                <div class="stat-metric-label">Pending Workload</div>
+                <div class="stat-metric-value">@Model.PendingApplications</div>
+                <div class="stat-metric-hint">Ready for review.</div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-metric-card stat-metric-card-success">
+                <div class="stat-metric-label">Approved By Me</div>
+                <div class="stat-metric-value">@Model.ApprovedByMe</div>
+                <div class="stat-metric-hint">Approved decisions.</div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-metric-card stat-metric-card-danger">
+                <div class="stat-metric-label">Rejected By Me</div>
+                <div class="stat-metric-value">@Model.RejectedByMe</div>
+                <div class="stat-metric-hint">Rejected decisions.</div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-metric-card">
+                <div class="stat-metric-label">My Decisions</div>
+                <div class="stat-metric-value">@Model.TotalDecisionsByMe</div>
+                <div class="stat-metric-hint">Finalized reviews.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-xl-5">
+            <div class="card statistics-card h-100">
+                <div class="card-body p-4">
+
+                    <div class="statistics-section-heading mb-4">
+                        <div>
+                            <h5 class="mb-1">My Decision Split</h5>
+                            <p class="text-muted mb-0">
+                                Approved versus rejected applications finalized by you.
+                            </p>
+                        </div>
+
+                        <span class="statistics-chip">
+                            @decisionTotal decisions
+                        </span>
+                    </div>
+
+                    <div class="statistics-live-donut"
+                         style="--pending: 0; --approved: @approvedPercentText; --rejected: @rejectedPercentText;">
+                        <div class="statistics-live-donut-inner">
+                            <div class="statistics-live-donut-value">
+                                @decisionTotal
+                            </div>
+                            <div class="statistics-live-donut-label">
+                                decisions
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="statistics-legend mt-4">
+                        <div class="statistics-legend-item">
+                            <span class="statistics-legend-dot statistics-legend-dot-success"></span>
+                            <span>Approved</span>
+                            <strong>@approvedPercentText%</strong>
+                        </div>
+
+                        <div class="statistics-legend-item">
+                            <span class="statistics-legend-dot statistics-legend-dot-danger"></span>
+                            <span>Rejected</span>
+                            <strong>@rejectedPercentText%</strong>
+                        </div>
+                    </div>
+
+                    @if (decisionTotal == 0)
+                    {
+                        <div class="statistics-empty-state mt-4">
+                            You have not finalized any applications yet.
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-7">
+            <div class="card statistics-card h-100">
+                <div class="card-body p-4">
+
+                    <div class="statistics-section-heading mb-4">
+                        <div>
+                            <h5 class="mb-1">My Decisions by Outcome</h5>
+                            <p class="text-muted mb-0">
+                                Vertical comparison of your approved and rejected decisions.
+                            </p>
+                        </div>
+
+                        <span class="statistics-chip">
+                            Live counts
+                        </span>
+                    </div>
+
+                    <div class="statistics-column-chart statistics-column-chart-two">
+
+                        <div class="statistics-column-item">
+                            <div class="statistics-column-value">
+                                @Model.ApprovedByMe
+                            </div>
+
+                            <div class="statistics-column-frame">
+                                <div class="statistics-column-fill statistics-column-fill-success"
+                                     style="height: @approvedHeightText%;">
+                                </div>
+                            </div>
+
+                            <div class="statistics-column-label">
+                                Approved
+                            </div>
+                        </div>
+
+                        <div class="statistics-column-item">
+                            <div class="statistics-column-value">
+                                @Model.RejectedByMe
+                            </div>
+
+                            <div class="statistics-column-frame">
+                                <div class="statistics-column-fill statistics-column-fill-danger"
+                                     style="height: @rejectedHeightText%;">
+                                </div>
+                            </div>
+
+                            <div class="statistics-column-label">
+                                Rejected
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card statistics-card">
+                <div class="card-body p-4">
+
+                    <div class="statistics-section-heading mb-4">
+                        <div>
+                            <h5 class="mb-1">Workload Balance</h5>
+                            <p class="text-muted mb-0">
+                                Comparison between currently pending review-ready applications and your completed decisions.
+                            </p>
+                        </div>
+
+                        <span class="statistics-chip">
+                            @workloadTotal total
+                        </span>
+                    </div>
+
+                    <div class="statistics-stacked-bar">
+                        <div class="statistics-stacked-segment statistics-stacked-warning"
+                             style="width: @pendingWorkloadPercentText%;">
+                            @pendingWorkloadPercentText%
+                        </div>
+
+                        <div class="statistics-stacked-segment statistics-stacked-primary"
+                             style="width: @completedWorkloadPercentText%;">
+                            @completedWorkloadPercentText%
+                        </div>
+                    </div>
+
+                    <div class="statistics-legend statistics-legend-horizontal mt-3">
+                        <div class="statistics-legend-item">
+                            <span class="statistics-legend-dot statistics-legend-dot-warning"></span>
+                            <span>Pending workload</span>
+                            <strong>@Model.PendingApplications</strong>
+                        </div>
+
+                        <div class="statistics-legend-item">
+                            <span class="statistics-legend-dot statistics-legend-dot-primary"></span>
+                            <span>Completed by me</span>
+                            <strong>@Model.TotalDecisionsByMe</strong>
+                        </div>
+                    </div>
+
+                    @if (workloadTotal == 0)
+                    {
+                        <div class="statistics-empty-state mt-4">
+                            There is no workload or decision activity yet.
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

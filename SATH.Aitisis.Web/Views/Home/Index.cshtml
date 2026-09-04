@@ -1,28 +1,311 @@
 ﻿@using SATH.Aitisis.App.Common.Constants
+
 @{
-    ViewData["Title"] = "SATH-Aitisis";
+    ViewData["Title"] = "Home";
+
+    var isAdmin = User.IsInRole(AppRoles.Admin);
+    var isEmployee = User.IsInRole(AppRoles.Employee);
+    var isCitizen = User.IsInRole(AppRoles.Citizen);
+
+    var roleTitle = isAdmin
+        ? "Administrator"
+        : isEmployee
+            ? "Employee"
+            : isCitizen
+                ? "Citizen"
+                : "User";
+
+    var welcomeTitle = isAdmin
+        ? "Welcome to your administration workspace"
+        : isEmployee
+            ? "Welcome to your review workspace"
+            : isCitizen
+                ? "Welcome to your citizen services workspace"
+                : "Welcome to SATH-Aitisis";
+
+    var welcomeText = isAdmin
+        ? "Manage employees and configure the application types available to citizens."
+        : isEmployee
+            ? "Review submitted applications, inspect supporting documents and use the AI assistant to focus your review."
+            : isCitizen
+                ? "Submit applications, upload supporting documents, complete required payments and track your application progress."
+                : "Access the electronic application submission and review system.";
 }
 
 @if (User.Identity?.IsAuthenticated == true)
 {
-    <div class="card mt-4">
-        <div class="card-body">
-            <h2 class="card-title">Welcome back</h2>
-            <p class="card-text">You are signed in as @User.Identity.Name.</p>
+    <div class="home-landing">
 
-            @if (User.IsInRole(AppRoles.Admin))
-            {
-                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Go to Dashboard</a>
-            }
-            else if (User.IsInRole(AppRoles.Employee))
-            {
-                <a asp-area="Employee" asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Go to Dashboard</a>
-            }
-            else
-            {
-                <a asp-area="Citizen" asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Go to Dashboard</a>
-            }
+        <div class="row g-4 align-items-stretch">
+
+            <div class="col-xl-7">
+
+                <div class="card home-welcome-card h-100">
+
+                    <div class="card-body p-4 p-lg-5">
+
+                        <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+
+                            <div>
+                                <span class="home-eyebrow">
+                                    SATH-Aitisis Portal
+                                </span>
+
+                                <h1 class="home-title mt-2 mb-3">
+                                    @welcomeTitle
+                                </h1>
+
+                                <p class="home-subtitle mb-0">
+                                    @welcomeText
+                                </p>
+                            </div>
+
+                            <span class="home-role-badge">
+                                @roleTitle
+                            </span>
+
+                        </div>
+
+                        <div class="home-user-panel mb-4">
+
+                            <div class="home-user-avatar">
+                                @roleTitle.Substring(0, 1)
+                            </div>
+
+                            <div>
+                                <div class="home-user-label">
+                                    Signed in as
+                                </div>
+
+                                <div class="home-user-name">
+                                    @User.Identity?.Name
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row g-3 mb-4">
+
+                            @if (isAdmin)
+                            {
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            1
+                                        </div>
+
+                                        <div class="home-step-title">
+                                            Manage employees
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Create, deactivate and reactivate employee accounts.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            2
+                                        </div>
+
+                                        <div class="home-step-title">
+                                            Configure types
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Maintain application types, fields and document requirements.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            3
+                                        </div>
+
+                                        <div class="home-step-title">
+                                            Keep structure clear
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Keep citizen services active and well configured.
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                            else if (isEmployee)
+                            {
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            1
+                                        </div>
+
+                                        <div class="home-step-title">
+                                            Open pending cases
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Review applications that are ready for evaluation.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            2
+                                        </div>
+
+                                        <div class="home-step-title">
+                                            Inspect documents
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Compare PDF evidence with submitted field values.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            3
+                                        </div>
+
+                                        <div class="home-step-title">
+                                            Use AI assistant
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Generate a focused review summary when helpful.
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                            else if (isCitizen)
+                            {
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            1
+                                        </div>
+
+                                        <div class="home-step-title">
+                                            Start application
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Select an available application type and submit your details.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            2
+                                        </div>
+
+                                        <div class="home-step-title">
+                                            Upload PDFs
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Submit the required supporting documents.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            3
+                                        </div>
+
+                                        <div class="home-step-title">
+                                            Track progress
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Follow payments, decisions and certificates.
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+
+                            @if (isAdmin)
+                            {
+                                <a asp-area="Admin"
+                                   asp-controller="Employees"
+                                   asp-action="Index"
+                                   class="btn btn-primary">
+                                    Manage Employees
+                                </a>
+
+                                <a asp-area="Admin"
+                                   asp-controller="ApplicationTypes"
+                                   asp-action="Index"
+                                   class="btn btn-outline-primary">
+                                    Application Types
+                                </a>
+                            }
+                            else if (isEmployee)
+                            {
+                                <a asp-area="Employee"
+                                   asp-controller="Applications"
+                                   asp-action="Index"
+                                   class="btn btn-primary">
+                                    Review Applications
+                                </a>
+                            }
+                            else if (isCitizen)
+                            {
+                                <a asp-area="Citizen"
+                                   asp-controller="Applications"
+                                   asp-action="Index"
+                                   class="btn btn-primary">
+                                    New Application
+                                </a>
+
+                                <a asp-area="Citizen"
+                                   asp-controller="Applications"
+                                   asp-action="MyApplications"
+                                   class="btn btn-outline-primary">
+                                    My Applications
+                                </a>
+
+                                <a asp-area="Citizen"
+                                   asp-controller="Notifications"
+                                   asp-action="Index"
+                                   class="btn btn-outline-secondary">
+                                    Notifications
+                                </a>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-5">
+
+                @await Component.InvokeAsync("DashboardCalendar")
+
+            </div>
+
         </div>
+
     </div>
 }
 else

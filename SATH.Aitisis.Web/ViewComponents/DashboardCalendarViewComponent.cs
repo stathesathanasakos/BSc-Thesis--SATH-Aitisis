@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace SATH.Aitisis.Web.ViewComponents
 {
@@ -40,8 +41,9 @@ namespace SATH.Aitisis.Web.ViewComponents
 
             var model = new DashboardCalendarViewModel
             {
-                MonthName = today.ToString("MMMM yyyy"),
-                TodayText = today.ToString("dd/MM/yyyy"),
+                MonthName = today.ToString("MMMM yyyy", CultureInfo.InvariantCulture),
+
+                TodayText = today.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
                 Days = days
             };
 

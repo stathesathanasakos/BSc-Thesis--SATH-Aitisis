@@ -1,208 +1,342 @@
 ﻿@using SATH.Aitisis.App.Common.Constants
 
+@{
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+
+    var currentArea = ViewContext.RouteData.Values["area"]?.ToString();
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var roleName = User.IsInRole(AppRoles.Admin)
+        ? "Administrator"
+        : User.IsInRole(AppRoles.Employee)
+            ? "Employee"
+            : User.IsInRole(AppRoles.Citizen)
+                ? "Citizen"
+                : "User";
+
+    string IsActive(string? area, string controller, string? action = null)
+    {
+        var areaMatches = string.Equals(currentArea, area, StringComparison.OrdinalIgnoreCase);
+        var controllerMatches = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
+        var actionMatches = action == null ||
+            string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+
+        return areaMatches && controllerMatches && actionMatches
+            ? "active"
+            : "";
+    }
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
     <title>@ViewData["Title"] - SATH-Aitisis</title>
 
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SATH.Aitisis.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/SATH.Aitisis.Web.styles.css"
+          asp-append-version="true" />
 </head>
 
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
 
-                <a class="navbar-brand"
-                   asp-area=""
-                   asp-controller="Home"
-                   asp-action="Index">
-                    SATH-Aitisis
-                </a>
+    @if (isAuthenticated)
+    {
+        <div class="app-shell">
 
-                <button class="navbar-toggler"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+            <aside class="app-sidebar">
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="app-sidebar-brand">
+                    <div class="app-brand-icon">
+                        S
+                    </div>
 
-                    <!-- Main navigation -->
-                    <ul class="navbar-nav flex-grow-1">
+                    <div>
+                        <div class="app-brand-title">
+                            SATH-Aitisis
+                        </div>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-area=""
-                               asp-controller="Home"
-                               asp-action="Index">
-                                Home
-                            </a>
-                        </li>
-
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            var dashboardArea = User.IsInRole(AppRoles.Admin)
-                            ? "Admin"
-                            : User.IsInRole(AppRoles.Employee)
-                            ? "Employee"
-                            : "Citizen";
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-area="@dashboardArea"
-                                   asp-controller="Dashboard"
-                                   asp-action="Index">
-                                    Dashboard
-                                </a>
-                            </li>
-
-                            @if (User.IsInRole(AppRoles.Admin))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark"
-                                       asp-area="Admin"
-                                       asp-controller="Employees"
-                                       asp-action="Index">
-                                        Employees
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark"
-                                       asp-area="Admin"
-                                       asp-controller="ApplicationTypes"
-                                       asp-action="Index">
-                                        Application Types
-                                    </a>
-                                </li>
-                            }
-
-                            @if (User.IsInRole(AppRoles.Employee))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark"
-                                       asp-area="Employee"
-                                       asp-controller="Applications"
-                                       asp-action="Index">
-                                        Applications
-                                    </a>
-                                </li>
-                            }
-
-                            @if (User.IsInRole(AppRoles.Citizen))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark"
-                                       asp-area="Citizen"
-                                       asp-controller="Applications"
-                                       asp-action="Index">
-                                        New Application
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark"
-                                       asp-area="Citizen"
-                                       asp-controller="Applications"
-                                       asp-action="MyApplications">
-                                        My Applications
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark"
-                                       asp-area="Citizen"
-                                       asp-controller="Notifications"
-                                       asp-action="Index">
-                                        Notifications
-                                    </a>
-                                </li>
-                            }
-                        }
-
-                    </ul>
-
-                    <!-- Authentication navigation -->
-                    <ul class="navbar-nav">
-
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">
-                                    Hello, @User.Identity.Name
-                                </span>
-                            </li>
-
-                            <li class="nav-item">
-                                <form asp-area=""
-                                      asp-controller="Account"
-                                      asp-action="Logout"
-                                      method="post"
-                                      class="d-inline">
-
-                                    @Html.AntiForgeryToken()
-
-                                    <button type="submit"
-                                            class="nav-link btn btn-link text-dark border-0">
-                                        Logout
-                                    </button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-area=""
-                                   asp-controller="Account"
-                                   asp-action="Register">
-                                    Register
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-area=""
-                                   asp-controller="Account"
-                                   asp-action="Login">
-                                    Login
-                                </a>
-                            </li>
-                        }
-
-                    </ul>
-
+                        <div class="app-brand-subtitle">
+                            Citizen Services Portal
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
+                <div class="app-sidebar-section">
+                    <div class="app-sidebar-section-title">
+                        Overview
+                    </div>
+
+                    <nav class="app-sidebar-nav">
+
+                        <a asp-area=""
+                           asp-controller="Home"
+                           asp-action="Index"
+                           class="app-sidebar-link @IsActive(null, "Home", "Index")">
+                            <span class="app-sidebar-link-icon">
+                                ◦
+                            </span>
+                            <span>
+                                Home
+                            </span>
+                        </a>
+
+                    </nav>
+                </div>
+
+                @if (User.IsInRole(AppRoles.Admin))
+                {
+                    <div class="app-sidebar-section">
+                        <div class="app-sidebar-section-title">
+                            Administration
+                        </div>
+
+                        <nav class="app-sidebar-nav">
+
+                            <a asp-area="Admin"
+                               asp-controller="Employees"
+                               asp-action="Index"
+                               class="app-sidebar-link @IsActive("Admin", "Employees")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    Employees
+                                </span>
+                            </a>
+
+                            <a asp-area="Admin"
+                               asp-controller="ApplicationTypes"
+                               asp-action="Index"
+                               class="app-sidebar-link @IsActive("Admin", "ApplicationTypes")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    Application Types
+                                </span>
+                            </a>
+
+                            <a asp-area="Admin"
+                               asp-controller="Statistics"
+                               asp-action="Index"
+                               class="app-sidebar-link @IsActive("Admin", "Statistics")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    Statistics
+                                </span>
+                            </a>
+
+                        </nav>
+                    </div>
+                }
+
+                @if (User.IsInRole(AppRoles.Employee))
+                {
+                    <div class="app-sidebar-section">
+                        <div class="app-sidebar-section-title">
+                            Review
+                        </div>
+
+                        <nav class="app-sidebar-nav">
+
+                            <a asp-area="Employee"
+                               asp-controller="Applications"
+                               asp-action="Index"
+                               class="app-sidebar-link @IsActive("Employee", "Applications", "Index")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    Applications
+                                </span>
+                            </a>
+
+                            <a asp-area="Employee"
+                               asp-controller="Statistics"
+                               asp-action="Index"
+                               class="app-sidebar-link @IsActive("Employee", "Statistics")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    Statistics
+                                </span>
+                            </a>
+
+                        </nav>
+                    </div>
+                }
+
+                @if (User.IsInRole(AppRoles.Citizen))
+                {
+                    <div class="app-sidebar-section">
+                        <div class="app-sidebar-section-title">
+                            Applications
+                        </div>
+
+                        <nav class="app-sidebar-nav">
+
+                            <a asp-area="Citizen"
+                               asp-controller="Applications"
+                               asp-action="Index"
+                               class="app-sidebar-link @IsActive("Citizen", "Applications", "Index")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    New Application
+                                </span>
+                            </a>
+
+                            <a asp-area="Citizen"
+                               asp-controller="Applications"
+                               asp-action="MyApplications"
+                               class="app-sidebar-link @IsActive("Citizen", "Applications", "MyApplications")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    My Applications
+                                </span>
+                            </a>
+
+                            <a asp-area="Citizen"
+                               asp-controller="Notifications"
+                               asp-action="Index"
+                               class="app-sidebar-link @IsActive("Citizen", "Notifications")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    Notifications
+                                </span>
+                            </a>
+
+                            <a asp-area="Citizen"
+                               asp-controller="Statistics"
+                               asp-action="Index"
+                               class="app-sidebar-link @IsActive("Citizen", "Statistics")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    Statistics
+                                </span>
+                            </a>
+
+                        </nav>
+                    </div>
+
+                    <div class="app-sidebar-section">
+                        <div class="app-sidebar-section-title">
+                            Account
+                        </div>
+
+                        <nav class="app-sidebar-nav">
+
+                            <a asp-area="Citizen"
+                               asp-controller="Account"
+                               asp-action="Deactivate"
+                               class="app-sidebar-link @IsActive("Citizen", "Account", "Deactivate")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    Account Settings
+                                </span>
+                            </a>
+
+                        </nav>
+                    </div>
+                }
+
+                <div class="app-sidebar-footer">
+                    <div class="app-role-pill">
+                        @roleName
+                    </div>
+                </div>
+
+            </aside>
+
+            <div class="app-main">
+
+                <header class="app-topbar">
+
+                    <div>
+                        <div class="app-topbar-title">
+                            @ViewData["Title"]
+                        </div>
+
+                        <div class="app-topbar-subtitle">
+                            Welcome, @User.Identity?.Name
+                        </div>
+                    </div>
+
+                    <div class="app-topbar-actions">
+
+                        <span class="app-user-badge">
+                            @roleName
+                        </span>
+
+                        <form asp-area=""
+                              asp-controller="Account"
+                              asp-action="Logout"
+                              method="post"
+                              class="mb-0">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="btn btn-outline-secondary btn-sm">
+                                Logout
+                            </button>
+                        </form>
+
+                    </div>
+
+                </header>
+
+                <main role="main"
+                      class="app-content">
+                    @RenderBody()
+                </main>
+
+                <footer class="app-footer">
+                    &copy; 2026 - SATH-Aitisis
+                </footer>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <main role="main"
+              class="auth-page-shell">
             @RenderBody()
         </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - SATH-Aitisis
-        </div>
-    </footer>
+    }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

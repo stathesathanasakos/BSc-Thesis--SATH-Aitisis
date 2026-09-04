@@ -1,0 +1,302 @@
+﻿@using System.Globalization
+@model SATH.Aitisis.Web.Areas.Citizen.ViewModels.Dashboard.CitizenDashboardViewModel
+
+@{
+    ViewData["Title"] = "Statistics";
+
+    var statusTotal = Model.PendingApplications + Model.ApprovedApplications + Model.RejectedApplications;
+
+    var pendingPercent = statusTotal == 0
+        ? 0
+        : Math.Round((double)Model.PendingApplications / statusTotal * 100, 1);
+
+    var approvedPercent = statusTotal == 0
+        ? 0
+        : Math.Round((double)Model.ApprovedApplications / statusTotal * 100, 1);
+
+    var rejectedPercent = statusTotal == 0
+        ? 0
+        : Math.Round((double)Model.RejectedApplications / statusTotal * 100, 1);
+
+    var maxStatusValue = Math.Max(
+        Model.PendingApplications,
+        Math.Max(Model.ApprovedApplications, Model.RejectedApplications));
+
+    var pendingHeight = maxStatusValue == 0
+        ? 0
+        : Math.Round((double)Model.PendingApplications / maxStatusValue * 100, 1);
+
+    var approvedHeight = maxStatusValue == 0
+        ? 0
+        : Math.Round((double)Model.ApprovedApplications / maxStatusValue * 100, 1);
+
+    var rejectedHeight = maxStatusValue == 0
+        ? 0
+        : Math.Round((double)Model.RejectedApplications / maxStatusValue * 100, 1);
+
+    var finalizedTotal = Model.ApprovedApplications + Model.RejectedApplications;
+
+    var finalizedPercent = Model.TotalApplications == 0
+        ? 0
+        : Math.Round((double)finalizedTotal / Model.TotalApplications * 100, 1);
+
+    var pendingPercentText = pendingPercent.ToString("0.#", CultureInfo.InvariantCulture);
+    var approvedPercentText = approvedPercent.ToString("0.#", CultureInfo.InvariantCulture);
+    var rejectedPercentText = rejectedPercent.ToString("0.#", CultureInfo.InvariantCulture);
+
+    var pendingHeightText = pendingHeight.ToString("0.#", CultureInfo.InvariantCulture);
+    var approvedHeightText = approvedHeight.ToString("0.#", CultureInfo.InvariantCulture);
+    var rejectedHeightText = rejectedHeight.ToString("0.#", CultureInfo.InvariantCulture);
+
+    var finalizedPercentText = finalizedPercent.ToString("0.#", CultureInfo.InvariantCulture);
+}
+
+<div class="statistics-page">
+
+    <div class="statistics-header mb-4">
+        <div>
+            <span class="statistics-eyebrow">
+                Personal analytics
+            </span>
+
+            <h1 class="statistics-title">
+                My Statistics
+            </h1>
+
+            <p class="statistics-subtitle">
+                A compact overview of your submitted applications and their current outcomes.
+            </p>
+        </div>
+
+        <a asp-area="Citizen"
+           asp-controller="Applications"
+           asp-action="MyApplications"
+           class="btn btn-outline-primary">
+            My Applications
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-metric-card">
+                <div class="stat-metric-label">My Applications</div>
+                <div class="stat-metric-value">@Model.TotalApplications</div>
+                <div class="stat-metric-hint">Submitted by you.</div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-metric-card stat-metric-card-warning">
+                <div class="stat-metric-label">Pending</div>
+                <div class="stat-metric-value">@Model.PendingApplications</div>
+                <div class="stat-metric-hint">Waiting for evaluation.</div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-metric-card stat-metric-card-success">
+                <div class="stat-metric-label">Approved</div>
+                <div class="stat-metric-value">@Model.ApprovedApplications</div>
+                <div class="stat-metric-hint">Approved by the organization.</div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-metric-card stat-metric-card-danger">
+                <div class="stat-metric-label">Rejected</div>
+                <div class="stat-metric-value">@Model.RejectedApplications</div>
+                <div class="stat-metric-hint">Rejected after review.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-xl-5">
+            <div class="card statistics-card h-100">
+                <div class="card-body p-4">
+
+                    <div class="statistics-section-heading mb-4">
+                        <div>
+                            <h5 class="mb-1">My Status Distribution</h5>
+                            <p class="text-muted mb-0">
+                                Current status balance for your applications.
+                            </p>
+                        </div>
+
+                        <span class="statistics-chip">
+                            @statusTotal tracked
+                        </span>
+                    </div>
+
+                    <div class="statistics-live-donut"
+                         style="--pending: @pendingPercentText; --approved: @approvedPercentText; --rejected: @rejectedPercentText;">
+                        <div class="statistics-live-donut-inner">
+                            <div class="statistics-live-donut-value">
+                                @statusTotal
+                            </div>
+                            <div class="statistics-live-donut-label">
+                                applications
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="statistics-legend mt-4">
+                        <div class="statistics-legend-item">
+                            <span class="statistics-legend-dot statistics-legend-dot-warning"></span>
+                            <span>Pending</span>
+                            <strong>@pendingPercentText%</strong>
+                        </div>
+
+                        <div class="statistics-legend-item">
+                            <span class="statistics-legend-dot statistics-legend-dot-success"></span>
+                            <span>Approved</span>
+                            <strong>@approvedPercentText%</strong>
+                        </div>
+
+                        <div class="statistics-legend-item">
+                            <span class="statistics-legend-dot statistics-legend-dot-danger"></span>
+                            <span>Rejected</span>
+                            <strong>@rejectedPercentText%</strong>
+                        </div>
+                    </div>
+
+                    @if (statusTotal == 0)
+                    {
+                        <div class="statistics-empty-state mt-4">
+                            You have not submitted any applications yet.
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-7">
+            <div class="card statistics-card h-100">
+                <div class="card-body p-4">
+
+                    <div class="statistics-section-heading mb-4">
+                        <div>
+                            <h5 class="mb-1">Applications by Status</h5>
+                            <p class="text-muted mb-0">
+                                Vertical comparison of your application outcomes.
+                            </p>
+                        </div>
+
+                        <span class="statistics-chip">
+                            Live counts
+                        </span>
+                    </div>
+
+                    <div class="statistics-column-chart">
+
+                        <div class="statistics-column-item">
+                            <div class="statistics-column-value">
+                                @Model.PendingApplications
+                            </div>
+
+                            <div class="statistics-column-frame">
+                                <div class="statistics-column-fill statistics-column-fill-warning"
+                                     style="height: @pendingHeightText%;">
+                                </div>
+                            </div>
+
+                            <div class="statistics-column-label">
+                                Pending
+                            </div>
+                        </div>
+
+                        <div class="statistics-column-item">
+                            <div class="statistics-column-value">
+                                @Model.ApprovedApplications
+                            </div>
+
+                            <div class="statistics-column-frame">
+                                <div class="statistics-column-fill statistics-column-fill-success"
+                                     style="height: @approvedHeightText%;">
+                                </div>
+                            </div>
+
+                            <div class="statistics-column-label">
+                                Approved
+                            </div>
+                        </div>
+
+                        <div class="statistics-column-item">
+                            <div class="statistics-column-value">
+                                @Model.RejectedApplications
+                            </div>
+
+                            <div class="statistics-column-frame">
+                                <div class="statistics-column-fill statistics-column-fill-danger"
+                                     style="height: @rejectedHeightText%;">
+                                </div>
+                            </div>
+
+                            <div class="statistics-column-label">
+                                Rejected
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card statistics-card">
+                <div class="card-body p-4">
+
+                    <div class="statistics-section-heading mb-4">
+                        <div>
+                            <h5 class="mb-1">Finalization Progress</h5>
+                            <p class="text-muted mb-0">
+                                Share of your applications that already received a final decision.
+                            </p>
+                        </div>
+
+                        <span class="statistics-chip">
+                            @finalizedTotal finalized
+                        </span>
+                    </div>
+
+                    <div class="statistics-progress-panel">
+                        <div class="statistics-progress-main">
+                            <span>@finalizedPercentText%</span>
+                            <small>finalized</small>
+                        </div>
+
+                        <div class="statistics-progress-track">
+                            <div class="statistics-progress-fill"
+                                 style="width: @finalizedPercentText%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <a asp-area="Citizen"
+                           asp-controller="Applications"
+                           asp-action="Index"
+                           class="btn btn-primary">
+                            New Application
+                        </a>
+
+                        <a asp-area="Citizen"
+                           asp-controller="Applications"
+                           asp-action="MyApplications"
+                           class="btn btn-outline-primary">
+                            View My Applications
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
