@@ -4,109 +4,135 @@
     ViewData["Title"] = "Create Application Type";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h2>Create Application Type</h2>
+<div class="admin-form-page">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-9">
 
-        <p class="text-muted mb-0">
-            Create a new application type that will later be available to citizens.
-        </p>
-    </div>
+            <div class="card admin-form-card">
 
-    <div>
-        <a asp-action="Index" class="btn btn-secondary">
-            Back to Application Types
-        </a>
-    </div>
-</div>
+                <div class="admin-form-card-header">
 
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card">
-            <div class="card-body">
-
-                <form asp-action="Create" method="post">
-                    @Html.AntiForgeryToken()
-
-                    <div asp-validation-summary="ModelOnly"
-                         class="text-danger mb-3">
+                    <div class="admin-form-icon admin-form-icon-orange">
+                        A
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Name"
-                               class="form-label">
-                        </label>
+                    <div>
+                        <h5 class="mb-1">
+                            Application Type Details
+                        </h5>
 
-                        <input asp-for="Name"
-                               class="form-control" />
-
-                        <span asp-validation-for="Name"
-                              class="text-danger">
-                        </span>
+                        <p class="mb-0">
+                            Configure the basic information and optional fee for this application type.
+                        </p>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Description"
-                               class="form-label">
-                        </label>
+                </div>
 
-                        <textarea asp-for="Description"
-                                  class="form-control"
-                                  rows="4">
-                        </textarea>
+                <div class="card-body p-4">
 
-                        <span asp-validation-for="Description"
-                              class="text-danger">
-                        </span>
-                    </div>
+                    <form asp-action="Create"
+                          method="post">
 
-                    <div class="form-check mb-3">
-                        <input asp-for="RequiresPayment"
-                               class="form-check-input" />
+                        @Html.AntiForgeryToken()
 
-                        <label asp-for="RequiresPayment"
-                               class="form-check-label">
-                        </label>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="FeeAmount"
-                               class="form-label">
-                        </label>
-
-                        <div class="input-group">
-                            <span class="input-group-text">€</span>
-
-                            <input asp-for="FeeAmount"
-                                   class="form-control"
-                                   step="0.01" />
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
                         </div>
 
-                        <span asp-validation-for="FeeAmount"
-                              class="text-danger">
-                        </span>
+                        <div class="mb-3">
+                            <label asp-for="Name"
+                                   class="form-label">
+                                Application Type Name
+                            </label>
 
-                        <div class="form-text">
-                            Required only when payment is enabled.
+                            <input asp-for="Name"
+                                   class="form-control admin-form-control"
+                                   placeholder="e.g. Housing Benefit" />
+
+                            <span asp-validation-for="Name"
+                                  class="text-danger">
+                            </span>
                         </div>
-                    </div>
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a asp-action="Index"
-                           class="btn btn-secondary">
-                            Cancel
-                        </a>
+                        <div class="mb-3">
+                            <label asp-for="Description"
+                                   class="form-label">
+                                Description
+                            </label>
 
-                        <button type="submit"
-                                class="btn btn-primary">
-                            Create Application Type
-                        </button>
-                    </div>
-                </form>
+                            <textarea asp-for="Description"
+                                      class="form-control admin-form-control"
+                                      rows="4"
+                                      placeholder="Describe what this application type is used for."></textarea>
+
+                            <span asp-validation-for="Description"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="admin-payment-panel mb-3">
+
+                            <div class="form-check admin-form-check">
+                                <input asp-for="RequiresPayment"
+                                       class="form-check-input" />
+
+                                <label asp-for="RequiresPayment"
+                                       class="form-check-label">
+                                    Requires Payment
+                                </label>
+                            </div>
+
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="FeeAmount"
+                                   class="form-label">
+                                Fee Amount
+                            </label>
+
+                            <div class="input-group admin-money-input">
+                                <span class="input-group-text">
+                                    €
+                                </span>
+
+                                <input asp-for="FeeAmount"
+                                       class="form-control admin-form-control"
+                                       step="0.01"
+                                       placeholder="0.00" />
+                            </div>
+
+                            <span asp-validation-for="FeeAmount"
+                                  class="text-danger">
+                            </span>
+
+                            <div class="form-text">
+                                Required only when payment is enabled.
+                            </div>
+                        </div>
+
+                        <div class="admin-form-actions mt-4">
+
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Create Application Type
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
 
             </div>
+
         </div>
     </div>
+
 </div>
 
 @section Scripts {

@@ -3,359 +3,405 @@
 
 @{
     ViewData["Title"] = "Configure Application Type";
+
+    var pageQuery = Context.Request.Query["page"].ToString();
+
+    var currentPage = pageQuery == "2"
+        ? 2
+        : 1;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="mb-1">@Model.Name</h2>
-        <p class="text-muted mb-0">
-            Configure the form fields and required documents for this application type.
-        </p>
-    </div>
+<div class="admin-config-page">
 
-    <a asp-action="Index"
-       class="btn btn-secondary">
-        Back to Application Types
-    </a>
-</div>
+    <div class="admin-list-hero mb-4">
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
+        <div>
+            <span class="admin-list-eyebrow">
+                Administration – Application Type Configuration
+            </span>
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
-
-<!-- Application Type Information -->
-<div class="card mb-4">
-    <div class="card-body">
-
-        <h5 class="card-title mb-3">
-            Application Type Information
-        </h5>
-
-        @if (!string.IsNullOrWhiteSpace(Model.Description))
-        {
-            <p class="text-muted">
-                @Model.Description
+            <p class="admin-list-subtitle">
+                Configure dynamic form fields and required PDF documents for this citizen service.
             </p>
-        }
+        </div>
 
-        <div class="d-flex gap-2 flex-wrap">
+        <div class="d-flex flex-wrap gap-2 align-items-center admin-list-main-action">
 
-            @if (Model.IsActive)
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                Back to Application Types
+            </a>
+
+            @if (currentPage == 1)
             {
-                <span class="badge bg-success">
-                    Active
-                </span>
+                <a asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   asp-route-page="2"
+                   class="btn btn-primary">
+                    Add new Documents
+                </a>
             }
             else
             {
-                <span class="badge bg-secondary">
-                    Inactive
-                </span>
-            }
-
-            @if (Model.RequiresPayment)
-            {
-                <span class="badge bg-warning text-dark">
-                    Payment Required
-                    @if (Model.FeeAmount.HasValue)
-                    {
-                        <span>
-                            - @Model.FeeAmount.Value.ToString("0.00") €
-                        </span>
-                    }
-                </span>
-            }
-            else
-            {
-                <span class="badge bg-secondary">
-                    No Payment Required
-                </span>
+                <a asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   asp-route-page="1"
+                   class="btn btn-outline-primary">
+                    Add new Fields
+                </a>
             }
 
         </div>
+
     </div>
-</div>
 
-<!-- FORM FIELDS -->
-<div class="card mb-4">
-    <div class="card-body">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
 
-        <h4 class="mb-1">Form Fields</h4>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
 
-        <p class="text-muted">
-            Define the information that citizens must provide when completing this application.
-        </p>
+    @if (currentPage == 1)
+    {
+        <div class="card admin-config-card">
 
-        @if (Model.Fields.Count == 0)
-        {
-            <div class="alert alert-light border">
-                No form fields have been configured yet.
+            <div class="admin-config-card-header">
+
+                <div>
+                    <h4 class="mb-1">
+                        Form Fields
+                    </h4>
+
+                    <p class="mb-0">
+                        Define the information citizens must provide when submitting this application.
+                    </p>
+                </div>
+
+                <span class="admin-table-chip">
+                    @Model.Fields.Count total
+                </span>
+
             </div>
-        }
-        else
-        {
-            <div class="table-responsive mb-4">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Label</th>
-                            <th>Technical Name</th>
-                            <th>Type</th>
-                            <th>Required</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                        @foreach (var field in Model.Fields.OrderBy(x => x.DisplayOrder))
-                        {
-                            <tr>
-                                <td class="fw-semibold">
-                                    @field.Label
-                                </td>
+            <div class="card-body p-0">
 
-                                <td>
-                                    <code>@field.Name</code>
-                                </td>
-
-                                <td>
-                                    @field.FieldType
-                                </td>
-
-                                <td>
-                                    @if (field.IsRequired)
-                                    {
-                                        <span class="badge bg-success">
-                                            Required
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">
-                                            Optional
-                                        </span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-
-        <hr />
-
-        <h5 class="mb-3">Add Field</h5>
-
-        <form asp-action="AddField" method="post">
-            @Html.AntiForgeryToken()
-
-            <input type="hidden"
-                   name="ApplicationTypeId"
-                   value="@Model.Id" />
-
-            <div class="row">
-
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">
-                        Technical Name
-                    </label>
-
-                    <input name="Name"
-                           class="form-control"
-                           placeholder="AnnualIncome"
-                           required />
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">
-                        Label
-                    </label>
-
-                    <input name="Label"
-                           class="form-control"
-                           placeholder="Annual Income"
-                           required />
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">
-                        Field Type
-                    </label>
-
-                    <select name="FieldType"
-                            class="form-select"
-                            asp-items="Html.GetEnumSelectList<ApplicationFieldType>()">
-                    </select>
-                </div>
-
-                <div class="col-md-3 mb-3 d-flex align-items-end">
-                    <div class="form-check mb-2">
-                        <input name="IsRequired"
-                               value="true"
-                               class="form-check-input"
-                               type="checkbox"
-                               id="fieldRequired" />
-
-                        <label class="form-check-label"
-                               for="fieldRequired">
-                            Required
-                        </label>
+                @if (Model.Fields.Count == 0)
+                {
+                    <div class="admin-inline-empty">
+                        No form fields have been configured yet.
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table admin-table align-middle mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Label</th>
+                                    <th>Technical Name</th>
+                                    <th>Type</th>
+                                    <th>Required</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var field in Model.Fields.OrderBy(x => x.DisplayOrder))
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="admin-entity-title">
+                                                @field.Label
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <code class="admin-code-pill">
+                                                @field.Name
+                                            </code>
+                                        </td>
+
+                                        <td>
+                                            <span class="admin-muted-text">
+                                                @field.FieldType
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            @if (field.IsRequired)
+                                            {
+                                                <span class="badge admin-status-badge admin-status-active">
+                                                    Required
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge admin-status-badge admin-status-inactive">
+                                                    Optional
+                                                </span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                }
 
             </div>
 
-            <button type="submit"
-                    class="btn btn-primary">
-                Add Field
-            </button>
-        </form>
+            <div class="admin-config-form-panel">
 
-    </div>
-</div>
+                <h5 class="mb-3">
+                    Add Field
+                </h5>
 
-<!-- DOCUMENT REQUIREMENTS -->
-<div class="card mb-4">
-    <div class="card-body">
+                <form asp-action="AddField"
+                      method="post">
 
-        <h4 class="mb-1">Document Requirements</h4>
+                    @Html.AntiForgeryToken()
 
-        <p class="text-muted">
-            Define the supporting PDF documents citizens must provide.
-        </p>
+                    <input type="hidden"
+                           name="ApplicationTypeId"
+                           value="@Model.Id" />
 
-        @if (Model.DocumentRequirements.Count == 0)
-        {
-            <div class="alert alert-light border">
-                No document requirements have been configured yet.
-            </div>
-        }
-        else
-        {
-            <div class="table-responsive mb-4">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Document</th>
-                            <th>Description</th>
-                            <th>Required</th>
-                        </tr>
-                    </thead>
+                    <div class="row g-3">
 
-                    <tbody>
-                        @foreach (var requirement in
-                                            Model.DocumentRequirements.OrderBy(x => x.DisplayOrder))
-                        {
-                            <tr>
-                                <td class="fw-semibold">
-                                    @requirement.Name
-                                </td>
+                        <div class="col-md-3">
+                            <label class="form-label">
+                                Technical Name
+                            </label>
 
-                                <td>
-                                    @if (string.IsNullOrWhiteSpace(requirement.Description))
-                                    {
-                                        <span class="text-muted">—</span>
-                                    }
-                                    else
-                                    {
-                                        @requirement.Description
-                                    }
-                                </td>
+                            <input name="Name"
+                                   class="form-control admin-form-control"
+                                   placeholder="AnnualIncome"
+                                   required />
+                        </div>
 
-                                <td>
-                                    @if (requirement.IsRequired)
-                                    {
-                                        <span class="badge bg-success">
-                                            Required
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">
-                                            Optional
-                                        </span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
+                        <div class="col-md-3">
+                            <label class="form-label">
+                                Label
+                            </label>
 
-        <hr />
+                            <input name="Label"
+                                   class="form-control admin-form-control"
+                                   placeholder="Annual Income"
+                                   required />
+                        </div>
 
-        <h5 class="mb-3">
-            Add Document Requirement
-        </h5>
+                        <div class="col-md-3">
+                            <label class="form-label">
+                                Field Type
+                            </label>
 
-        <form asp-action="AddDocumentRequirement"
-              method="post">
+                            <select name="FieldType"
+                                    class="form-select admin-form-control"
+                                    asp-items="Html.GetEnumSelectList<ApplicationFieldType>()">
+                            </select>
+                        </div>
 
-            @Html.AntiForgeryToken()
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check admin-form-check mb-2">
+                                <input name="IsRequired"
+                                       value="true"
+                                       class="form-check-input"
+                                       type="checkbox"
+                                       id="fieldRequired" />
 
-            <input type="hidden"
-                   name="ApplicationTypeId"
-                   value="@Model.Id" />
-
-            <div class="row">
-
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">
-                        Document Name
-                    </label>
-
-                    <input name="Name"
-                           class="form-control"
-                           placeholder="Tax Statement"
-                           required />
-                </div>
-
-                <div class="col-md-5 mb-3">
-                    <label class="form-label">
-                        Description
-                    </label>
-
-                    <input name="Description"
-                           class="form-control"
-                           placeholder="Latest annual tax statement" />
-                </div>
-
-                <div class="col-md-3 mb-3 d-flex align-items-end">
-                    <div class="form-check mb-2">
-
-                        <input name="IsRequired"
-                               value="true"
-                               class="form-check-input"
-                               type="checkbox"
-                               id="documentRequired" />
-
-                        <label class="form-check-label"
-                               for="documentRequired">
-                            Required
-                        </label>
+                                <label class="form-check-label"
+                                       for="fieldRequired">
+                                    Required field
+                                </label>
+                            </div>
+                        </div>
 
                     </div>
-                </div>
+
+                    <div class="admin-config-actions mt-3">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Add Field
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
-            <button type="submit"
-                    class="btn btn-primary">
-                Add Document Requirement
-            </button>
+        </div>
+    }
+    else
+    {
+        <div class="card admin-config-card">
 
-        </form>
+            <div class="admin-config-card-header">
 
-    </div>
+                <div>
+                    <h4 class="mb-1">
+                        Document Requirements
+                    </h4>
+
+                    <p class="mb-0">
+                        Define the supporting PDF documents citizens must upload.
+                    </p>
+                </div>
+
+                <span class="admin-table-chip">
+                    @Model.DocumentRequirements.Count total
+                </span>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                @if (Model.DocumentRequirements.Count == 0)
+                {
+                    <div class="admin-inline-empty">
+                        No document requirements have been configured yet.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table admin-table align-middle mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Description</th>
+                                    <th>Required</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var requirement in Model.DocumentRequirements.OrderBy(x => x.DisplayOrder))
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="admin-entity-title">
+                                                @requirement.Name
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            @if (string.IsNullOrWhiteSpace(requirement.Description))
+                                            {
+                                                <span class="admin-muted-text">
+                                                    —
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="admin-description-text">
+                                                    @requirement.Description
+                                                </span>
+                                            }
+                                        </td>
+
+                                        <td>
+                                            @if (requirement.IsRequired)
+                                            {
+                                                <span class="badge admin-status-badge admin-status-active">
+                                                    Required
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge admin-status-badge admin-status-inactive">
+                                                    Optional
+                                                </span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                }
+
+            </div>
+
+            <div class="admin-config-form-panel">
+
+                <h5 class="mb-3">
+                    Add Document Requirement
+                </h5>
+
+                <form asp-action="AddDocumentRequirement"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="ApplicationTypeId"
+                           value="@Model.Id" />
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                Document Name
+                            </label>
+
+                            <input name="Name"
+                                   class="form-control admin-form-control"
+                                   placeholder="Tax Statement"
+                                   required />
+                        </div>
+
+                        <div class="col-md-5">
+                            <label class="form-label">
+                                Description
+                            </label>
+
+                            <input name="Description"
+                                   class="form-control admin-form-control"
+                                   placeholder="Latest annual tax statement" />
+                        </div>
+
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check admin-form-check mb-2">
+                                <input name="IsRequired"
+                                       value="true"
+                                       class="form-check-input"
+                                       type="checkbox"
+                                       id="documentRequired" />
+
+                                <label class="form-check-label"
+                                       for="documentRequired">
+                                    Required document
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="admin-config-actions mt-3">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Add Document Requirement
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    }
+
 </div>

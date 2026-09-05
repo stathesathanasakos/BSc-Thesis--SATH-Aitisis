@@ -2,173 +2,292 @@
 
 @{
     ViewData["Title"] = "Application Types";
+
+    const int pageSize = 3;
+
+    var pageQuery = Context.Request.Query["page"].ToString();
+
+    var currentPage = int.TryParse(pageQuery, out var parsedPage) && parsedPage > 0
+        ? parsedPage
+        : 1;
+
+    var totalItems = Model.Count;
+    var totalPages = totalItems == 0
+        ? 1
+        : (int)Math.Ceiling((double)totalItems / pageSize);
+
+    if (currentPage > totalPages)
+    {
+        currentPage = totalPages;
+    }
+
+    var applicationTypes = Model
+        .Skip((currentPage - 1) * pageSize)
+        .Take(pageSize)
+        .ToList();
+
+    var firstItemNumber = totalItems == 0
+        ? 0
+        : ((currentPage - 1) * pageSize) + 1;
+
+    var lastItemNumber = Math.Min(currentPage * pageSize, totalItems);
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h2>Application Type Management</h2>
+<div class="admin-list-page">
 
-        <p class="text-muted mb-0">
-            Create and manage the available application types used by citizens.
-        </p>
-    </div>
+    <div class="admin-list-hero mb-4">
 
-    <div>
+        <div>
+            <span class="admin-list-eyebrow">
+                Administration - Application Type Management
+            </span>
+
+            <p class="admin-list-subtitle">
+                Configure the citizen services, dynamic fields, document requirements and payment rules available in the portal.
+            </p>
+        </div>
+
         <a asp-action="Create"
-           class="btn btn-primary">
+           class="btn btn-primary admin-list-main-action">
             Create Application Type
         </a>
+
     </div>
-</div>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
-
-@if (!Model.Any())
-{
-    <div class="card">
-        <div class="card-body">
-
-            <h5 class="card-title">
-                No application types
-            </h5>
-
-            <p class="card-text text-muted">
-                No application types have been created yet.
-            </p>
-
-            <a asp-action="Create"
-               class="btn btn-primary">
-                Create Application Type
-            </a>
-
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
         </div>
-    </div>
-}
-else
-{
-    <div class="card">
-        <div class="card-body">
+    }
 
-            <div class="table-responsive">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
 
-                <table class="table table-hover table-striped align-middle mb-0">
+    @if (!Model.Any())
+    {
+        <div class="card admin-empty-card">
+            <div class="card-body text-center py-5">
 
-                    <thead class="table-light">
-                        <tr>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Payment</th>
-                            <th>Fee</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+                <div class="admin-empty-icon">
+                    A
+                </div>
 
-                    <tbody>
+                <h5 class="mt-3 mb-2">
+                    No application types yet
+                </h5>
 
-                        @foreach (var applicationType in Model)
-                        {
+                <p class="text-muted mb-4">
+                    No application types have been created yet.
+                </p>
+
+                <a asp-action="Create"
+                   class="btn btn-primary">
+                    Create Application Type
+                </a>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card admin-table-card">
+
+            <div class="card-body p-0">
+
+                <div class="admin-table-toolbar">
+
+                    <div>
+                        <h5 class="mb-1">
+                            Available application types
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Showing @firstItemNumber-@lastItemNumber of @totalItems configured application types.
+                        </p>
+                    </div>
+
+                    <span class="admin-table-chip">
+                        Page @currentPage of @totalPages
+                    </span>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table admin-table align-middle mb-0">
+
+                        <thead>
                             <tr>
-
-                                <td class="align-middle fw-semibold">
-                                    @applicationType.Name
-                                </td>
-
-                                <td class="align-middle">
-                                    @if (string.IsNullOrWhiteSpace(applicationType.Description))
-                                    {
-                                        <span class="text-muted">
-                                            —
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        @applicationType.Description
-                                    }
-                                </td>
-
-                                <td class="align-middle">
-                                    @if (applicationType.RequiresPayment)
-                                    {
-                                        <span class="badge bg-warning text-dark">
-                                            Required
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">
-                                            Not Required
-                                        </span>
-                                    }
-                                </td>
-
-                                <td class="align-middle">
-                                    @if (applicationType.RequiresPayment &&
-                                                                applicationType.FeeAmount.HasValue)
-                                    {
-                                        <span>
-                                            @applicationType.FeeAmount.Value.ToString("0.00") €
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">
-                                            —
-                                        </span>
-                                    }
-                                </td>
-
-                                <td class="align-middle">
-                                    @if (applicationType.IsActive)
-                                    {
-                                        <span class="badge bg-success">
-                                            Active
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">
-                                            Inactive
-                                        </span>
-                                    }
-                                </td>
-
-                                <td class="align-middle">
-                                    @applicationType.CreatedAt
-                                    .ToLocalTime()
-                                    .ToString("dd/MM/yyyy HH:mm")
-                                </td>
-
-                                <td class="align-middle">
-                                    <a asp-action="Details"
-                                       asp-route-id="@applicationType.Id"
-                                       class="btn btn-sm btn-outline-primary">
-                                        Configure
-                                    </a>
-                                </td>
-
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Payment</th>
+                                <th>Fee</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th class="text-end">Actions</th>
                             </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var applicationType in applicationTypes)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="admin-entity-cell">
+                                            <div class="admin-entity-avatar admin-entity-avatar-orange">
+                                                @((!string.IsNullOrWhiteSpace(applicationType.Name)
+                                                                                        ? applicationType.Name.Substring(0, 1)
+                                                                                        : "A"))
+                                    </div>
+
+                                            <div>
+                                                <div class="admin-entity-title">
+                                                    @applicationType.Name
+                                                </div>
+
+                                                <div class="admin-entity-subtitle">
+                                                    Citizen service
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                @if (string.IsNullOrWhiteSpace(applicationType.Description))
+                                        {
+                                            <span class="admin-muted-text">
+                                                —
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="admin-description-text">
+                                                @applicationType.Description
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (applicationType.RequiresPayment)
+                                        {
+                                            <span class="badge admin-status-badge admin-status-payment">
+                                                Required
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge admin-status-badge admin-status-inactive">
+                                                Not Required
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (applicationType.RequiresPayment &&
+                                                                        applicationType.FeeAmount.HasValue)
+                                        {
+                                            <span class="admin-money-text">
+                                                @applicationType.FeeAmount.Value.ToString("0.00") €
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="admin-muted-text">
+                                                —
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (applicationType.IsActive)
+                                        {
+                                            <span class="badge admin-status-badge admin-status-active">
+                                                Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge admin-status-badge admin-status-inactive">
+                                                Inactive
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <span class="admin-muted-text">
+                                            @applicationType.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end">
+                                        <a asp-action="Details"
+                                           asp-route-id="@applicationType.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Configure
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="admin-pagination-bar">
+
+                    <div class="admin-pagination-summary">
+                        Showing @firstItemNumber-@lastItemNumber of @totalItems
+                    </div>
+
+                    <div class="admin-pagination-actions">
+
+                        @if (currentPage > 1)
+                        {
+                            <a asp-action="Index"
+                               asp-route-page="@(currentPage - 1)"
+                               class="btn btn-outline-primary">
+                                Previous
+                            </a>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    disabled>
+                                Previous
+                            </button>
                         }
 
-                    </tbody>
+                        @if (currentPage < totalPages)
+                        {
+                            <a asp-action="Index"
+                               asp-route-page="@(currentPage + 1)"
+                               class="btn btn-primary">
+                                Next
+                            </a>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    disabled>
+                                Next
+                            </button>
+                        }
 
-                </table>
+                    </div>
+
+                </div>
 
             </div>
 
         </div>
-    </div>
-}
+    }
+
+</div>
