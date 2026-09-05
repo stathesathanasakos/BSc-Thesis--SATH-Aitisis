@@ -2,90 +2,224 @@
 
 @{
     ViewData["Title"] = "Pending Applications";
+
+    const int pageSize = 4;
+
+    var pageQuery = Context.Request.Query["page"].ToString();
+
+    var currentPage = int.TryParse(pageQuery, out var parsedPage) && parsedPage > 0
+        ? parsedPage
+        : 1;
+
+    var totalItems = Model.Count;
+    var totalPages = totalItems == 0
+        ? 1
+        : (int)Math.Ceiling((double)totalItems / pageSize);
+
+    if (currentPage > totalPages)
+    {
+        currentPage = totalPages;
+    }
+
+    var applications = Model
+        .Skip((currentPage - 1) * pageSize)
+        .Take(pageSize)
+        .ToList();
+
+    var firstItemNumber = totalItems == 0
+        ? 0
+        : ((currentPage - 1) * pageSize) + 1;
+
+    var lastItemNumber = Math.Min(currentPage * pageSize, totalItems);
 }
 
-<div class="mb-4">
-    <h2 class="mb-1">Pending Applications</h2>
+<div class="employee-list-page">
 
-    <p class="text-muted mb-0">
-        Review applications submitted by citizens that are waiting for evaluation.
-    </p>
-</div>
+    <div class="employee-list-hero mb-4">
 
-@if (!Model.Any())
-{
-    <div class="card shadow-sm">
-        <div class="card-body text-center py-5">
+        <div>
+            <span class="employee-list-eyebrow">
+                Review Workspace – Pending applications
+            </span>
 
-            <h5 class="mb-2">
-                No pending applications
-            </h5>
-
-            <p class="text-muted mb-0">
-                There are currently no applications waiting for review.
+            <p class="employee-list-subtitle">
+                Review citizen applications that are ready for evaluation and inspect their submitted information.
             </p>
-
         </div>
+
+        <a asp-area="Employee"
+           asp-controller="Statistics"
+           asp-action="Index"
+           class="btn btn-outline-primary employee-list-main-action">
+            View Statistics
+        </a>
+
     </div>
-}
-else
-{
-    <div class="card shadow-sm">
-        <div class="card-body">
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+    @if (!Model.Any())
+    {
+        <div class="card employee-empty-card">
+            <div class="card-body text-center py-5">
 
-                    <thead class="table-light">
-                        <tr>
-                            <th>Application ID</th>
-                            <th>Application Type</th>
-                            <th>Submitted On</th>
-                            <th>Status</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
+                <div class="employee-empty-icon">
+                    ✓
+                </div>
 
-                    <tbody>
-                        @foreach (var application in Model)
-                        {
+                <h5 class="mt-3 mb-2">
+                    No pending applications
+                </h5>
+
+                <p class="text-muted mb-0">
+                    There are currently no applications waiting for review.
+                </p>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card employee-table-card">
+
+            <div class="card-body p-0">
+
+                <div class="employee-table-toolbar">
+
+                    <div>
+                        <h5 class="mb-1">
+                            Review Queue
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Showing @firstItemNumber-@lastItemNumber of @totalItems pending applications.
+                        </p>
+                    </div>
+
+                    <span class="employee-table-chip">
+                        Page @currentPage of @totalPages
+                    </span>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table employee-table align-middle mb-0">
+
+                        <thead>
                             <tr>
-                                <td>
-                                    #@application.Id
-                                </td>
-
-                                <td class="fw-semibold">
-                                    @application.ApplicationTypeName
-                                </td>
-
-                                <td>
-                                    @application.SubmissionDate
-                                    .ToLocalTime()
-                                    .ToString("dd/MM/yyyy HH:mm")
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-warning text-dark">
-                                        @application.StatusText
-                                    </span>
-                                </td>
-
-                                <td class="text-end">
-                                    <a asp-area="Employee"
-                                       asp-controller="Applications"
-                                       asp-action="Details"
-                                       asp-route-id="@application.Id"
-                                       class="btn btn-sm btn-outline-primary">
-                                        Review
-                                    </a>
-                                </td>
+                                <th>Application</th>
+                                <th>Application Type</th>
+                                <th>Submitted On</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
                             </tr>
-                        }
-                    </tbody>
+                        </thead>
 
-                </table>
+                        <tbody>
+                            @foreach (var application in applications)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="employee-entity-cell">
+                                            <div class="employee-entity-avatar">
+                                                #@application.Id
+                                            </div>
+
+                                            <div>
+                                                <div class="employee-entity-title">
+                                                    Application #@application.Id
+                                                </div>
+
+                                                <div class="employee-entity-subtitle">
+                                                    Ready for review
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="employee-type-text">
+                                            @application.ApplicationTypeName
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="employee-muted-text">
+                                            @application.SubmissionDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge employee-status-badge employee-status-pending">
+                                            @application.StatusText
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end">
+                                        <a asp-area="Employee"
+                                           asp-controller="Applications"
+                                           asp-action="Details"
+                                           asp-route-id="@application.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Review
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="employee-pagination-bar">
+
+                    <div class="employee-pagination-summary">
+                        Showing @firstItemNumber-@lastItemNumber of @totalItems
+                    </div>
+
+                    <div class="employee-pagination-actions">
+
+                        @if (currentPage > 1)
+                        {
+                            <a asp-action="Index"
+                               asp-route-page="@(currentPage - 1)"
+                               class="btn btn-outline-primary">
+                                Previous
+                            </a>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    disabled>
+                                Previous
+                            </button>
+                        }
+
+                        @if (currentPage < totalPages)
+                        {
+                            <a asp-action="Index"
+                               asp-route-page="@(currentPage + 1)"
+                               class="btn btn-primary">
+                                Next
+                            </a>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    disabled>
+                                Next
+                            </button>
+                        }
+
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
-    </div>
-}
+    }
+
+</div>

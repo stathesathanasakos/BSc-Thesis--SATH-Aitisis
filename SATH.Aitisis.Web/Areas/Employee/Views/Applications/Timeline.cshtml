@@ -1,160 +1,159 @@
 ﻿@model SATH.Aitisis.Web.ViewModels.Applications.ApplicationTimelineViewModel
+@using SATH.Aitisis.Domain.Enums
 
 @{
     ViewData["Title"] = "Application Timeline";
+
+    var statusText = Model.Status == ApplicationStatus.Submitted
+        ? "Pending"
+        : Model.Status.ToString();
+
+    var statusCssClass = Model.Status == ApplicationStatus.Submitted
+        ? "employee-status-pending"
+        : Model.Status == ApplicationStatus.Approved
+            ? "employee-status-approved"
+            : Model.Status == ApplicationStatus.Rejected
+                ? "employee-status-rejected"
+                : "employee-status-neutral";
 }
 
-<div class="d-flex justify-content-between align-items-start mb-4">
+<div class="employee-timeline-page">
 
-    <div>
-        <h2 class="mb-1">
-            Application Timeline
-        </h2>
+    <div class="card employee-timeline-summary-card mb-4">
 
-        <p class="text-muted mb-0">
-            Review the lifecycle of this submitted application.
-        </p>
-    </div>
+        <div class="card-body p-4">
 
-    <a asp-area="Employee"
-       asp-controller="Applications"
-       asp-action="Details"
-       asp-route-id="@Model.ApplicationId"
-       class="btn btn-outline-secondary">
-        Back to Review
-    </a>
+            <div class="row g-3">
 
-</div>
+                <div class="col-md-4">
+                    <div class="employee-summary-item">
+                        <span>
+                            Application ID
+                        </span>
 
-<div class="card shadow-sm mb-4">
+                        <strong>
+                            #@Model.ApplicationId
+                        </strong>
+                    </div>
+                </div>
 
-    <div class="card-body">
+                <div class="col-md-4">
+                    <div class="employee-summary-item">
+                        <span>
+                            Application Type
+                        </span>
 
-        <div class="row g-3">
+                        <strong>
+                            @Model.ApplicationTypeName
+                        </strong>
+                    </div>
+                </div>
 
-            <div class="col-md-4">
-                <small class="text-muted d-block">
-                    Application ID
-                </small>
+                <div class="col-md-4">
+                    <div class="employee-summary-item">
+                        <span>
+                            Current Status
+                        </span>
 
-                <span class="fw-semibold">
-                    #@Model.ApplicationId
-                </span>
-            </div>
+                        <strong>
+                            <span class="badge employee-status-badge @statusCssClass">
+                                @statusText
+                            </span>
+                        </strong>
+                    </div>
+                </div>
 
-            <div class="col-md-4">
-                <small class="text-muted d-block">
-                    Application Type
-                </small>
-
-                <span class="fw-semibold">
-                    @Model.ApplicationTypeName
-                </span>
-            </div>
-
-            <div class="col-md-4">
-                <small class="text-muted d-block">
-                    Current Status
-                </small>
-
-                @if (Model.Status == SATH.Aitisis.Domain.Enums.ApplicationStatus.Submitted)
+                @if (!string.IsNullOrWhiteSpace(Model.ProtocolNumber))
                 {
-                    <span class="badge bg-warning text-dark">
-                        Pending
-                    </span>
-                }
-                else if (Model.Status == SATH.Aitisis.Domain.Enums.ApplicationStatus.Approved)
-                {
-                    <span class="badge bg-success">
-                        Approved
-                    </span>
-                }
-                else if (Model.Status == SATH.Aitisis.Domain.Enums.ApplicationStatus.Rejected)
-                {
-                    <span class="badge bg-danger">
-                        Rejected
-                    </span>
-                }
-                else
-                {
-                    <span class="badge bg-secondary">
-                        @Model.Status
-                    </span>
-                }
-            </div>
+                    <div class="col-12">
+                        <div class="employee-protocol-panel">
+                            <span>
+                                Protocol Number
+                            </span>
 
-        </div>
-
-        @if (!string.IsNullOrWhiteSpace(Model.ProtocolNumber))
-        {
-            <hr />
-
-            <div>
-                <small class="text-muted d-block">
-                    Protocol Number
-                </small>
-
-                <span class="fw-semibold">
-                    @Model.ProtocolNumber
-                </span>
-            </div>
-        }
-
-    </div>
-
-</div>
-
-<div class="card shadow-sm">
-
-    <div class="card-header bg-light">
-        <h5 class="mb-0">
-            Timeline
-        </h5>
-    </div>
-
-    <div class="card-body">
-
-        @if (!Model.Items.Any())
-        {
-            <p class="text-muted mb-0">
-                No timeline events are available.
-            </p>
-        }
-        else
-        {
-            <div class="list-group list-group-flush">
-
-                @foreach (var item in Model.Items)
-                {
-                    <div class="list-group-item px-0">
-
-                        <div class="d-flex justify-content-between align-items-start gap-3">
-
-                            <div>
-                                <h6 class="mb-1">
-                                    <span class="badge bg-@item.CssClass me-2">
-                                        &nbsp;
-                                    </span>
-
-                                    @item.Title
-                                </h6>
-
-                                <p class="text-muted mb-1">
-                                    @item.Description
-                                </p>
-                            </div>
-
-                            <small class="text-muted text-nowrap">
-                                @(item.OccurredAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
-                            </small>
-
+                            <strong>
+                                @Model.ProtocolNumber
+                            </strong>
                         </div>
-
                     </div>
                 }
 
             </div>
-        }
+
+        </div>
+
+    </div>
+
+    <div class="card employee-timeline-card">
+
+        <div class="employee-timeline-card-header">
+
+            <div>
+                <h5 class="mb-1">
+                    Timeline Events
+                </h5>
+
+                <p class="mb-0">
+                    Chronological activity for this application.
+                </p>
+            </div>
+
+            <div>
+                <a asp-area="Employee"
+                   asp-controller="Applications"
+                   asp-action="Details"
+                   asp-route-id="@Model.ApplicationId"
+                   class="btn btn-primary employee-list-main-action">
+                    Back to Review
+                </a>
+            </div>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            @if (!Model.Items.Any())
+            {
+                <div class="employee-inline-empty">
+                    No timeline events are available.
+                </div>
+            }
+            else
+            {
+                <div class="employee-timeline-list">
+
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="employee-timeline-item">
+
+                            <div class="employee-timeline-marker employee-timeline-marker-@item.CssClass">
+                            </div>
+
+                            <div class="employee-timeline-content">
+
+                                <div class="employee-timeline-content-header">
+                                    <h6>
+                                        @item.Title
+                                    </h6>
+
+                                    <span>
+                                        @item.OccurredAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                    </span>
+                                </div>
+
+                                <p>
+                                    @item.Description
+                                </p>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
 
     </div>
 
