@@ -2,399 +2,533 @@
 
 @{
     ViewData["Title"] = "Application Review";
+
+    var pageQuery = Context.Request.Query["page"].ToString();
+
+    var currentPage = pageQuery == "2"
+        ? 2
+        : pageQuery == "3"
+            ? 3
+            : pageQuery == "4"
+                ? 4
+                : 1;
+
+    var applicantName = string.IsNullOrWhiteSpace(Model.CitizenFirstName) &&
+                        string.IsNullOrWhiteSpace(Model.CitizenLastName)
+        ? "—"
+        : $"{Model.CitizenFirstName} {Model.CitizenLastName}".Trim();
+
+    var statusText = Model.Status == "Submitted"
+        ? "Pending"
+        : Model.Status;
+
+    var statusCssClass = Model.Status == "Submitted"
+        ? "employee-status-pending"
+        : Model.Status == "Approved"
+            ? "employee-status-approved"
+            : Model.Status == "Rejected"
+                ? "employee-status-rejected"
+                : "employee-status-neutral";
+
+    string StepClass(int step)
+    {
+        if (step < currentPage)
+        {
+            return "completed";
+        }
+
+        if (step == currentPage)
+        {
+            return "current";
+        }
+
+        return "upcoming";
+    }
+
+    string SegmentClass(int stepBeforeSegment)
+    {
+        return stepBeforeSegment < currentPage
+            ? "completed"
+            : "upcoming";
+    }
+
+    var hasSubmittedFieldData = Model.Fields.Any() || !string.IsNullOrWhiteSpace(Model.Description);
 }
 
-<div class="d-flex justify-content-between align-items-start mb-4">
+<div class="employee-review-page">
 
-    <div>
-        <h2 class="mb-1">
-            Application Review
-        </h2>
+    <div class="employee-review-hero employee-review-hero-with-progress mb-4">
 
-        <p class="text-muted mb-0">
-            Review the submitted application information and supporting documents.
-        </p>
-    </div>
+        <div class="employee-review-hero-main">
 
-    <div class="d-flex gap-2">
-        <a asp-area="Employee"
-           asp-controller="Applications"
-           asp-action="Timeline"
-           asp-route-id="@Model.Id"
-           class="btn btn-outline-primary">
-            View Timeline
-        </a>
+            <div>
+                <span class="employee-list-eyebrow">
+                    Review Workspace
+                </span>
 
-        <a asp-area="Employee"
-           asp-controller="Applications"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            Back to Applications
-        </a>
-    </div>
+                <p class="employee-list-subtitle">
+                    Review the submitted application information, supporting documents and final decision actions.
+                </p>
+            </div>
 
-</div>
+            <div class="employee-review-top-actions">
 
-@if (TempData["SuccessMessage"] is string successMessage)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @successMessage
+                <a asp-area="Employee"
+                   asp-controller="Applications"
+                   asp-action="Timeline"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-outline-primary">
+                    View Timeline
+                </a>
 
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close">
-        </button>
-    </div>
-}
+                <a asp-area="Employee"
+                   asp-controller="Applications"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Back to Applications
+                </a>
 
-@if (TempData["ErrorMessage"] is string errorMessage)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @errorMessage
+            </div>
 
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close">
-        </button>
-    </div>
-}
-
-<!-- AI Review Assistant -->
-<div class="card shadow-sm mb-4 border-primary">
-
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-        <div>
-            <h5 class="mb-0">
-                AI Review Assistant
-            </h5>
-
-            <small class="text-muted">
-                Generate a structured summary based on the submitted application fields.
-            </small>
         </div>
 
-        <span class="badge bg-primary">
-            Assistant
-        </span>
+        <div class="employee-review-progress employee-review-progress-inside">
+
+            <div class="employee-review-progress-item @StepClass(1)">
+                <div class="employee-review-progress-bullet">
+                    1
+                </div>
+
+                <div class="employee-review-progress-label">
+                    Application
+                </div>
+            </div>
+
+            <div class="employee-review-progress-segment @SegmentClass(1)">
+            </div>
+
+            <div class="employee-review-progress-item @StepClass(2)">
+                <div class="employee-review-progress-bullet">
+                    2
+                </div>
+
+                <div class="employee-review-progress-label">
+                    Fields
+                </div>
+            </div>
+
+            <div class="employee-review-progress-segment @SegmentClass(2)">
+            </div>
+
+            <div class="employee-review-progress-item @StepClass(3)">
+                <div class="employee-review-progress-bullet">
+                    3
+                </div>
+
+                <div class="employee-review-progress-label">
+                    Documents
+                </div>
+            </div>
+
+            <div class="employee-review-progress-segment @SegmentClass(3)">
+            </div>
+
+            <div class="employee-review-progress-item @StepClass(4)">
+                <div class="employee-review-progress-bullet">
+                    4
+                </div>
+
+                <div class="employee-review-progress-label">
+                    Decision
+                </div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="card-body">
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @successMessage
 
-        <p class="text-muted">
-            The assistant uses the application type and the submitted form fields.
-            Uploaded PDF files are not sent to the AI provider.
-        </p>
-
-        <form asp-area="Employee"
-              asp-controller="Applications"
-              asp-action="GenerateAiReviewSummary"
-              asp-route-id="@Model.Id"
-              method="post">
-
-            @Html.AntiForgeryToken()
-
-            <button type="submit"
-                    class="btn btn-outline-primary">
-                Generate AI Review Summary
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
             </button>
+        </div>
+    }
 
-        </form>
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @errorMessage
 
-    </div>
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
 
-</div>
+    @if (currentPage == 1)
+    {
+        <div class="row g-4">
 
-<!-- Application Summary -->
-<div class="card shadow-sm mb-4">
+            <div class="col-xl-7">
 
-    <div class="card-header bg-light">
-        <h5 class="mb-0">
-            Application Summary
-        </h5>
-    </div>
+                <div class="card employee-review-card h-100">
 
-    <div class="card-body">
+                    <div class="employee-review-card-header">
 
-        <div class="row g-3">
+                        <div>
+                            <h5 class="mb-1">
+                                Application Details
+                            </h5>
 
-            <div class="col-md-6">
-                <small class="text-muted d-block">
-                    Application ID
-                </small>
+                            <p class="mb-0">
+                                Core information about the submitted citizen application.
+                            </p>
+                        </div>
 
-                <span class="fw-semibold">
-                    #@Model.Id
-                </span>
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <div class="employee-review-summary-grid">
+
+                            <div class="employee-review-summary-item">
+                                <span>Application ID</span>
+                                <strong>#@Model.Id</strong>
+                            </div>
+
+                            <div class="employee-review-summary-item">
+                                <span>Application Type</span>
+                                <strong>@Model.ApplicationTypeName</strong>
+                            </div>
+
+                            <div class="employee-review-summary-item">
+                                <span>Submitted On</span>
+                                <strong>@(Model.SubmissionDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))</strong>
+                            </div>
+
+                            <div class="employee-review-summary-item">
+                                <span>Status</span>
+                                <strong>
+                                    <span class="badge employee-status-badge @statusCssClass">
+                                        @statusText
+                                    </span>
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="col-md-6">
-                <small class="text-muted d-block">
-                    Application Type
-                </small>
+            <div class="col-xl-5">
 
-                <span class="fw-semibold">
-                    @Model.ApplicationTypeName
-                </span>
+                <div class="card employee-review-card h-100">
+
+                    <div class="employee-review-card-header">
+
+                        <div>
+                            <h5 class="mb-1">
+                                Applicant
+                            </h5>
+
+                            <p class="mb-0">
+                                Citizen account linked to this application.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <div class="employee-review-applicant-panel">
+
+                            <div class="employee-review-applicant-avatar">
+                                @(applicantName == "—" ? "C" : applicantName.Substring(0, 1).ToUpper())
+                            </div>
+
+                            <div>
+                                <span>
+                                    Applicant Name
+                                </span>
+
+                                <strong>
+                                    @applicantName
+                                </strong>
+                            </div>
+
+                        </div>
+
+                        <div class="employee-review-summary-item mt-3">
+                            <span>Email</span>
+
+                            <strong>
+                                @if (string.IsNullOrWhiteSpace(Model.CitizenEmail))
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                                else
+                                {
+                                    @Model.CitizenEmail
+                                }
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="col-md-6">
-                <small class="text-muted d-block">
-                    Submitted On
-                </small>
+        </div>
 
-                <span>
-                    @(Model.SubmissionDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
-                </span>
+        <div class="employee-review-page-nav">
+
+            <div class="employee-pagination-summary">
+                Page 1 of 4 — Application and applicant
             </div>
 
-            <div class="col-md-6">
+            <div class="employee-pagination-actions">
+                <a asp-area="Employee"
+                   asp-controller="Applications"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   asp-route-page="2"
+                   class="btn btn-primary">
+                    Go to Fields
+                </a>
+            </div>
 
-                <small class="text-muted d-block">
-                    Status
-                </small>
+        </div>
+    }
+    else if (currentPage == 2)
+    {
+        <div class="card employee-review-card">
 
-                @if (Model.Status == "Submitted")
+            <div class="employee-review-card-header">
+
+                <div>
+                    <h5 class="mb-1">
+                        Submitted Fields
+                    </h5>
+
+                    <p class="mb-0">
+                        Citizen-provided values for this application type. The description is included as part of the review data.
+                    </p>
+                </div>
+
+                <span class="employee-table-chip">
+                    @(Model.Fields.Count + (!string.IsNullOrWhiteSpace(Model.Description) ? 1 : 0)) item(s)
+                </span>
+
+            </div>
+
+            <div class="card-body p-4">
+
+                @if (!hasSubmittedFieldData)
                 {
-                    <span class="badge bg-warning text-dark">
-                        Pending
-                    </span>
-                }
-                else if (Model.Status == "Approved")
-                {
-                    <span class="badge bg-success">
-                        Approved
-                    </span>
-                }
-                else if (Model.Status == "Rejected")
-                {
-                    <span class="badge bg-danger">
-                        Rejected
-                    </span>
+                    <div class="employee-inline-empty">
+                        No submitted field data is available.
+                    </div>
                 }
                 else
                 {
-                    <span class="badge bg-secondary">
-                        @Model.Status
-                    </span>
-                }
+                    <div class="employee-review-field-grid employee-review-field-grid-three">
 
-            </div>
+                        <div class="employee-review-field-item employee-review-field-item-highlight">
+                            <span>
+                                Application Type
+                            </span>
 
-        </div>
+                            <strong>
+                                @Model.ApplicationTypeName
+                            </strong>
+                        </div>
 
-        @if (!string.IsNullOrWhiteSpace(Model.Description))
-        {
-            <hr />
+                        @if (!string.IsNullOrWhiteSpace(Model.Description))
+                        {
+                            <div class="employee-review-field-item employee-review-field-item-description">
+                                <span>
+                                    Citizen Description
+                                </span>
 
-            <div>
-                <small class="text-muted d-block mb-1">
-                    Description
-                </small>
-
-                <p class="mb-0">
-                    @Model.Description
-                </p>
-            </div>
-        }
-
-    </div>
-
-</div>
-
-<!-- Applicant -->
-<div class="card shadow-sm mb-4">
-
-    <div class="card-header bg-light">
-        <h5 class="mb-0">
-            Applicant
-        </h5>
-    </div>
-
-    <div class="card-body">
-
-        <div class="row g-3">
-
-            <div class="col-md-6">
-
-                <small class="text-muted d-block">
-                    Name
-                </small>
-
-                <span class="fw-semibold">
-                    @if (string.IsNullOrWhiteSpace(Model.CitizenFirstName) &&
-                                        string.IsNullOrWhiteSpace(Model.CitizenLastName))
-                    {
-                        <span class="text-muted">—</span>
-                    }
-                    else
-                    {
-                        @($"{Model.CitizenFirstName} {Model.CitizenLastName}".Trim())
-                    }
-                </span>
-
-            </div>
-
-            <div class="col-md-6">
-
-                <small class="text-muted d-block">
-                    Email
-                </small>
-
-                <span>
-                    @if (string.IsNullOrWhiteSpace(Model.CitizenEmail))
-                    {
-                        <span class="text-muted">—</span>
-                    }
-                    else
-                    {
-                        @Model.CitizenEmail
-                    }
-                </span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- Submitted Information -->
-<div class="card shadow-sm mb-4">
-
-    <div class="card-header bg-light">
-        <h5 class="mb-0">
-            Submitted Information
-        </h5>
-    </div>
-
-    <div class="card-body">
-
-        @if (!Model.Fields.Any())
-        {
-            <p class="text-muted mb-0">
-                No additional application fields were submitted.
-            </p>
-        }
-        else
-        {
-            <div class="table-responsive">
-
-                <table class="table table-hover align-middle mb-0">
-
-                    <thead class="table-light">
-                        <tr>
-                            <th>Field</th>
-                            <th>Submitted Value</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
+                                <strong>
+                                    @Model.Description
+                                </strong>
+                            </div>
+                        }
 
                         @foreach (var field in Model.Fields)
                         {
-                            <tr>
+                            <div class="employee-review-field-item">
 
-                                <td class="fw-semibold">
+                                <span>
                                     @field.Label
-                                </td>
+                                </span>
 
-                                <td>
+                                <strong>
                                     @if (string.IsNullOrWhiteSpace(field.Value))
                                     {
-                                        <span class="text-muted">
-                                            —
-                                        </span>
+                                        <span class="text-muted">—</span>
                                     }
                                     else
                                     {
                                         @field.Value
                                     }
-                                </td>
+                                </strong>
 
-                            </tr>
+                            </div>
                         }
 
-                    </tbody>
+                    </div>
+                }
 
-                </table>
+                <div class="employee-ai-panel mt-4">
+
+                    <div>
+                        <span class="employee-list-eyebrow">
+                            AI Review Assistant
+                        </span>
+
+                        <p class="mb-0">
+                            The assistant uses the application type and submitted fields. Uploaded PDF files are not sent to the AI provider.
+                        </p>
+                    </div>
+
+                    <form asp-area="Employee"
+                          asp-controller="Applications"
+                          asp-action="GenerateAiReviewSummary"
+                          asp-route-id="@Model.Id"
+                          asp-route-page="2"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-outline-primary">
+                            Generate AI Review Summary
+                        </button>
+
+                    </form>
+
+                </div>
 
             </div>
-        }
 
-    </div>
+        </div>
 
-</div>
+        <div class="employee-review-page-nav">
 
-<!-- Supporting Documents -->
-<div class="card shadow-sm mb-4">
+            <div class="employee-pagination-summary">
+                Page 2 of 4 — Submitted fields and AI assistance
+            </div>
 
-    <div class="card-header bg-light">
-        <h5 class="mb-0">
-            Supporting Documents
-        </h5>
-    </div>
+            <div class="employee-pagination-actions">
 
-    <div class="card-body">
+                <a asp-area="Employee"
+                   asp-controller="Applications"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   asp-route-page="1"
+                   class="btn btn-outline-primary">
+                    Previous
+                </a>
 
-        @if (!Model.Documents.Any())
-        {
-            <p class="text-muted mb-0">
-                No supporting documents have been uploaded.
-            </p>
-        }
-        else
-        {
-            <div class="table-responsive">
+                <a asp-area="Employee"
+                   asp-controller="Applications"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   asp-route-page="3"
+                   class="btn btn-primary">
+                    Go to Documents
+                </a>
 
-                <table class="table table-hover align-middle mb-0">
+            </div>
 
-                    <thead class="table-light">
-                        <tr>
-                            <th>Document</th>
-                            <th>Requirement</th>
-                            <th>Uploaded On</th>
-                            <th class="text-end">Action</th>
-                        </tr>
-                    </thead>
+        </div>
+    }
+    else if (currentPage == 3)
+    {
+        <div class="card employee-review-card">
 
-                    <tbody>
+            <div class="employee-review-card-header">
+
+                <div>
+                    <h5 class="mb-1">
+                        Uploaded Documents
+                    </h5>
+
+                    <p class="mb-0">
+                        Supporting PDF files uploaded by the citizen for this application.
+                    </p>
+                </div>
+
+                <span class="employee-table-chip">
+                    @Model.Documents.Count document(s)
+                </span>
+
+            </div>
+
+            <div class="card-body p-4">
+
+                @if (!Model.Documents.Any())
+                {
+                    <div class="employee-inline-empty">
+                        No supporting documents have been uploaded.
+                    </div>
+                }
+                else
+                {
+                    <div class="employee-review-document-list employee-review-document-list-wide">
 
                         @foreach (var document in Model.Documents)
                         {
-                            <tr>
+                            <div class="employee-review-document-item employee-review-document-item-wide">
 
-                                <td class="fw-semibold">
-                                    @document.OriginalFileName
-                                </td>
+                                <div class="employee-review-document-icon">
+                                    PDF
+                                </div>
 
-                                <td>
+                                <div class="employee-review-document-content">
 
-                                    @document.RequirementName
+                                    <div class="employee-review-document-name">
+                                        @document.OriginalFileName
+                                    </div>
 
-                                    @if (document.IsRequired)
-                                    {
-                                        <span class="badge bg-danger ms-1">
-                                            Required
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary ms-1">
-                                            Optional
-                                        </span>
-                                    }
+                                    <div class="employee-review-document-meta">
+                                        Requirement: @document.RequirementName
 
-                                </td>
+                                        @if (document.IsRequired)
+                                        {
+                                            <span class="badge employee-status-badge employee-status-rejected ms-1">
+                                                Required
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge employee-status-badge employee-status-neutral ms-1">
+                                                Optional
+                                            </span>
+                                        }
+                                    </div>
 
-                                <td>
-                                    @(document.UploadDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
-                                </td>
+                                    <div class="employee-review-document-date">
+                                        Uploaded on @(document.UploadDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                                    </div>
 
-                                <td class="text-end">
+                                </div>
 
+                                <div class="employee-review-document-action">
                                     <a asp-area="Employee"
                                        asp-controller="Applications"
                                        asp-action="ViewDocument"
@@ -403,125 +537,195 @@
                                        class="btn btn-sm btn-outline-primary">
                                         View PDF
                                     </a>
+                                </div>
 
-                                </td>
-
-                            </tr>
+                            </div>
                         }
 
-                    </tbody>
-
-                </table>
-
-            </div>
-        }
-
-    </div>
-
-</div>
-
-<!-- Decision -->
-<div class="card shadow-sm">
-
-    <div class="card-header bg-light">
-        <h5 class="mb-0">
-            Decision
-        </h5>
-    </div>
-
-    <div class="card-body">
-
-        @if (Model.Status == "Submitted")
-        {
-            <p class="text-muted">
-                Review the application information and supporting documents
-                before making a final decision.
-            </p>
-
-            <div class="row g-3">
-
-                <div class="col-md-6">
-                    <form asp-area="Employee"
-                          asp-controller="Applications"
-                          asp-action="Reject"
-                          asp-route-id="@Model.Id"
-                          method="post"
-                          class="border rounded p-3 h-100">
-
-                        @Html.AntiForgeryToken()
-
-                        <h6 class="text-danger">
-                            Reject application
-                        </h6>
-
-                        <div class="mb-3">
-                            <label for="rejectMessage" class="form-label">
-                                Optional message to citizen
-                            </label>
-
-                            <textarea id="rejectMessage"
-                                  name="employeeMessage"
-                                  class="form-control"
-                                  rows="4"
-                                  maxlength="500"
-                                  placeholder="Example: Missing required income certificate."></textarea>
-                        </div>
-
-                        <button type="submit"
-                                class="btn btn-danger"
-                                onclick="return confirm('Are you sure you want to reject this application?');">
-                            Reject
-                        </button>
-
-                    </form>
-                </div>
-
-                <div class="col-md-6">
-                    <form asp-area="Employee"
-                          asp-controller="Applications"
-                          asp-action="Approve"
-                          asp-route-id="@Model.Id"
-                          method="post"
-                          class="border rounded p-3 h-100">
-
-                        @Html.AntiForgeryToken()
-
-                        <h6 class="text-success">
-                            Approve application
-                        </h6>
-
-                        <div class="mb-3">
-                            <label for="approveMessage" class="form-label">
-                                Optional message to citizen
-                            </label>
-
-                            <textarea id="approveMessage"
-                                  name="employeeMessage"
-                                  class="form-control"
-                                  rows="4"
-                                  maxlength="500"
-                                  placeholder="Example: Your application has been approved."></textarea>
-                        </div>
-
-                        <button type="submit"
-                                class="btn btn-success"
-                                onclick="return confirm('Are you sure you want to approve this application?');">
-                            Approve
-                        </button>
-
-                    </form>
-                </div>
+                    </div>
+                }
 
             </div>
-        }
-        else
-        {
-            <p class="text-muted mb-0">
-                This application has already been evaluated.
-            </p>
-        }
 
-    </div>
+        </div>
+
+        <div class="employee-review-page-nav">
+
+            <div class="employee-pagination-summary">
+                Page 3 of 4 — Uploaded documents
+            </div>
+
+            <div class="employee-pagination-actions">
+
+                <a asp-area="Employee"
+                   asp-controller="Applications"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   asp-route-page="2"
+                   class="btn btn-outline-primary">
+                    Previous
+                </a>
+
+                <a asp-area="Employee"
+                   asp-controller="Applications"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   asp-route-page="4"
+                   class="btn btn-primary">
+                    Go to Decision
+                </a>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="card employee-review-card employee-decision-card">
+
+            <div class="card-body p-4">
+
+                @if (Model.Status == "Submitted")
+                {
+
+                    <div class="row g-4">
+
+                        <div class="col-xl-6">
+
+                            <form asp-area="Employee"
+                                  asp-controller="Applications"
+                                  asp-action="Reject"
+                                  asp-route-id="@Model.Id"
+                                  method="post"
+                                  class="employee-decision-form employee-decision-form-reject h-100">
+
+                                @Html.AntiForgeryToken()
+
+                                <div class="employee-decision-form-header">
+                                    <div class="employee-decision-icon employee-decision-icon-reject">
+                                        !
+                                    </div>
+
+                                    <div>
+                                        <h4>
+                                            Reject Application
+                                        </h4>
+
+                                        <p>
+                                            Send the application back as rejected with an optional message to the citizen.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="rejectMessage"
+                                           class="form-label">
+                                        Optional message to citizen
+                                    </label>
+
+                                    <textarea id="rejectMessage"
+                                      name="employeeMessage"
+                                      class="form-control employee-review-control"
+                                      rows="4"
+                                      maxlength="500"
+                                      placeholder="Example: Missing required income certificate."></textarea>
+                                </div>
+
+                                <button type="submit"
+                                        class="btn btn-danger"
+                                        onclick="return confirm('Are you sure you want to reject this application?');">
+                                    Reject Application
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                        <div class="col-xl-6">
+
+                            <form asp-area="Employee"
+                                  asp-controller="Applications"
+                                  asp-action="Approve"
+                                  asp-route-id="@Model.Id"
+                                  method="post"
+                                  class="employee-decision-form employee-decision-form-approve h-100">
+
+                                @Html.AntiForgeryToken()
+
+                                <div class="employee-decision-form-header">
+                                    <div class="employee-decision-icon employee-decision-icon-approve">
+                                        ✓
+                                    </div>
+
+                                    <div>
+                                        <h4>
+                                            Approve Application
+                                        </h4>
+
+                                        <p>
+                                            Approve the application and allow the system to complete the official decision.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="approveMessage"
+                                           class="form-label">
+                                        Optional message to citizen
+                                    </label>
+
+                                    <textarea id="approveMessage"
+                                      name="employeeMessage"
+                                      class="form-control employee-review-control"
+                                      rows="4"
+                                      maxlength="500"
+                                      placeholder="Example: Your application has been approved."></textarea>
+                                </div>
+
+                                <button type="submit"
+                                        class="btn btn-success"
+                                        onclick="return confirm('Are you sure you want to approve this application?');">
+                                    Approve Application
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="employee-inline-empty">
+                        This application has already been evaluated.
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+        <div class="employee-review-page-nav">
+
+            <div class="employee-pagination-summary">
+                Page 4 of 4 — Final decision
+            </div>
+
+            <div class="employee-pagination-actions">
+
+                <a asp-area="Employee"
+                   asp-controller="Applications"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   asp-route-page="3"
+                   class="btn btn-outline-primary">
+                    Previous
+                </a>
+
+            </div>
+
+        </div>
+    }
 
 </div>
 
@@ -534,13 +738,19 @@
          aria-hidden="true">
 
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
+            <div class="modal-content employee-ai-modal">
 
                 <div class="modal-header">
-                    <h5 class="modal-title"
-                        id="aiReviewModalLabel">
-                        AI Review Summary
-                    </h5>
+                    <div>
+                        <span class="employee-list-eyebrow">
+                            AI Review Assistant
+                        </span>
+
+                        <h5 class="modal-title"
+                            id="aiReviewModalLabel">
+                            AI Review Summary
+                        </h5>
+                    </div>
 
                     <button type="button"
                             class="btn-close"
@@ -615,7 +825,7 @@
 
                 <div class="modal-footer">
                     <button type="button"
-                            class="btn btn-secondary"
+                            class="btn btn-outline-secondary"
                             data-bs-dismiss="modal">
                         Close
                     </button>

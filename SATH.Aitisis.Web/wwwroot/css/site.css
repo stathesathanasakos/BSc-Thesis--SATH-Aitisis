@@ -3228,3 +3228,720 @@ textarea.admin-form-control {
 
 
 
+/* employee application review details */
+
+.employee-review-page {
+    animation: homeFadeIn 180ms ease-out;
+}
+
+.employee-review-hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 1.2rem 1.4rem;
+    border: 1px solid rgba(47, 85, 151, 0.10);
+    border-radius: 1.2rem;
+    background: radial-gradient(circle at top right, rgba(255, 159, 28, 0.10), transparent 16rem), linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(239, 246, 255, 0.86)), #ffffff;
+    box-shadow: 0 0.75rem 1.7rem rgba(31, 48, 83, 0.06);
+}
+
+.employee-review-top-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    align-self: center;
+}
+
+.employee-review-stepper {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.employee-review-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--sath-card-border);
+    border-radius: 1rem;
+    background-color: #ffffff;
+    color: var(--sath-muted);
+    text-decoration: none;
+    box-shadow: 0 0.55rem 1.2rem rgba(31, 48, 83, 0.05);
+    transition: background-color 160ms ease, border-color 160ms ease, transform 80ms ease;
+}
+
+    .employee-review-step:hover {
+        transform: translateY(-1px);
+        border-color: rgba(47, 85, 151, 0.22);
+        color: var(--sath-primary-dark);
+    }
+
+    .employee-review-step span {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.8rem;
+        background-color: var(--sath-primary-soft);
+        color: var(--sath-primary-dark);
+        font-weight: 900;
+    }
+
+    .employee-review-step strong {
+        font-size: 0.92rem;
+        font-weight: 850;
+    }
+
+    .employee-review-step.active {
+        color: #ffffff;
+        border-color: transparent;
+        background: linear-gradient(135deg, var(--sath-primary), var(--sath-primary-dark));
+        box-shadow: 0 0.85rem 1.6rem rgba(47, 85, 151, 0.18);
+    }
+
+        .employee-review-step.active span {
+            background-color: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+        }
+
+.employee-review-card {
+    border: 0;
+    overflow: hidden;
+}
+
+.employee-review-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    border-bottom: 1px solid var(--sath-card-border);
+    background: linear-gradient(135deg, #ffffff, #f9fbfd);
+}
+
+    .employee-review-card-header h5 {
+        color: var(--sath-text);
+        font-weight: 900;
+    }
+
+    .employee-review-card-header p {
+        color: var(--sath-muted);
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+.employee-review-avatar {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    border-radius: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--sath-primary), var(--sath-primary-dark));
+    color: #ffffff;
+    font-weight: 900;
+    box-shadow: 0 0.7rem 1.4rem rgba(47, 85, 151, 0.18);
+}
+
+.employee-review-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.employee-review-summary-item {
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: #f9fbfd;
+    border: 1px solid var(--sath-card-border);
+}
+
+    .employee-review-summary-item span,
+    .employee-review-description span,
+    .employee-review-applicant-panel span {
+        display: block;
+        margin-bottom: 0.3rem;
+        color: var(--sath-muted);
+        font-size: 0.76rem;
+        font-weight: 850;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .employee-review-summary-item strong,
+    .employee-review-applicant-panel strong {
+        display: block;
+        color: var(--sath-text);
+        font-size: 1rem;
+        font-weight: 850;
+        line-height: 1.35;
+    }
+
+.employee-review-description {
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: var(--sath-primary-soft);
+    border: 1px solid rgba(47, 85, 151, 0.12);
+}
+
+    .employee-review-description p {
+        margin-bottom: 0;
+        color: var(--sath-text);
+        font-weight: 650;
+        line-height: 1.45;
+    }
+
+.employee-review-applicant-panel {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: #f9fbfd;
+    border: 1px solid var(--sath-card-border);
+}
+
+.employee-review-applicant-avatar {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 auto;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ff9f1c, #ffbf69);
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 900;
+    box-shadow: 0 0.7rem 1.4rem rgba(255, 159, 28, 0.18);
+}
+
+.employee-review-field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.employee-review-field-item {
+    padding: 0.9rem 1rem;
+    border-radius: 0.95rem;
+    background-color: #f9fbfd;
+    border: 1px solid var(--sath-card-border);
+}
+
+    .employee-review-field-item span {
+        display: block;
+        margin-bottom: 0.3rem;
+        color: var(--sath-muted);
+        font-size: 0.74rem;
+        font-weight: 850;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .employee-review-field-item strong {
+        display: block;
+        color: var(--sath-text);
+        font-size: 0.98rem;
+        font-weight: 850;
+        line-height: 1.35;
+        word-break: break-word;
+    }
+
+.employee-review-document-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.employee-review-document-item {
+    display: flex;
+    gap: 0.85rem;
+    padding: 0.9rem;
+    border-radius: 1rem;
+    background-color: #f9fbfd;
+    border: 1px solid var(--sath-card-border);
+}
+
+.employee-review-document-icon {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 auto;
+    border-radius: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fdecef;
+    color: #a21d2b;
+    font-size: 0.74rem;
+    font-weight: 950;
+    letter-spacing: 0.05em;
+}
+
+.employee-review-document-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.employee-review-document-name {
+    color: var(--sath-text);
+    font-weight: 850;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.employee-review-document-meta {
+    margin-top: 0.25rem;
+    color: var(--sath-muted);
+    font-size: 0.85rem;
+    font-weight: 650;
+}
+
+.employee-review-document-date {
+    margin-top: 0.25rem;
+    color: var(--sath-muted);
+    font-size: 0.8rem;
+}
+
+.employee-ai-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 1.1rem;
+    background: radial-gradient(circle at top right, rgba(255, 159, 28, 0.12), transparent 12rem), var(--sath-primary-soft);
+    border: 1px solid rgba(47, 85, 151, 0.14);
+}
+
+    .employee-ai-panel h5 {
+        color: var(--sath-text);
+        font-weight: 900;
+    }
+
+    .employee-ai-panel p {
+        color: var(--sath-muted);
+        font-size: 0.88rem;
+        line-height: 1.4;
+    }
+
+.employee-review-page-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.95rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--sath-card-border);
+    border-radius: 1rem;
+    background-color: #ffffff;
+    box-shadow: 0 0.65rem 1.4rem rgba(31, 48, 83, 0.05);
+}
+
+.employee-decision-card {
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.employee-decision-warning {
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: #fff4da;
+    color: #8a5b00;
+    border: 1px solid rgba(255, 159, 28, 0.18);
+    font-weight: 700;
+}
+
+.employee-decision-form {
+    padding: 1.2rem;
+    border-radius: 1.1rem;
+    background-color: #ffffff;
+    border: 1px solid var(--sath-card-border);
+}
+
+.employee-decision-form-reject {
+    background: linear-gradient(135deg, #ffffff, #fff7f8);
+}
+
+.employee-decision-form-approve {
+    background: linear-gradient(135deg, #ffffff, #f4fbf7);
+}
+
+.employee-decision-form-header {
+    display: flex;
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.employee-decision-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    border-radius: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 950;
+}
+
+.employee-decision-icon-reject {
+    background: linear-gradient(135deg, #dc3545, #f06b78);
+}
+
+.employee-decision-icon-approve {
+    background: linear-gradient(135deg, #198754, #39b980);
+}
+
+.employee-decision-form-header h5 {
+    margin-bottom: 0.25rem;
+    color: var(--sath-text);
+    font-weight: 900;
+}
+
+.employee-decision-form-header p {
+    margin-bottom: 0;
+    color: var(--sath-muted);
+    font-size: 0.88rem;
+    line-height: 1.4;
+}
+
+.employee-review-control {
+    border-radius: 0.8rem;
+    border-color: #d7deea;
+}
+
+    .employee-review-control:focus {
+        border-color: rgba(47, 85, 151, 0.55);
+        box-shadow: 0 0 0 0.2rem rgba(47, 85, 151, 0.10);
+    }
+
+.employee-ai-modal {
+    border: 0;
+    border-radius: 1.1rem;
+    overflow: hidden;
+}
+
+    .employee-ai-modal .modal-header {
+        background: linear-gradient(135deg, #ffffff, #f8fbff);
+        border-bottom-color: var(--sath-card-border);
+    }
+
+@media (min-width: 1200px) {
+    .employee-review-hero {
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem !important;
+    }
+
+    .employee-review-stepper {
+        margin-bottom: 1rem !important;
+    }
+
+    .employee-review-step {
+        padding: 0.7rem 0.85rem;
+    }
+
+        .employee-review-step span {
+            width: 30px;
+            height: 30px;
+        }
+
+    .employee-review-card-header {
+        padding: 0.95rem 1.1rem;
+    }
+
+    .employee-review-card .card-body {
+        padding: 1.2rem !important;
+    }
+
+    .employee-review-summary-item,
+    .employee-review-applicant-panel,
+    .employee-review-description,
+    .employee-review-field-item,
+    .employee-review-document-item,
+    .employee-ai-panel,
+    .employee-decision-form {
+        padding: 0.8rem 0.9rem;
+    }
+
+    .employee-review-document-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .employee-review-applicant-avatar {
+        width: 46px;
+        height: 46px;
+    }
+
+    .employee-decision-form textarea {
+        min-height: 110px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .employee-review-hero,
+    .employee-ai-panel {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .employee-review-top-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .employee-review-top-actions .btn,
+        .employee-ai-panel .btn {
+            width: 100%;
+        }
+
+    .employee-review-stepper {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .employee-review-summary-grid,
+    .employee-review-field-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-review-page-nav {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .employee-pagination-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+        .employee-pagination-actions .btn {
+            width: 100%;
+        }
+}
+
+
+
+/* employee review 4-step progress bar */
+
+.employee-review-progress {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr auto 1fr auto;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.95rem 1.1rem;
+    border: 1px solid var(--sath-card-border);
+    border-radius: 1.1rem;
+    background-color: #ffffff;
+    box-shadow: 0 0.65rem 1.4rem rgba(31, 48, 83, 0.05);
+}
+
+.employee-review-progress-item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+}
+
+.employee-review-progress-bullet {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 950;
+    border: 2px solid transparent;
+}
+
+.employee-review-progress-label {
+    color: var(--sath-muted);
+    font-size: 0.84rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.employee-review-progress-item.completed .employee-review-progress-bullet {
+    background: linear-gradient(135deg, var(--sath-primary), var(--sath-primary-dark));
+    color: #ffffff;
+    box-shadow: 0 0.55rem 1.1rem rgba(47, 85, 151, 0.18);
+}
+
+.employee-review-progress-item.completed .employee-review-progress-label {
+    color: var(--sath-primary-dark);
+}
+
+.employee-review-progress-item.current .employee-review-progress-bullet {
+    background: linear-gradient(135deg, #ff9f1c, #ffbf69);
+    color: #ffffff;
+    box-shadow: 0 0.55rem 1.1rem rgba(255, 159, 28, 0.24);
+}
+
+.employee-review-progress-item.current .employee-review-progress-label {
+    color: #8a5b00;
+}
+
+.employee-review-progress-item.upcoming .employee-review-progress-bullet {
+    background-color: #ffffff;
+    color: #8b98a9;
+    border-color: #dbe3ef;
+}
+
+.employee-review-progress-segment {
+    height: 4px;
+    border-radius: 999px;
+    background-color: #dbe3ef;
+}
+
+    .employee-review-progress-segment.completed {
+        background: linear-gradient(90deg, var(--sath-primary), var(--sath-primary-dark));
+    }
+
+    .employee-review-progress-segment.upcoming {
+        background-color: #dbe3ef;
+    }
+
+/* employee review page refinements */
+
+.employee-review-field-grid-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.employee-review-field-item-highlight {
+    background: radial-gradient(circle at top right, rgba(47, 85, 151, 0.10), transparent 9rem), var(--sath-primary-soft);
+    border-color: rgba(47, 85, 151, 0.16);
+}
+
+.employee-review-field-item-description {
+    background: radial-gradient(circle at top right, rgba(255, 159, 28, 0.14), transparent 9rem), #fffaf2;
+    border-color: rgba(255, 159, 28, 0.20);
+}
+
+.employee-review-document-list-wide {
+    gap: 0.9rem;
+}
+
+.employee-review-document-item-wide {
+    align-items: center;
+}
+
+.employee-review-document-action {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+@media (min-width: 1200px) {
+    .employee-review-progress {
+        padding: 0.78rem 0.95rem;
+        margin-bottom: 1rem !important;
+    }
+
+    .employee-review-progress-bullet {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+
+    .employee-review-progress-label {
+        font-size: 0.76rem;
+    }
+
+    .employee-review-field-grid-three {
+        gap: 0.65rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .employee-review-progress {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .employee-review-progress-segment {
+        display: none;
+    }
+
+    .employee-review-progress-item {
+        padding: 0.65rem;
+        border-radius: 0.9rem;
+        background-color: #f9fbfd;
+        border: 1px solid var(--sath-card-border);
+    }
+
+    .employee-review-field-grid-three {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .employee-review-document-item-wide {
+        align-items: flex-start;
+    }
+
+    .employee-review-document-action {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .employee-review-field-grid-three {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-review-document-item-wide {
+        flex-direction: column;
+    }
+
+    .employee-review-document-action,
+    .employee-review-document-action .btn {
+        width: 100%;
+    }
+}
+
+
+/* employee review progress inside hero */
+
+.employee-review-hero-with-progress {
+    display: block;
+}
+
+.employee-review-hero-main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
+
+.employee-review-progress-inside {
+    margin-top: 1rem;
+    margin-bottom: 0 !important;
+    border-color: rgba(47, 85, 151, 0.10);
+    background-color: rgba(255, 255, 255, 0.72);
+    box-shadow: none;
+}
+
+@media (min-width: 1200px) {
+    .employee-review-progress-inside {
+        margin-top: 0.85rem;
+        padding: 0.72rem 0.9rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .employee-review-hero-main {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
