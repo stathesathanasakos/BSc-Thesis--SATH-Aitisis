@@ -4,248 +4,230 @@
     ViewData["Title"] = "Supporting Documents";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="mb-1">Supporting Documents</h2>
+<div class="citizen-documents-page">
 
-        <p class="text-muted mb-0">
-            Upload the PDF documents required for
-            <strong>@Model.ApplicationTypeName</strong>.
-        </p>
-    </div>
+    <div class="card citizen-documents-card">
 
-    <a asp-action="Index"
-       class="btn btn-secondary">
-        Back to Applications
-    </a>
-</div>
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
-
-<div class="card mb-4">
-    <div class="card-body">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="citizen-documents-card-header">
 
             <div>
-                <h4 class="mb-1">
+                <h5 class="mb-1">
                     Document Requirements
-                </h4>
-
-                <p class="text-muted mb-0">
-                    Required documents must be uploaded before you can continue.
-                </p>
+                </h5>
             </div>
 
             @if (Model.RequiredDocumentsCompleted)
             {
-                <span class="badge bg-success">
+                <span class="citizen-soft-badge citizen-soft-badge-success">
                     Required Documents Completed
                 </span>
             }
             else
             {
-                <span class="badge bg-warning text-dark">
+                <span class="citizen-soft-badge citizen-soft-badge-warning">
                     Documents Pending
                 </span>
             }
 
         </div>
 
-        @if (Model.DocumentRequirements.Count == 0)
-        {
-            <div class="alert alert-light border mb-0">
+        <div class="card-body p-4">
 
-                <h5 class="mb-1">
-                    No supporting documents required
-                </h5>
+            <div class="citizen-upload-help-panel mb-4">
 
-                <p class="text-muted mb-0">
-                    This application type does not require any supporting PDF documents.
-                </p>
+                <div class="citizen-upload-help-icon">
+                    PDF
+                </div>
+
+                <div>
+                    <strong>
+                        Only PDF files up to 10 MB are accepted.
+                    </strong>
+
+                    <p>
+                        Upload each required document separately. Once all required documents are uploaded, you can continue to the next step.
+                    </p>
+                </div>
 
             </div>
-        }
-        else
-        {
-            <div class="table-responsive">
 
-                <table class="table table-hover align-middle mb-0">
+            @if (Model.DocumentRequirements.Count == 0)
+            {
+                <div class="citizen-inline-empty">
 
-                    <thead class="table-light">
-                        <tr>
-                            <th>Document</th>
-                            <th>Description</th>
-                            <th>Requirement</th>
-                            <th>Status / Upload</th>
-                        </tr>
-                    </thead>
+                    <h5 class="mb-1">
+                        No supporting documents required
+                    </h5>
 
-                    <tbody>
+                    <p class="mb-0">
+                        This application type does not require any supporting PDF documents.
+                    </p>
 
-                        @foreach (var requirement in
-                                            Model.DocumentRequirements.OrderBy(x => x.DisplayOrder))
-                        {
-                            <tr>
+                </div>
+            }
+            else
+            {
+                <div class="citizen-upload-list">
 
-                                <td class="fw-semibold">
-                                    @requirement.Name
-                                </td>
+                    @foreach (var requirement in Model.DocumentRequirements.OrderBy(x => x.DisplayOrder))
+                    {
+                        <div class="citizen-upload-item @(requirement.IsUploaded ? "is-uploaded" : "is-pending")">
 
-                                <td>
-                                    @if (string.IsNullOrWhiteSpace(requirement.Description))
-                                    {
-                                        <span class="text-muted">
-                                            —
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        @requirement.Description
-                                    }
-                                </td>
+                            <div class="citizen-upload-icon">
+                                @if (requirement.IsUploaded)
+                                {
+                                    <span>✓</span>
+                                }
+                                else
+                                {
+                                    <span>PDF</span>
+                                }
+                            </div>
 
-                                <td>
+                            <div class="citizen-upload-content">
+
+                                <div class="citizen-upload-title-row">
+
+                                    <div>
+                                        <h5>
+                                            @requirement.Name
+                                        </h5>
+
+                                        @if (string.IsNullOrWhiteSpace(requirement.Description))
+                                        {
+                                            <p>
+                                                No description provided.
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            <p>
+                                                @requirement.Description
+                                            </p>
+                                        }
+                                    </div>
+
                                     @if (requirement.IsRequired)
                                     {
-                                        <span class="badge bg-danger">
+                                        <span class="badge citizen-status-badge citizen-status-rejected">
                                             Required
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">
+                                        <span class="badge citizen-status-badge citizen-status-neutral">
                                             Optional
                                         </span>
                                     }
-                                </td>
 
-                                <td style="min-width: 340px;">
+                                </div>
 
-                                    @if (requirement.IsUploaded)
-                                    {
-                                        <div class="d-flex align-items-center gap-2">
+                                @if (requirement.IsUploaded)
+                                {
+                                    <div class="citizen-uploaded-state">
+                                        <span class="badge citizen-status-badge citizen-status-approved">
+                                            Uploaded ✓
+                                        </span>
 
-                                            <span class="badge bg-success">
-                                                Uploaded ✓
-                                            </span>
+                                        <span>
+                                            Document successfully received.
+                                        </span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <form asp-action="UploadDocument"
+                                          method="post"
+                                          enctype="multipart/form-data"
+                                          class="citizen-upload-form">
 
-                                            <span class="text-muted small">
-                                                Document successfully received.
-                                            </span>
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="ApplicationId"
+                                               value="@Model.ApplicationId" />
+
+                                        <input type="hidden"
+                                               name="ApplicationTypeId"
+                                               value="@Model.ApplicationTypeId" />
+
+                                        <input type="hidden"
+                                               name="DocumentRequirementId"
+                                               value="@requirement.Id" />
+
+                                        <div class="input-group">
+
+                                            <input type="file"
+                                                   name="File"
+                                                   accept=".pdf,application/pdf"
+                                                   class="form-control citizen-submit-control"
+                                                   required />
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-primary">
+                                                Upload
+                                            </button>
 
                                         </div>
-                                    }
-                                    else
-                                    {
-                                        <form asp-action="UploadDocument"
-                                              method="post"
-                                              enctype="multipart/form-data">
 
-                                            @Html.AntiForgeryToken()
+                                    </form>
+                                }
 
-                                            <input type="hidden"
-                                                   name="ApplicationId"
-                                                   value="@Model.ApplicationId" />
+                            </div>
 
-                                            <input type="hidden"
-                                                   name="ApplicationTypeId"
-                                                   value="@Model.ApplicationTypeId" />
+                        </div>
+                    }
 
-                                            <input type="hidden"
-                                                   name="DocumentRequirementId"
-                                                   value="@requirement.Id" />
+                </div>
+            }
 
-                                            <div class="input-group">
+        </div>
 
-                                                <input type="file"
-                                                       name="File"
-                                                       accept=".pdf,application/pdf"
-                                                       class="form-control"
-                                                       required />
+        <div class="citizen-submit-actions citizen-documents-actions">
 
-                                                <button type="submit"
-                                                        class="btn btn-outline-primary">
-                                                    Upload
-                                                </button>
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
 
-                                            </div>
+            @if (Model.RequiredDocumentsCompleted)
+            {
+                <form asp-area="Citizen"
+                      asp-controller="Applications"
+                      asp-action="ContinueSubmission"
+                      method="post">
 
-                                        </form>
-                                    }
+                    @Html.AntiForgeryToken()
 
-                                </td>
+                    <input type="hidden"
+                           name="applicationId"
+                           value="@Model.ApplicationId" />
 
-                            </tr>
-                        }
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Continue
+                    </button>
 
-                    </tbody>
+                </form>
+            }
+            else
+            {
+                <button type="button"
+                        class="btn btn-primary"
+                        disabled>
+                    Continue
+                </button>
+            }
 
-                </table>
-
-            </div>
-        }
+        </div>
 
     </div>
-</div>
 
-<div class="alert alert-info mb-4">
-    Only PDF files up to 10 MB are accepted.
-</div>
-
-@if (!Model.RequiredDocumentsCompleted)
-{
-    <div class="alert alert-warning">
-        Please upload all required documents before continuing.
-    </div>
-}
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-
-    <a asp-action="Index"
-       class="btn btn-secondary">
-        Cancel
-    </a>
-
-    @if (Model.RequiredDocumentsCompleted)
+    @if (!Model.RequiredDocumentsCompleted)
     {
-        <form asp-area="Citizen"
-              asp-controller="Applications"
-              asp-action="ContinueSubmission"
-              method="post">
-
-            @Html.AntiForgeryToken()
-
-            <input type="hidden"
-                   name="applicationId"
-                   value="@Model.ApplicationId" />
-
-            <button type="submit"
-                    class="btn btn-primary">
-                Continue
-            </button>
-
-        </form>
-    }
-    else
-    {
-        <button type="button"
-                class="btn btn-primary"
-                disabled>
-            Continue
-        </button>
+        <div class="citizen-documents-warning mt-4">
+            Please upload all required documents before continuing.
+        </div>
     }
 
 </div>

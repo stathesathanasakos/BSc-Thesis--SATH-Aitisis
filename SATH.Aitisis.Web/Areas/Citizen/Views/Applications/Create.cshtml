@@ -5,369 +5,378 @@
     ViewData["Title"] = "Submit Application";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="citizen-submit-page">
 
-    <div>
-        <h2 class="mb-1">
-            @Model.ApplicationTypeName
-        </h2>
+    <div class="citizen-submit-hero mb-4">
 
-        <p class="text-muted mb-0">
-            Complete the information below to submit your application.
-        </p>
-    </div>
+        <div>
+            <span class="citizen-page-eyebrow">
+                New Application
+            </span>
 
-    <a asp-action="Index"
-       class="btn btn-secondary">
-        Back to Applications
-    </a>
+            <h1 class="citizen-page-title">
+                @Model.ApplicationTypeName
+            </h1>
 
-</div>
-
-@if (!string.IsNullOrWhiteSpace(Model.ApplicationTypeDescription))
-{
-    <div class="card mb-4">
-        <div class="card-body">
-
-            <h5 class="card-title">
-                Application Information
-            </h5>
-
-            <p class="text-muted mb-3">
-                @Model.ApplicationTypeDescription
-            </p>
-
-            @if (Model.RequiresPayment)
+            @if (!string.IsNullOrWhiteSpace(Model.ApplicationTypeDescription))
             {
-                <span class="badge bg-warning text-dark">
-                    Payment Required
-                </span>
+                <p class="citizen-page-subtitle">
+                    @Model.ApplicationTypeDescription
+                </p>
+            }
+            else
+            {
+                <p class="citizen-page-subtitle">
+                    Complete the required fields to continue to the document upload step.
+                </p>
+            }
 
-                @if (Model.FeeAmount.HasValue)
+            <div class="citizen-submit-hero-badges mt-3">
+
+                @if (Model.RequiresPayment)
                 {
-                    <span class="badge bg-light text-dark border">
-                        Fee: @Model.FeeAmount.Value.ToString("0.00") €
+                    <span class="citizen-soft-badge citizen-soft-badge-warning">
+                        Payment Required
+                    </span>
+
+                    @if (Model.FeeAmount.HasValue)
+                    {
+                        <span class="citizen-soft-badge">
+                            Fee: @Model.FeeAmount.Value.ToString("0.00") €
+                        </span>
+                    }
+                }
+                else
+                {
+                    <span class="citizen-soft-badge citizen-soft-badge-success">
+                        No Payment Required
                     </span>
                 }
-            }
-            else
-            {
-                <span class="badge bg-success">
-                    No Payment Required
+
+                <span class="citizen-soft-badge">
+                    @Model.DocumentRequirements.Count document requirement(s)
                 </span>
-            }
 
+            </div>
         </div>
-    </div>
-}
 
-<form asp-action="Create" method="post">
+        <a asp-action="Index"
+           class="btn btn-outline-secondary citizen-page-main-action">
+            Back to Applications
+        </a>
 
-    @Html.AntiForgeryToken()
-
-    <input asp-for="ApplicationTypeId"
-           type="hidden" />
-
-    <input asp-for="ApplicationTypeName"
-           type="hidden" />
-
-    <input asp-for="ApplicationTypeDescription"
-           type="hidden" />
-
-    <input asp-for="RequiresPayment"
-           type="hidden" />
-
-    <input asp-for="FeeAmount"
-           type="hidden" />
-
-    <div asp-validation-summary="ModelOnly"
-         class="alert alert-danger">
     </div>
 
-    <!-- APPLICATION FIELDS -->
+    <form asp-action="Create"
+          method="post">
 
-    <div class="card mb-4">
+        @Html.AntiForgeryToken()
 
-        <div class="card-body">
+        <input asp-for="ApplicationTypeId"
+               type="hidden" />
 
-            <h4 class="mb-1">
-                Application Details
-            </h4>
+        <input asp-for="ApplicationTypeName"
+               type="hidden" />
 
-            <p class="text-muted mb-4">
-                Fill in the information required for this application.
-            </p>
+        <input asp-for="ApplicationTypeDescription"
+               type="hidden" />
 
-            @if (Model.Fields.Count == 0)
-            {
-                <div class="alert alert-light border">
-                    This application type does not require any additional information.
-                </div>
-            }
-            else
-            {
-                @for (var i = 0; i < Model.Fields.Count; i++)
-                {
-                    <div class="mb-3">
+        <input asp-for="RequiresPayment"
+               type="hidden" />
 
-                        <input asp-for="Fields[i].FieldId"
-                               type="hidden" />
+        <input asp-for="FeeAmount"
+               type="hidden" />
 
-                        <input asp-for="Fields[i].Name"
-                               type="hidden" />
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
 
-                        <input asp-for="Fields[i].Label"
-                               type="hidden" />
+        <div class="row g-4">
 
-                        <input asp-for="Fields[i].FieldType"
-                               type="hidden" />
+            <div class="col-xl-8">
 
-                        <input asp-for="Fields[i].IsRequired"
-                               type="hidden" />
+                <div class="card citizen-submit-card h-100">
 
-                        <input asp-for="Fields[i].DisplayOrder"
-                               type="hidden" />
+                    <div class="citizen-submit-card-header">
 
-                        <label class="form-label">
+                        <div>
+                            <h5 class="mb-1">
+                                Application Fields
+                            </h5>
 
-                            @Model.Fields[i].Label
+                            <p class="mb-0">
+                                Fill in the information required for this application.
+                            </p>
+                        </div>
 
-                            @if (Model.Fields[i].IsRequired)
-                            {
-                                <span class="text-danger">*</span>
-                            }
+                        <span class="citizen-table-chip">
+                            @Model.Fields.Count field(s)
+                        </span>
 
-                        </label>
+                    </div>
 
-                        @switch (Model.Fields[i].FieldType)
+                    <div class="card-body p-4">
+
+                        @if (Model.Fields.Count == 0)
                         {
-                            case ApplicationFieldType.Text:
+                            <div class="citizen-inline-empty">
+                                This application type does not require any additional information.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="citizen-submit-fields-grid">
 
-                                <input asp-for="Fields[i].Value"
-                                       type="text"
-                                       class="form-control" />
+                                @for (var i = 0; i < Model.Fields.Count; i++)
+                                {
+                                    <div class="citizen-submit-field-item">
 
-                                break;
+                                        <input asp-for="Fields[i].FieldId"
+                                               type="hidden" />
 
-                            case ApplicationFieldType.Number:
+                                        <input asp-for="Fields[i].Name"
+                                               type="hidden" />
 
-                                <input asp-for="Fields[i].Value"
-                                       type="number"
-                                       step="any"
-                                       class="form-control" />
+                                        <input asp-for="Fields[i].Label"
+                                               type="hidden" />
 
-                                break;
+                                        <input asp-for="Fields[i].FieldType"
+                                               type="hidden" />
 
-                            case ApplicationFieldType.Date:
+                                        <input asp-for="Fields[i].IsRequired"
+                                               type="hidden" />
 
-                                <input asp-for="Fields[i].Value"
-                                       type="date"
-                                       class="form-control" />
+                                        <input asp-for="Fields[i].DisplayOrder"
+                                               type="hidden" />
 
-                                break;
+                                        <label class="form-label">
 
-                            case ApplicationFieldType.Boolean:
+                                            @Model.Fields[i].Label
 
-                                <div class="form-check">
+                                            @if (Model.Fields[i].IsRequired)
+                                            {
+                                                <span class="text-danger">*</span>
+                                            }
 
-                                    <input asp-for="Fields[i].Value"
-                                           type="checkbox"
-                                           value="true"
-                                           class="form-check-input" />
+                                        </label>
 
-                                    <label class="form-check-label">
-                                        Yes
-                                    </label>
+                                        @switch (Model.Fields[i].FieldType)
+                                        {
+                                            case ApplicationFieldType.Text:
 
-                                </div>
+                                                <input asp-for="Fields[i].Value"
+                                                       type="text"
+                                                       class="form-control citizen-submit-control" />
 
-                                break;
+                                                break;
+
+                                            case ApplicationFieldType.Number:
+
+                                                <input asp-for="Fields[i].Value"
+                                                       type="number"
+                                                       step="any"
+                                                       class="form-control citizen-submit-control" />
+
+                                                break;
+
+                                            case ApplicationFieldType.Date:
+
+                                                <input asp-for="Fields[i].Value"
+                                                       type="date"
+                                                       class="form-control citizen-submit-control" />
+
+                                                break;
+
+                                            case ApplicationFieldType.Boolean:
+
+                                                <div class="form-check citizen-submit-check">
+
+                                                    <input asp-for="Fields[i].Value"
+                                                           type="checkbox"
+                                                           value="true"
+                                                           class="form-check-input" />
+
+                                                    <label class="form-check-label">
+                                                        Yes
+                                                    </label>
+
+                                                </div>
+
+                                                break;
+                                        }
+
+                                    </div>
+                                }
+
+                            </div>
+                        }
+
+                        <div class="citizen-submit-description-panel mt-4">
+
+                            <div>
+                                <span class="citizen-page-eyebrow">
+                                    Optional Information
+                                </span>
+
+                                <h5 class="mb-1">
+                                    Additional Description
+                                </h5>
+
+                                <p class="mb-3">
+                                    You may provide any additional information relevant to your application.
+                                </p>
+                            </div>
+
+                            <label asp-for="Description"
+                                   class="form-label">
+                                Description
+                            </label>
+
+                            <textarea asp-for="Description"
+                                      class="form-control citizen-submit-control"
+                                      rows="4"
+                                      placeholder="Write any additional information here.">
+                            </textarea>
+
+                            <span asp-validation-for="Description"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-4">
+
+                <div class="card citizen-submit-side-card mb-4">
+
+                    <div class="citizen-submit-card-header">
+
+                        <div>
+                            <h5 class="mb-1">
+                                Required PDFs
+                            </h5>
+
+                            <p class="mb-0">
+                                Documents will be uploaded in the next step.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        @if (Model.DocumentRequirements.Count == 0)
+                        {
+                            <div class="citizen-inline-empty">
+                                No supporting documents are required.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="citizen-required-documents-list">
+
+                                @foreach (var requirement in Model.DocumentRequirements.OrderBy(x => x.DisplayOrder))
+                                {
+                                    <div class="citizen-required-document-item">
+
+                                        <div class="citizen-required-document-icon">
+                                            PDF
+                                        </div>
+
+                                        <div>
+                                            <strong>
+                                                @requirement.Name
+                                            </strong>
+
+                                            @if (string.IsNullOrWhiteSpace(requirement.Description))
+                                            {
+                                                <p>
+                                                    No description provided.
+                                                </p>
+                                            }
+                                            else
+                                            {
+                                                <p>
+                                                    @requirement.Description
+                                                </p>
+                                            }
+
+                                            @if (requirement.IsRequired)
+                                            {
+                                                <span class="badge citizen-status-badge citizen-status-rejected">
+                                                    Required
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge citizen-status-badge citizen-status-neutral">
+                                                    Optional
+                                                </span>
+                                            }
+                                        </div>
+
+                                    </div>
+                                }
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+                @if (Model.RequiresPayment)
+                {
+                    <div class="citizen-payment-preview-panel">
+
+                        <span class="citizen-page-eyebrow">
+                            Payment Step
+                        </span>
+
+                        <h5>
+                            Payment Required
+                        </h5>
+
+                        <p>
+                            Payment will be handled after the required documents are uploaded.
+                        </p>
+
+                        @if (Model.FeeAmount.HasValue)
+                        {
+                            <strong>
+                                @Model.FeeAmount.Value.ToString("0.00") €
+                            </strong>
                         }
 
                     </div>
                 }
-            }
-
-        </div>
-
-    </div>
-
-    <!-- OPTIONAL DESCRIPTION -->
-
-    <div class="card mb-4">
-
-        <div class="card-body">
-
-            <h4 class="mb-1">
-                Additional Information
-            </h4>
-
-            <p class="text-muted">
-                You may provide any additional information relevant to your application.
-            </p>
-
-            <div class="mb-3">
-
-                <label asp-for="Description"
-                       class="form-label">
-                    Additional Description
-                </label>
-
-                <textarea asp-for="Description"
-                          class="form-control"
-                          rows="4">
-                </textarea>
-
-                <span asp-validation-for="Description"
-                      class="text-danger">
-                </span>
 
             </div>
 
         </div>
 
-    </div>
+        <div class="citizen-submit-actions">
 
-    <!-- DOCUMENT REQUIREMENTS -->
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
 
-    <div class="card mb-4">
-
-        <div class="card-body">
-
-            <h4 class="mb-1">
-                Required Documents
-            </h4>
-
-            <p class="text-muted">
-                The following documents are required for this application type.
-            </p>
-
-            @if (Model.DocumentRequirements.Count == 0)
-            {
-                <div class="alert alert-light border mb-0">
-                    No supporting documents are required.
-                </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-
-                    <table class="table table-hover align-middle mb-0">
-
-                        <thead class="table-light">
-                            <tr>
-                                <th>Document</th>
-                                <th>Description</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            @foreach (var requirement in
-                                                    Model.DocumentRequirements.OrderBy(x => x.DisplayOrder))
-                            {
-                                <tr>
-
-                                    <td class="fw-semibold">
-                                        @requirement.Name
-                                    </td>
-
-                                    <td>
-                                        @if (string.IsNullOrWhiteSpace(requirement.Description))
-                                        {
-                                            <span class="text-muted">
-                                                —
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            @requirement.Description
-                                        }
-                                    </td>
-
-                                    <td>
-                                        @if (requirement.IsRequired)
-                                        {
-                                            <span class="badge bg-danger">
-                                                Required
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">
-                                                Optional
-                                            </span>
-                                        }
-                                    </td>
-
-                                </tr>
-                            }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-                <div class="alert alert-info mt-3 mb-0">
-                    Document upload will be available in the next step.
-                </div>
-            }
+            <button type="submit"
+                    class="btn btn-primary">
+                Continue
+            </button>
 
         </div>
 
-    </div>
+    </form>
 
-    <!-- PAYMENT INFORMATION -->
-    @if (Model.RequiresPayment)
-    {
-        <div class="card mb-4">
-
-            <div class="card-body">
-
-                <h4 class="mb-1">
-                    Payment
-                </h4>
-
-                <p class="text-muted">
-                    This application requires payment before the submission process is completed.
-                </p>
-
-                @if (Model.FeeAmount.HasValue)
-                {
-                    <div>
-                        <strong>Application Fee:</strong>
-                        @Model.FeeAmount.Value.ToString("0.00") €
-                    </div>
-                }
-
-                <div class="alert alert-info mt-3 mb-0">
-                    Payment will be handled in the payment step.
-                </div>
-
-            </div>
-
-        </div>
-    }
-
-    <!-- SUBMIT -->
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <a asp-action="Index"
-           class="btn btn-secondary">
-            Cancel
-        </a>
-
-        <button type="submit"
-                class="btn btn-primary">
-            Submit Application
-        </button>
-
-    </div>
-
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

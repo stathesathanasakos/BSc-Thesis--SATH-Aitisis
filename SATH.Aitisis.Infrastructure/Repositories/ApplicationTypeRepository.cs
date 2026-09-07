@@ -74,5 +74,12 @@ namespace SATH.Aitisis.Infrastructure.Repositories.ApplicationTypes
             await _dbContext.SaveChangesAsync();
         }
 
+
+        public async Task<ApplicationType?> GetByIdForUpdateAsync(int id)
+        {
+            return await _dbContext.ApplicationTypes
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
     }
 }

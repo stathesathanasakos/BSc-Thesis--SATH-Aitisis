@@ -1,0 +1,321 @@
+﻿@model IReadOnlyCollection<SATH.Aitisis.Web.Areas.Admin.ViewModels.Citizens.CitizenListViewModel>
+
+@{
+    ViewData["Title"] = "Citizen Management";
+
+    const int pageSize = 4;
+
+    var pageQuery = Context.Request.Query["page"].ToString();
+
+    var currentPage = int.TryParse(pageQuery, out var parsedPage) && parsedPage > 0
+        ? parsedPage
+        : 1;
+
+    var totalItems = Model.Count;
+
+    var totalPages = totalItems == 0
+        ? 1
+        : (int)Math.Ceiling((double)totalItems / pageSize);
+
+    if (currentPage > totalPages)
+    {
+        currentPage = totalPages;
+    }
+
+    var citizens = Model
+        .Skip((currentPage - 1) * pageSize)
+        .Take(pageSize)
+        .ToList();
+
+    var firstItemNumber = totalItems == 0
+        ? 0
+        : ((currentPage - 1) * pageSize) + 1;
+
+    var lastItemNumber = Math.Min(currentPage * pageSize, totalItems);
+
+    var activeCount = Model.Count(x => x.IsActive);
+    var inactiveCount = Model.Count(x => !x.IsActive);
+}
+
+<div class="admin-list-page">
+
+    <div class="admin-list-hero mb-4">
+
+        <div>
+            <span class="admin-list-eyebrow">
+                Administration – Citizen Management
+            </span>
+
+            <p class="admin-list-subtitle">
+                View citizen accounts registered in the system and reactivate accounts that were deactivated by citizens.
+            </p>
+        </div>
+
+        <a asp-area="Admin"
+           asp-controller="Employees"
+           asp-action="Index"
+           class="btn btn-outline-primary admin-list-main-action">
+            View Employees
+        </a>
+
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="admin-stat-card">
+                <div class="admin-stat-label">
+                    Total Citizens
+                </div>
+
+                <div class="admin-stat-value">
+                    @totalItems
+                </div>
+
+                <div class="admin-stat-note">
+                    Registered citizen accounts.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="admin-stat-card">
+                <div class="admin-stat-label">
+                    Active Citizens
+                </div>
+
+                <div class="admin-stat-value">
+                    @activeCount
+                </div>
+
+                <div class="admin-stat-note">
+                    Accounts that can currently sign in.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="admin-stat-card">
+                <div class="admin-stat-label">
+                    Inactive Citizens
+                </div>
+
+                <div class="admin-stat-value">
+                    @inactiveCount
+                </div>
+
+                <div class="admin-stat-note">
+                    Accounts that can be reactivated.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card admin-empty-card">
+            <div class="card-body text-center py-5">
+
+                <div class="admin-empty-icon">
+                    C
+                </div>
+
+                <h5 class="mt-3 mb-2">
+                    No citizens yet
+                </h5>
+
+                <p class="text-muted mb-0">
+                    There are currently no citizen accounts in the system.
+                </p>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card admin-table-card">
+
+            <div class="card-body p-0">
+
+                <div class="admin-table-toolbar">
+
+                    <div>
+                        <h5 class="mb-1">
+                            Citizens
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Showing @firstItemNumber-@lastItemNumber of @totalItems citizen accounts.
+                        </p>
+                    </div>
+
+                    <span class="admin-table-chip">
+                        Page @currentPage of @totalPages
+                    </span>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table admin-table align-middle mb-0">
+
+                        <thead>
+                            <tr>
+                                <th>Citizen</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var citizen in citizens)
+                            {
+                                var citizenInitial = !string.IsNullOrWhiteSpace(citizen.FirstName)
+                                ? citizen.FirstName.Substring(0, 1).ToUpper()
+                                : "C";
+
+                                <tr>
+                                    <td>
+                                        <div class="admin-entity-cell">
+
+                                            <div class="admin-entity-avatar">
+                                                @citizenInitial
+                                            </div>
+
+                                            <div>
+                                                <div class="admin-entity-title">
+                                                    @citizen.FirstName @citizen.LastName
+                                                </div>
+
+                                                <div class="admin-entity-subtitle">
+                                                    Citizen account
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="admin-muted-text">
+                                            @citizen.Email
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @if (citizen.IsActive)
+                                        {
+                                            <span class="badge admin-status-badge admin-status-active">
+                                                Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge admin-status-badge admin-status-inactive">
+                                                Inactive
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <span class="admin-muted-text">
+                                            @citizen.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end">
+                                        @if (citizen.IsActive)
+                                        {
+                                            <span class="admin-muted-text">
+                                                No action needed
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <form asp-area="Admin"
+                                                  asp-controller="Citizens"
+                                                  asp-action="Reactivate"
+                                                  method="post"
+                                                  class="d-inline">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@citizen.Id" />
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-success"
+                                                        onclick="return confirm('Are you sure you want to reactivate this citizen account?');">
+                                                    Reactivate
+                                                </button>
+
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="admin-pagination-bar">
+
+                    <div class="admin-pagination-summary">
+                        Showing @firstItemNumber-@lastItemNumber of @totalItems
+                    </div>
+
+                    <div class="admin-pagination-actions">
+
+                        @if (currentPage > 1)
+                        {
+                            <a asp-area="Admin"
+                               asp-controller="Citizens"
+                               asp-action="Index"
+                               asp-route-page="@(currentPage - 1)"
+                               class="btn btn-outline-primary">
+                                Previous
+                            </a>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    disabled>
+                                Previous
+                            </button>
+                        }
+
+                        @if (currentPage < totalPages)
+                        {
+                            <a asp-area="Admin"
+                               asp-controller="Citizens"
+                               asp-action="Index"
+                               asp-route-page="@(currentPage + 1)"
+                               class="btn btn-primary">
+                                Next
+                            </a>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    disabled>
+                                Next
+                            </button>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>

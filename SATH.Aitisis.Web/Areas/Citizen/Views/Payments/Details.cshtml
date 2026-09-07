@@ -2,185 +2,309 @@
 
 @{
     ViewData["Title"] = "Application Payment";
+
+    var paymentStatusCssClass = Model.PaymentStatusText == "Completed"
+        ? "citizen-status-approved"
+        : Model.PaymentStatusText == "Pending"
+            ? "citizen-status-pending"
+            : Model.PaymentStatusText == "Failed"
+                ? "citizen-status-rejected"
+                : "citizen-status-neutral";
 }
 
-<div class="mb-4">
-    <h2 class="mb-1">
-        Application Payment
-    </h2>
+<div class="citizen-payment-page">
 
-    <p class="text-muted mb-0">
-        Review the required application fee and continue to the secure
-        Stripe test checkout page.
-    </p>
-</div>
+    <div class="citizen-payment-hero mb-4">
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
+        <div>
+            <span class="citizen-page-eyebrow">
+                Payment Step
+            </span>
+
+            <p class="citizen-page-subtitle">
+                Review the required application fee and feel free continue to the secure Stripe checkout page.
+            </p>
+        </div>
+
+        <a asp-area="Citizen"
+           asp-controller="Applications"
+           asp-action="MyApplications"
+           class="btn btn-outline-secondary citizen-page-main-action">
+            Back to My Applications
+        </a>
+
     </div>
-}
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+            @TempData["SuccessMessage"]
 
-<div class="row g-4">
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
 
-    <div class="col-lg-7">
-        <div class="card shadow-sm">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+            @TempData["ErrorMessage"]
 
-            <div class="card-header bg-light">
-                <h5 class="mb-0">
-                    Payment Details
-                </h5>
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
+
+    <div class="row g-4">
+
+        <div class="col-xl-7">
+
+            <div class="card citizen-payment-card h-100">
+
+                <div class="citizen-payment-card-header">
+
+                    <div>
+                        <h5 class="mb-1">
+                            Payment Details
+                        </h5>
+
+                        <p class="mb-0">
+                            Payment data calculated by the application before checkout.
+                        </p>
+                    </div>
+
+                    <span class="badge citizen-status-badge @paymentStatusCssClass">
+                        @Model.PaymentStatusText
+                    </span>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="citizen-payment-details-grid">
+
+                        <div class="citizen-payment-detail-item">
+                            <span>
+                                Application
+                            </span>
+
+                            <strong>
+                                @Model.ApplicationTypeName
+                            </strong>
+                        </div>
+
+                        <div class="citizen-payment-detail-item">
+                            <span>
+                                Application ID
+                            </span>
+
+                            <strong>
+                                #@Model.ApplicationId
+                            </strong>
+                        </div>
+
+                        <div class="citizen-payment-detail-item citizen-payment-detail-amount">
+                            <span>
+                                Amount
+                            </span>
+
+                            <strong>
+                                @Model.Amount.ToString("0.00") @Model.Currency.ToUpperInvariant()
+                            </strong>
+                        </div>
+
+                        <div class="citizen-payment-detail-item">
+                            <span>
+                                Payment Status
+                            </span>
+
+                            <strong>
+                                <span class="badge citizen-status-badge @paymentStatusCssClass">
+                                    @Model.PaymentStatusText
+                                </span>
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="citizen-payment-security-panel mt-4">
+
+                        <div class="citizen-payment-security-icon">
+                            S
+                        </div>
+
+                        <div>
+                            <strong>
+                                Stripe test checkout
+                            </strong>
+
+                            <p>
+                                You will be redirected to a hosted Stripe Checkout page in test mode.
+                                No real money will be transferred.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="card-body">
+        </div>
 
-                <dl class="row mb-0">
+        <div class="col-xl-5">
 
-                    <dt class="col-sm-4">
-                        Application
-                    </dt>
-                    <dd class="col-sm-8">
-                        @Model.ApplicationTypeName
-                    </dd>
+            <div class="card citizen-payment-card h-100">
 
-                    <dt class="col-sm-4">
-                        Amount
-                    </dt>
-                    <dd class="col-sm-8">
-                        @Model.Amount.ToString("0.00") @Model.Currency.ToUpperInvariant()
-                    </dd>
+                <div class="citizen-payment-card-header">
 
-                    <dt class="col-sm-4">
-                        Payment Status
-                    </dt>
-                    <dd class="col-sm-8">
-                        @if (Model.PaymentStatusText == "Completed")
-                        {
-                            <span class="badge bg-success">
+                    <div>
+                        <h5 class="mb-1">
+                            Payment Action
+                        </h5>
+
+                        <p class="mb-0">
+                            Continue based on the current payment state.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="card-body p-4 d-flex flex-column">
+
+                    @if (!Model.RequiresPayment)
+                    {
+                        <div class="citizen-payment-state-panel citizen-payment-state-neutral">
+
+                            <span class="citizen-soft-badge citizen-soft-badge-success">
+                                No Payment Required
+                            </span>
+
+                            <h5>
+                                No fee is required
+                            </h5>
+
+                            <p>
+                                This application type does not require payment.
+                            </p>
+
+                        </div>
+
+                        <div class="mt-auto pt-4">
+                            <a asp-area="Citizen"
+                               asp-controller="Applications"
+                               asp-action="MyApplications"
+                               class="btn btn-outline-secondary w-100">
+                                Back to My Applications
+                            </a>
+                        </div>
+                    }
+                    else if (Model.PaymentStatusText == "Completed")
+                    {
+                        <div class="citizen-payment-state-panel citizen-payment-state-success">
+
+                            <span class="citizen-soft-badge citizen-soft-badge-success">
                                 Completed
                             </span>
-                        }
-                        else if (Model.PaymentStatusText == "Pending")
-                        {
-                            <span class="badge bg-warning text-dark">
-                                Pending
-                            </span>
-                        }
-                        else if (Model.PaymentStatusText == "Failed")
-                        {
-                            <span class="badge bg-danger">
-                                Failed
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">
-                                @Model.PaymentStatusText
-                            </span>
-                        }
-                    </dd>
 
-                </dl>
+                            <h5>
+                                Payment already completed
+                            </h5>
+
+                            <p>
+                                This application fee has already been paid and confirmed.
+                            </p>
+
+                        </div>
+
+                        <div class="mt-auto pt-4">
+                            <a asp-area="Citizen"
+                               asp-controller="Applications"
+                               asp-action="MyApplications"
+                               class="btn btn-primary w-100">
+                                Back to My Applications
+                            </a>
+                        </div>
+                    }
+                    else if (Model.CanStartPayment)
+                    {
+                        <div class="citizen-payment-state-panel citizen-payment-state-warning">
+
+                            <span class="citizen-soft-badge citizen-soft-badge-warning">
+                                Payment Required
+                            </span>
+
+                            <h5>
+                                Continue to checkout
+                            </h5>
+
+                            <p>
+                                The payment will be processed through Stripe Checkout in test mode.
+                            </p>
+
+                        </div>
+
+                        <form asp-area="Citizen"
+                              asp-controller="Payments"
+                              asp-action="Start"
+                              method="post"
+                              class="mt-auto pt-4">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="applicationId"
+                                   value="@Model.ApplicationId" />
+
+                            <button type="submit"
+                                    class="btn btn-primary w-100">
+                                Pay Fee with Stripe
+                            </button>
+
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="citizen-payment-state-panel citizen-payment-state-warning">
+
+                            <span class="citizen-soft-badge citizen-soft-badge-warning">
+                                Unavailable
+                            </span>
+
+                            <h5>
+                                Payment cannot be started
+                            </h5>
+
+                            <p>
+                                Payment cannot currently be started for this application.
+                            </p>
+
+                        </div>
+
+                        <div class="mt-auto pt-4">
+                            <a asp-area="Citizen"
+                               asp-controller="Applications"
+                               asp-action="MyApplications"
+                               class="btn btn-outline-secondary w-100">
+                                Back to My Applications
+                            </a>
+                        </div>
+                    }
+
+                </div>
 
             </div>
 
         </div>
-    </div>
 
-    <div class="col-lg-5">
-        <div class="card shadow-sm h-100">
-
-            <div class="card-header bg-light">
-                <h5 class="mb-0">
-                    Action
-                </h5>
-            </div>
-
-            <div class="card-body d-flex flex-column">
-
-                @if (!Model.RequiresPayment)
-                {
-                    <div class="alert alert-light border">
-                        This application type does not require payment.
-                    </div>
-
-                    <div class="mt-auto">
-                        <a asp-area="Citizen"
-                           asp-controller="Applications"
-                           asp-action="MyApplications"
-                           class="btn btn-outline-secondary">
-                            Back to My Applications
-                        </a>
-                    </div>
-                }
-                else if (Model.PaymentStatusText == "Completed")
-                {
-                    <div class="alert alert-success">
-                        This application fee has already been paid.
-                    </div>
-
-                    <div class="mt-auto">
-                        <a asp-area="Citizen"
-                           asp-controller="Applications"
-                           asp-action="MyApplications"
-                           class="btn btn-outline-primary">
-                            Back to My Applications
-                        </a>
-                    </div>
-                }
-                else if (Model.CanStartPayment)
-                {
-                    <p class="text-muted">
-                        You will be redirected to Stripe Checkout in test mode.
-                        No real money will be transferred.
-                    </p>
-
-                    <form asp-area="Citizen"
-                          asp-controller="Payments"
-                          asp-action="Start"
-                          method="post"
-                          class="mt-auto">
-
-                        @Html.AntiForgeryToken()
-
-                        <input type="hidden"
-                               name="applicationId"
-                               value="@Model.ApplicationId" />
-
-                        <button type="submit"
-                                class="btn btn-primary w-100">
-                            Pay Fee with Stripe
-                        </button>
-
-                    </form>
-                }
-                else
-                {
-                    <div class="alert alert-warning">
-                        Payment cannot be started for this application.
-                    </div>
-
-                    <div class="mt-auto">
-                        <a asp-area="Citizen"
-                           asp-controller="Applications"
-                           asp-action="MyApplications"
-                           class="btn btn-outline-secondary">
-                            Back to My Applications
-                        </a>
-                    </div>
-                }
-
-            </div>
-
-        </div>
     </div>
 
 </div>

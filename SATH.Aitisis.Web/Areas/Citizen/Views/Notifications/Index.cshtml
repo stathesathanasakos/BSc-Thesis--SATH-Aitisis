@@ -2,65 +2,116 @@
 
 @{
     ViewData["Title"] = "Notifications";
+
+    const int pageSize = 2;
+
+    var pageQuery = Context.Request.Query["page"].ToString();
+
+    var currentPage = int.TryParse(pageQuery, out var parsedPage) && parsedPage > 0
+        ? parsedPage
+        : 1;
+
+    var totalItems = Model.Count;
+
+    var totalPages = totalItems == 0
+        ? 1
+        : (int)Math.Ceiling((double)totalItems / pageSize);
+
+    if (currentPage > totalPages)
+    {
+        currentPage = totalPages;
+    }
+
+    var notifications = Model
+        .Skip((currentPage - 1) * pageSize)
+        .Take(pageSize)
+        .ToList();
+
+    var firstItemNumber = totalItems == 0
+        ? 0
+        : ((currentPage - 1) * pageSize) + 1;
+
+    var lastItemNumber = Math.Min(currentPage * pageSize, totalItems);
+
+    var unreadCount = Model.Count(x => !x.IsRead);
 }
 
-<div class="d-flex justify-content-between align-items-start mb-4">
+<div class="citizen-notifications-page">
 
-    <div>
-        <h2 class="mb-1">
-            Notifications
-        </h2>
+    @if (!Model.Any())
+    {
+        <div class="card citizen-empty-card">
+            <div class="card-body text-center py-5">
 
-        <p class="text-muted mb-0">
-            View updates about your submitted applications.
-        </p>
-    </div>
+                <div class="citizen-empty-icon">
+                    i
+                </div>
 
-    <a asp-area=""
-       asp-controller="Home"
-       asp-action="Index"
-       class="btn btn-outline-secondary">
-        Back to Home
-    </a>
+                <h5 class="mt-3 mb-2">
+                    No notifications
+                </h5>
 
-</div>
+                <p class="text-muted mb-0">
+                    You do not have any notifications yet.
+                </p>
 
-@if (!Model.Any())
-{
-    <div class="card shadow-sm">
-        <div class="card-body text-center py-5">
-
-            <h5 class="mb-2">
-                No notifications
-            </h5>
-
-            <p class="text-muted mb-0">
-                You do not have any notifications yet.
-            </p>
-
+            </div>
         </div>
-    </div>
-}
-else
-{
-    <div class="row g-3">
+    }
+    else
+    {
+        <div class="card citizen-notifications-card">
 
-        @foreach (var notification in Model)
-        {
-            <div class="col-12">
-                <div class="card shadow-sm @(notification.IsRead ? "" : "border-primary")">
+            <div class="citizen-notifications-card-header">
 
-                    <div class="card-body">
+                <div>
+                    <h5 class="mb-1">
+                        Notification Center
+                    </h5>
 
-                        <div class="d-flex justify-content-between align-items-start gap-3">
+                    <p class="mb-0">
+                        Showing @firstItemNumber-@lastItemNumber of @totalItems notifications.
+                    </p>
+                </div>
 
-                            <div>
+                <span class="citizen-table-chip">
+                    Page @currentPage of @totalPages
+                </span>
 
-                                <div class="d-flex align-items-center gap-2 mb-2">
+            </div>
 
-                                    <h5 class="mb-0">
-                                        @notification.Title
-                                    </h5>
+            <div class="card-body p-4">
+
+                <div class="citizen-notification-list">
+
+                    @foreach (var notification in notifications)
+                    {
+                        <div class="citizen-notification-item @(notification.IsRead ? "is-read" : "is-unread")">
+
+                            <div class="citizen-notification-icon">
+                                @if (notification.IsRead)
+                                {
+                                    <span>✓</span>
+                                }
+                                else
+                                {
+                                    <span>!</span>
+                                }
+                            </div>
+
+                            <div class="citizen-notification-content">
+
+                                <div class="citizen-notification-title-row">
+
+                                    <div>
+                                        <h5>
+                                            @notification.Title
+                                        </h5>
+
+                                        <small>
+                                            @(notification.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                                        </small>
+                                    </div>
 
                                     <span class="badge @notification.BadgeCssClass">
                                         @notification.BadgeText
@@ -68,55 +119,109 @@ else
 
                                 </div>
 
-                                <p class="mb-2 notification-message">
+                                <p class="notification-message">
                                     @notification.Message
                                 </p>
 
-                                <small class="text-muted">
-                                    @(notification.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
-                                </small>
+                                <div class="citizen-notification-actions">
 
-                            </div>
+                                    @if (notification.ApplicationId.HasValue)
+                                    {
+                                        <a asp-area="Citizen"
+                                           asp-controller="Applications"
+                                           asp-action="MyApplications"
+                                           class="btn btn-sm btn-outline-primary">
+                                            My Applications
+                                        </a>
+                                    }
 
-                            <div class="text-end">
+                                    @if (!notification.IsRead)
+                                    {
+                                        <form asp-area="Citizen"
+                                              asp-controller="Notifications"
+                                              asp-action="MarkAsRead"
+                                              asp-route-id="@notification.Id"
+                                              method="post">
 
-                                @if (notification.ApplicationId.HasValue)
-                                {
-                                    <a asp-area="Citizen"
-                                       asp-controller="Applications"
-                                       asp-action="MyApplications"
-                                       class="btn btn-sm btn-outline-primary mb-2">
-                                        My Applications
-                                    </a>
-                                }
+                                            @Html.AntiForgeryToken()
 
-                                @if (!notification.IsRead)
-                                {
-                                    <form asp-area="Citizen"
-                                          asp-controller="Notifications"
-                                          asp-action="MarkAsRead"
-                                          asp-route-id="@notification.Id"
-                                          method="post">
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-secondary">
+                                                Mark as read
+                                            </button>
 
-                                        @Html.AntiForgeryToken()
+                                        </form>
+                                    }
 
-                                        <button type="submit"
-                                                class="btn btn-sm btn-outline-secondary">
-                                            Mark as read
-                                        </button>
-
-                                    </form>
-                                }
+                                </div>
 
                             </div>
 
                         </div>
-
-                    </div>
+                    }
 
                 </div>
-            </div>
-        }
 
-    </div>
-}
+            </div>
+
+            <div class="citizen-pagination-bar">
+
+                <div class="citizen-pagination-summary">
+                    Showing @firstItemNumber-@lastItemNumber of @totalItems
+                </div>
+
+                <a asp-area=""
+                   asp-controller="Home"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary citizen-page-main-action">
+                    Back to Home
+                </a>
+
+                <div class="citizen-pagination-actions">
+
+                    @if (currentPage > 1)
+                    {
+                        <a asp-area="Citizen"
+                           asp-controller="Notifications"
+                           asp-action="Index"
+                           asp-route-page="@(currentPage - 1)"
+                           class="btn btn-outline-primary">
+                            Previous
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                disabled>
+                            Previous
+                        </button>
+                    }
+
+                    @if (currentPage < totalPages)
+                    {
+                        <a asp-area="Citizen"
+                           asp-controller="Notifications"
+                           asp-action="Index"
+                           asp-route-page="@(currentPage + 1)"
+                           class="btn btn-primary">
+                            Next
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                disabled>
+                            Next
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>

@@ -2,155 +2,285 @@
 
 @{
     ViewData["Title"] = "My Applications";
+
+    const int pageSize = 4;
+
+    var pageQuery = Context.Request.Query["page"].ToString();
+
+    var currentPage = int.TryParse(pageQuery, out var parsedPage) && parsedPage > 0
+        ? parsedPage
+        : 1;
+
+    var totalItems = Model.Count;
+
+    var totalPages = totalItems == 0
+        ? 1
+        : (int)Math.Ceiling((double)totalItems / pageSize);
+
+    if (currentPage > totalPages)
+    {
+        currentPage = totalPages;
+    }
+
+    var applications = Model
+        .Skip((currentPage - 1) * pageSize)
+        .Take(pageSize)
+        .ToList();
+
+    var firstItemNumber = totalItems == 0
+        ? 0
+        : ((currentPage - 1) * pageSize) + 1;
+
+    var lastItemNumber = Math.Min(currentPage * pageSize, totalItems);
+
+    var approvedCount = Model.Count(x => x.StatusText == "Approved");
+    var pendingCount = Model.Count(x => x.StatusText == "Pending");
+    var rejectedCount = Model.Count(x => x.StatusText == "Rejected");
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="citizen-applications-page">
 
-    <div>
-        <h2 class="mb-1">
-            My Applications
-        </h2>
+    <div class="citizen-applications-hero mb-4">
 
-        <p class="text-muted mb-0">
-            View the applications you have submitted and their current status.
-        </p>
-    </div>
+        <div>
+            <span class="citizen-page-eyebrow">
+                Citizen Workspace – Applications
+            </span>
 
-    <a asp-area="Citizen"
-       asp-controller="Applications"
-       asp-action="Index"
-       class="btn btn-primary">
-        New Application
-    </a>
-
-</div>
-
-@if (!Model.Any())
-{
-    <div class="card shadow-sm">
-        <div class="card-body text-center py-5">
-
-            <h5 class="mb-2">
-                No applications found
-            </h5>
-
-            <p class="text-muted">
-                You have not submitted any applications yet.
+            <p class="citizen-page-subtitle">
+                View your submitted applications, follow their current status and access timelines or certificates.
             </p>
-
-            <a asp-area="Citizen"
-               asp-controller="Applications"
-               asp-action="Index"
-               class="btn btn-primary">
-                Start an Application
-            </a>
-
         </div>
+
+        <a asp-area="Citizen"
+           asp-controller="Applications"
+           asp-action="Index"
+           class="btn btn-primary citizen-page-main-action">
+            New Application
+        </a>
+
     </div>
-}
-else
-{
-    <div class="card shadow-sm">
 
-        <div class="card-body">
+    @if (!Model.Any())
+    {
+        <div class="card citizen-empty-card">
+            <div class="card-body text-center py-5">
 
-            <div class="table-responsive">
+                <div class="citizen-empty-icon">
+                    A
+                </div>
 
-                <table class="table table-hover align-middle mb-0">
+                <h5 class="mt-3 mb-2">
+                    No applications found
+                </h5>
 
-                    <thead class="table-light">
-                        <tr>
-                            <th>Application</th>
-                            <th>Submitted On</th>
-                            <th>Status</th>
-                            <th>Protocol Number</th>
-                            <th>Decision Date</th>
-                            <th class="text-end">Action</th>
-                        </tr>
-                    </thead>
+                <p class="text-muted mb-4">
+                    You have not submitted any applications yet.
+                </p>
 
-                    <tbody>
+                <a asp-area="Citizen"
+                   asp-controller="Applications"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    Start an Application
+                </a>
 
-                        @foreach (var application in Model)
-                        {
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card citizen-applications-card">
+
+            <div class="citizen-applications-card-header">
+
+                <div>
+                    <h5 class="mb-1">
+                        Application History
+                    </h5>
+
+                    <p class="mb-0">
+                        Showing @firstItemNumber-@lastItemNumber of @totalItems submitted applications.
+                    </p>
+                </div>
+
+                <span class="citizen-table-chip">
+                    Page @currentPage of @totalPages
+                </span>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table citizen-applications-table align-middle mb-0">
+
+                        <thead>
                             <tr>
+                                <th>Application</th>
+                                <th>Submitted On</th>
+                                <th>Status</th>
+                                <th>Protocol Number</th>
+                                <th>Decision Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
 
-                                <td class="fw-semibold">
-                                    @application.ApplicationTypeName
-                                </td>
+                        <tbody>
 
-                                <td>
-                                    @(application.SubmissionDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
-                                </td>
+                            @foreach (var application in applications)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="citizen-application-cell">
 
-                                <td>
-                                    <span class="badge @application.StatusCssClass">
-                                        @application.StatusText
-                                    </span>
-                                </td>
+                                            <div class="citizen-application-avatar">
+                                                #@application.Id
+                                            </div>
 
-                                <td>
-                                    @if (string.IsNullOrWhiteSpace(application.ProtocolNumber))
-                                    {
-                                        <span class="text-muted">
-                                            —
+                                            <div>
+                                                <div class="citizen-application-title">
+                                                    @application.ApplicationTypeName
+                                                </div>
+
+                                                <div class="citizen-application-subtitle">
+                                                    Application #@application.Id
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="citizen-muted-text">
+                                            @(application.SubmissionDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
                                         </span>
-                                    }
-                                    else
-                                    {
-                                        @application.ProtocolNumber
-                                    }
-                                </td>
+                                    </td>
 
-                                <td>
-                                    @if (application.DecisionDate.HasValue)
-                                    {
-                                        @(application.DecisionDate.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">
-                                            —
+                                    <td>
+                                        <span class="badge citizen-status-badge @application.StatusCssClass">
+                                            @application.StatusText
                                         </span>
-                                    }
-                                </td>
+                                    </td>
 
-                                <td class="text-end">
-                                    <div class="d-flex justify-content-end gap-2 flex-wrap">
-
-                                        <a asp-area="Citizen"
-                                           asp-controller="Applications"
-                                           asp-action="Timeline"
-                                           asp-route-id="@application.Id"
-                                           class="btn btn-sm btn-outline-secondary">
-                                            Timeline
-                                        </a>
-
-                                        @if (application.StatusText == "Approved" &&
-                                                                        !string.IsNullOrWhiteSpace(application.ProtocolNumber))
+                                    <td>
+                                        @if (string.IsNullOrWhiteSpace(application.ProtocolNumber))
                                         {
+                                            <span class="citizen-muted-text">
+                                                —
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="citizen-protocol-text">
+                                                @application.ProtocolNumber
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (application.DecisionDate.HasValue)
+                                        {
+                                            <span class="citizen-muted-text">
+                                                @(application.DecisionDate.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="citizen-muted-text">
+                                                —
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-2 flex-wrap">
+
                                             <a asp-area="Citizen"
                                                asp-controller="Applications"
-                                               asp-action="DownloadCertificate"
+                                               asp-action="Timeline"
                                                asp-route-id="@application.Id"
-                                               class="btn btn-sm btn-outline-success">
-                                                Download Certificate
+                                               class="btn btn-sm btn-outline-secondary">
+                                                Timeline
                                             </a>
-                                        }
 
-                                    </div>
-                                </td>
+                                            @if (application.StatusText == "Approved" &&
+                                                                                !string.IsNullOrWhiteSpace(application.ProtocolNumber))
+                                            {
+                                                <a asp-area="Citizen"
+                                                   asp-controller="Applications"
+                                                   asp-action="DownloadCertificate"
+                                                   asp-route-id="@application.Id"
+                                                   class="btn btn-sm btn-outline-success">
+                                                    Download Certificate
+                                                </a>
+                                            }
 
-                            </tr>
-                        }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
 
-                    </tbody>
+                        </tbody>
 
-                </table>
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="citizen-pagination-bar">
+
+                <div class="citizen-pagination-summary">
+                    Showing @firstItemNumber-@lastItemNumber of @totalItems
+                </div>
+
+                <div class="citizen-pagination-actions">
+
+                    @if (currentPage > 1)
+                    {
+                        <a asp-area="Citizen"
+                           asp-controller="Applications"
+                           asp-action="MyApplications"
+                           asp-route-page="@(currentPage - 1)"
+                           class="btn btn-outline-primary">
+                            Previous
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                disabled>
+                            Previous
+                        </button>
+                    }
+
+                    @if (currentPage < totalPages)
+                    {
+                        <a asp-area="Citizen"
+                           asp-controller="Applications"
+                           asp-action="MyApplications"
+                           asp-route-page="@(currentPage + 1)"
+                           class="btn btn-primary">
+                            Next
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                disabled>
+                            Next
+                        </button>
+                    }
+
+                </div>
 
             </div>
 
         </div>
+    }
 
-    </div>
-}
+</div>

@@ -4,42 +4,84 @@
     ViewData["Title"] = "Payment Completed";
 }
 
-<div class="card shadow-sm">
-    <div class="card-body text-center py-5">
+<div class="citizen-payment-result-page">
 
-        <div class="mb-3">
-            <span class="badge bg-success fs-6">
-                Payment Completed
-            </span>
-        </div>
+    <div class="row justify-content-center">
 
-        <h2 class="mb-3">
-            Your payment was completed successfully.
-        </h2>
+        <div class="col-xl-8 col-lg-9">
 
-        <p class="text-muted mb-4">
-            The application fee has been confirmed through the Stripe test
-            payment flow.
-        </p>
+            <div class="card citizen-confirmation-card citizen-payment-result-card">
 
-        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <div class="card-body p-5 text-center">
 
-            <a asp-area="Citizen"
-               asp-controller="Applications"
-               asp-action="MyApplications"
-               class="btn btn-primary">
-                Go to My Applications
-            </a>
+                    <div class="citizen-confirmation-icon">
+                        ✓
+                    </div>
 
-            <a asp-area="Citizen"
-               asp-controller="Payments"
-               asp-action="Details"
-               asp-route-applicationId="@Model"
-               class="btn btn-outline-secondary">
-                View Payment Details
-            </a>
+                    <h1 class="citizen-page-title mt-3">
+                        Your payment was completed successfully
+                    </h1>
+
+                    <p class="citizen-page-subtitle mx-auto">
+                        The application fee has been confirmed through the Stripe test payment flow.
+                    </p>
+
+                    <div class="citizen-confirmation-reference">
+
+                        <span>
+                            Application ID
+                        </span>
+
+                        <strong>
+                            #@Model
+                        </strong>
+
+                    </div>
+
+                    <div class="citizen-confirmation-info-panel">
+
+                        <div class="citizen-confirmation-info-icon">
+                            i
+                        </div>
+
+                        <div class="text-start">
+                            <strong>
+                                What happens next?
+                            </strong>
+
+                            <p>
+                                Your application is now ready for employee review.
+                                You can follow its progress from your application history.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="citizen-confirmation-actions">
+
+                        <a asp-area="Citizen"
+                           asp-controller="Payments"
+                           asp-action="Details"
+                           asp-route-applicationId="@Model"
+                           class="btn btn-outline-secondary">
+                            View Payment Details
+                        </a>
+
+                        <a asp-area="Citizen"
+                           asp-controller="Applications"
+                           asp-action="MyApplications"
+                           class="btn btn-primary">
+                            Go to My Applications
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
     </div>
+
 </div>

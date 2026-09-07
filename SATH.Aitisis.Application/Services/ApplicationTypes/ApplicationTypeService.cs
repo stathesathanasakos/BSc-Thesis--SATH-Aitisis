@@ -254,5 +254,60 @@ namespace SATH.Aitisis.App.Services.ApplicationTypes
 
             return true;
         }
+
+
+
+        // the admin can deactivate an application type
+        public async Task<bool> DeactivateAsync(int id)
+        {
+            if (id <= 0)
+            {
+                return false;
+            }
+
+            var applicationType = await _repository.GetByIdForUpdateAsync(id);
+
+            if (applicationType == null)
+            {
+                return false;
+            }
+
+            if (!applicationType.IsActive)
+            {
+                return true;
+            }
+
+            applicationType.IsActive = false;
+
+            await _repository.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> ReactivateAsync(int id)
+        {
+            if (id <= 0)
+            {
+                return false;
+            }
+
+            var applicationType = await _repository.GetByIdForUpdateAsync(id);
+
+            if (applicationType == null)
+            {
+                return false;
+            }
+
+            if (applicationType.IsActive)
+            {
+                return true;
+            }
+
+            applicationType.IsActive = true;
+
+            await _repository.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

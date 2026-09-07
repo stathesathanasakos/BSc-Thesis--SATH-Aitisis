@@ -18,5 +18,7 @@ namespace SATH.Aitisis.App.Services.ApplicationTypes
         Task AddDocumentRequirementAsync(DocumentRequirement documentRequirement);
 
         Task SaveChangesAsync();
+
+        Task<ApplicationType?> GetByIdForUpdateAsync(int id);
     }
 }

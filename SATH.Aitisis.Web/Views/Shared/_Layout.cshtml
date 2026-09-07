@@ -117,6 +117,18 @@
                             </a>
 
                             <a asp-area="Admin"
+                               asp-controller="Citizens"
+                               asp-action="Index"
+                               class="app-sidebar-link @IsActive("Admin", "Citizens")">
+                                <span class="app-sidebar-link-icon">
+                                    ◦
+                                </span>
+                                <span>
+                                    Citizens
+                                </span>
+                            </a>
+
+                            <a asp-area="Admin"
                                asp-controller="ApplicationTypes"
                                asp-action="Index"
                                class="app-sidebar-link @IsActive("Admin", "ApplicationTypes")">

@@ -14,5 +14,9 @@
         Task<bool> AddFieldAsync(AddApplicationTypeFieldRequest request);
 
         Task<bool> AddDocumentRequirementAsync(AddDocumentRequirementRequest request);
+
+        Task<bool> DeactivateAsync(int id);
+
+        Task<bool> ReactivateAsync(int id);
     }
 }

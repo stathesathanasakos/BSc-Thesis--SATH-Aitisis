@@ -2,106 +2,198 @@
     ViewData["Title"] = "Deactivate Account";
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
+<div class="citizen-danger-page">
 
-        <div class="card shadow-sm border-danger">
+    <div class="citizen-danger-hero mb-4">
 
-            <div class="card-header bg-danger text-white">
-                <h4 class="mb-0">
-                    Deactivate Account
-                </h4>
+        <div>
+            <span class="citizen-page-eyebrow">
+                Account Settings – Deactivate your Account
+            </span>
+
+            <p class="citizen-page-subtitle">
+                Review the consequences carefully before deactivating your citizen account.
+            </p>
+        </div>
+
+        <a asp-area=""
+           asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-outline-secondary citizen-page-main-action">
+            Back to Home
+        </a>
+
+    </div>
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+            @errorMessage
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
+
+    <div class="row g-4 align-items-stretch">
+
+        <div class="col-xl-5">
+
+            <div class="card citizen-danger-card h-100">
+
+                <div class="citizen-danger-card-header">
+
+                    <div class="citizen-danger-icon">
+                        !
+                    </div>
+
+                    <div>
+                        <h5 class="mb-1">
+                            Serious Account Action
+                        </h5>
+
+                        <p class="mb-0">
+                            Deactivation restricts your access to citizen services.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="citizen-danger-warning-block mb-3">
+
+                        <h6>
+                            What will happen?
+                        </h6>
+
+                        <p>
+                            You are about to deactivate your citizen account.
+                            After this action is completed, you will no longer be able
+                            to sign in or use the citizen services of the application.
+                        </p>
+
+                    </div>
+
+                    <div class="citizen-danger-info-block">
+
+                        <h6>
+                            Can this be reversed?
+                        </h6>
+
+                        <p>
+                            This action cannot be reversed by you from inside the
+                            application. If reactivation is ever required, it must be
+                            handled by the organization/system administrator.
+                        </p>
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="card-body">
+        </div>
 
-                @if (TempData["ErrorMessage"] is string errorMessage)
-                {
-                    <div class="alert alert-danger" role="alert">
-                        @errorMessage
+        <div class="col-xl-7">
+
+            <div class="card citizen-deactivate-form-card h-100">
+
+                <div class="citizen-deactivate-form-header">
+
+                    <div>
+                        <span class="citizen-page-eyebrow">
+                            Confirmation
+                        </span>
+
+                        <h5 class="mb-1">
+                            Confirm Account Deactivation
+                        </h5>
+
+                        <p class="mb-0">
+                            Your existing data will remain stored for administrative, legal and review purposes.
+                        </p>
                     </div>
-                }
 
-                <div class="alert alert-danger">
-                    <h5 class="alert-heading">
-                        This is a serious account action
-                    </h5>
+                    <span class="citizen-danger-chip">
+                        Irreversible by user
+                    </span>
 
-                    <p>
-                        You are about to deactivate your citizen account.
-                        After this action is completed, you will no longer be
-                        able to sign in or use the citizen services of the
-                        application.
-                    </p>
-
-                    <hr />
-
-                    <p class="mb-0">
-                        This action cannot be reversed by you from inside the
-                        application. If reactivation is ever required, it must
-                        be handled by the organization/system administrator.
-                    </p>
                 </div>
 
-                <div class="alert alert-warning">
-                    <strong>Your existing data will not be deleted.</strong>
+                <div class="card-body p-4">
 
-                    <p class="mb-0 mt-2">
-                        Your submitted applications, uploaded documents,
-                        application decisions, protocol numbers and related
-                        history will remain stored in the system for
-                        administrative, legal and review purposes.
-                    </p>
+                    <div class="citizen-data-retention-panel mb-4">
+
+                        <div class="citizen-data-retention-icon">
+                            i
+                        </div>
+
+                        <div>
+                            <strong>
+                                Your existing data will not be deleted.
+                            </strong>
+
+                            <p>
+                                Your submitted applications, uploaded documents,
+                                application decisions, protocol numbers and related
+                                history will remain stored in the system.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <form asp-area="Citizen"
+                          asp-controller="Account"
+                          asp-action="DeactivateConfirmed"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="citizen-confirmation-check mb-4">
+
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="confirmDeactivation"
+                                   required />
+
+                            <label class="form-check-label"
+                                   for="confirmDeactivation">
+                                I understand that deactivating my account is a serious action
+                                and that I will not be able to sign in again after completion.
+                            </label>
+
+                        </div>
+
+                        <div class="citizen-danger-actions">
+
+                            <a asp-area=""
+                               asp-controller="Home"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-danger"
+                                    onclick="return confirm('Final confirmation: are you sure you want to deactivate your account?');">
+                                Deactivate My Account
+                            </button>
+
+                        </div>
+
+                    </form>
+
                 </div>
-
-                <p class="text-muted">
-                    Choose cancel if you are not completely sure that you want
-                    to deactivate your account.
-                </p>
-
-                <form asp-area="Citizen"
-                      asp-controller="Account"
-                      asp-action="DeactivateConfirmed"
-                      method="post">
-
-                    @Html.AntiForgeryToken()
-
-                    <div class="form-check mb-4">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               id="confirmDeactivation"
-                               required />
-
-                        <label class="form-check-label"
-                               for="confirmDeactivation">
-                            I understand that deactivating my account is a
-                            serious action and that I will not be able to sign
-                            in again after completion.
-                        </label>
-                    </div>
-
-                    <div class="d-flex gap-2">
-
-                        <a asp-area=""
-                           asp-controller="Home"
-                           asp-action="Index"
-                           class="btn btn-outline-secondary">
-                            Cancel
-                        </a>
-
-                        <button type="submit"
-                                class="btn btn-danger"
-                                onclick="return confirm('Final confirmation: are you sure you want to deactivate your account?');">
-                            Deactivate My Account
-                        </button>
-
-                    </div>
-
-                </form>
 
             </div>
 
         </div>
 
     </div>
+
 </div>

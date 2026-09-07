@@ -22,7 +22,8 @@ using SATH.Aitisis.Infrastructure.Repositories.Payments;
 using SATH.Aitisis.Infrastructure.Services.ApprovalCertificates;
 using SATH.Aitisis.Infrastructure.Services.Employees;
 using SATH.Aitisis.Infrastructure.Storage;
-
+using SATH.Aitisis.App.Services.Citizens;
+using SATH.Aitisis.Infrastructure.Services.Citizens;
 
 
 
@@ -108,6 +109,8 @@ builder.Services.Configure<GroqAiOptions>(builder.Configuration.GetSection("Groq
 builder.Services.AddScoped<IApplicationAiReviewService, ApplicationAiReviewService>();
 builder.Services.AddHttpClient<IAiReviewAssistant, GroqAiReviewAssistantAdapter>();
 
+// Admin can reactivate citizens that have been deactivated
+builder.Services.AddScoped<ICitizenManagementService, CitizenManagementService>();
 
 // Add services to the container
 builder.Services.AddControllersWithViews();

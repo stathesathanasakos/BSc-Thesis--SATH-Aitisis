@@ -4,42 +4,84 @@
     ViewData["Title"] = "Payment Cancelled";
 }
 
-<div class="card shadow-sm">
-    <div class="card-body text-center py-5">
+<div class="citizen-payment-result-page">
 
-        <div class="mb-3">
-            <span class="badge bg-warning text-dark fs-6">
-                Payment Cancelled
-            </span>
-        </div>
+    <div class="row justify-content-center">
 
-        <h2 class="mb-3">
-            The payment was cancelled.
-        </h2>
+        <div class="col-xl-8 col-lg-9">
 
-        <p class="text-muted mb-4">
-            No payment was completed. You can return to the payment page and
-            try again.
-        </p>
+            <div class="card citizen-confirmation-card citizen-payment-result-card citizen-payment-cancel-card">
 
-        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <div class="card-body p-5 text-center">
 
-            <a asp-area="Citizen"
-               asp-controller="Payments"
-               asp-action="Details"
-               asp-route-applicationId="@Model"
-               class="btn btn-primary">
-                Try Again
-            </a>
+                    <div class="citizen-payment-cancel-icon">
+                        !
+                    </div>
 
-            <a asp-area="Citizen"
-               asp-controller="Applications"
-               asp-action="MyApplications"
-               class="btn btn-outline-secondary">
-                Back to My Applications
-            </a>
+                    <h1 class="citizen-page-title mt-3">
+                        The payment was cancelled
+                    </h1>
+
+                    <p class="citizen-page-subtitle mx-auto">
+                        No payment was completed. You can return to the payment page and try again or cancel th application submission process.
+                    </p>
+
+                    <div class="citizen-confirmation-reference">
+
+                        <span>
+                            Application ID
+                        </span>
+
+                        <strong>
+                            #@Model
+                        </strong>
+
+                    </div>
+
+                    <div class="citizen-payment-cancel-info-panel">
+
+                        <div class="citizen-payment-cancel-info-icon">
+                            i
+                        </div>
+
+                        <div class="text-start">
+                            <strong>
+                                Your application has not been paid yet.
+                            </strong>
+
+                            <p>
+                                If this application requires payment, it will become available for review
+                                only after the fee is successfully completed.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="citizen-confirmation-actions">
+
+                        <a asp-area="Citizen"
+                           asp-controller="Applications"
+                           asp-action="MyApplications"
+                           class="btn btn-outline-secondary">
+                            Back to My Applications
+                        </a>
+
+                        <a asp-area="Citizen"
+                           asp-controller="Payments"
+                           asp-action="Details"
+                           asp-route-applicationId="@Model"
+                           class="btn btn-primary">
+                            Try Again
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
     </div>
+
 </div>

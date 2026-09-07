@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Application Types";
 
-    const int pageSize = 3;
+    const int pageSize = 2;
 
     var pageQuery = Context.Request.Query["page"].ToString();
 
@@ -225,11 +225,50 @@
                                     </td>
 
                                     <td class="text-end">
-                                        <a asp-action="Details"
-                                           asp-route-id="@applicationType.Id"
-                                           class="btn btn-sm btn-outline-primary">
-                                            Configure
-                                        </a>
+                                        <div class="d-flex justify-content-end gap-2 flex-wrap">
+
+                                            <a asp-action="Details"
+                                               asp-route-id="@applicationType.Id"
+                                               class="btn btn-sm btn-outline-primary">
+                                                Configure
+                                            </a>
+
+                                            @if (applicationType.IsActive)
+                                            {
+                                                <form asp-action="Deactivate"
+                                                      asp-route-id="@applicationType.Id"
+                                                      method="post"
+                                                      class="d-inline">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-danger"
+                                                            onclick="return confirm('Are you sure you want to deactivate this application type? Citizens will no longer be able to start new applications of this type.');">
+                                                        Deactivate
+                                                    </button>
+
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="Reactivate"
+                                                      asp-route-id="@applicationType.Id"
+                                                      method="post"
+                                                      class="d-inline">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-success"
+                                                            onclick="return confirm('Are you sure you want to reactivate this application type? Citizens will be able to start new applications of this type.');">
+                                                        Reactivate
+                                                    </button>
+
+                                                </form>
+                                            }
+
+                                        </div>
                                     </td>
                                 </tr>
                             }

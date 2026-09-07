@@ -219,5 +219,45 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
                 nameof(Details),
                 new { id = model.ApplicationTypeId });
         }
+
+
+
+
+        // application type deactivation and reactivation actions for admin users
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deactivate(int id)
+        {
+            var succeeded = await _applicationTypeService.DeactivateAsync(id);
+
+            if (!succeeded)
+            {
+                TempData["ErrorMessage"] = "The application type could not be deactivated.";
+            }
+            else
+            {
+                TempData["SuccessMessage"] = "Application type deactivated successfully.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reactivate(int id)
+        {
+            var succeeded = await _applicationTypeService.ReactivateAsync(id);
+
+            if (!succeeded)
+            {
+                TempData["ErrorMessage"] = "The application type could not be reactivated.";
+            }
+            else
+            {
+                TempData["SuccessMessage"] = "Application type reactivated successfully.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
