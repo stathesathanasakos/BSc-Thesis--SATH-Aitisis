@@ -1,6 +1,65 @@
 ﻿@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-10 col-xl-9">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4 p-md-5">
+
+                <h2 class="mb-2">Privacy Policy</h2>
+                <p class="text-muted mb-4">
+                    This page briefly describes how <strong>SATH-Aitisis</strong> handles data
+                    as an online application submission platform.
+                </p>
+
+                <hr class="my-4" />
+
+                <h5 class="fw-semibold">1) Data Collected</h5>
+                <ul>
+                    <li><strong> User Account:</strong> Email/username and basic authentication credentials (ASP.NET Identity).</li>
+                    <li><strong> Role Profile:</strong> Citizen/employee/administrator details (e.g., full name, age, gender).</li>
+                    <li><strong> Business Data:</strong> Applications, data submitted via forms, application statuses.</li>
+                </ul>
+
+                <h5 class="fw-semibold mt-4">2) Purpose of Processing</h5>
+                <p class="mb-2">
+                    The data is used exclusively for:
+                </p>
+                <ul>
+                    <li>1) Secure access to the application (login/logout),</li>
+                    <li>2) Viewing and submitting new applications,</li>
+                    <li>3) Managing applications and viewing statistics,</li>
+                    <li>4) Secure and centralized management of users (citizens and employees).</li>
+                </ul>
+
+                <h5 class="fw-semibold mt-4">3) Access & Roles</h5>
+                <p>
+                    Data access is <strong>role-based</strong>:
+                </p>
+                <ul>
+                    <li><strong>Citizens:</strong> Can only view their own details, applications, and statistics.</li>
+                    <li><strong>Employees:</strong> Have access to all user applications and their own personal statistics (each employee sees their own).</li>
+                    <li><strong>Admin:</strong> Manages users, registers and deletes employees, can reset citizen accounts, and creates or removes application types. The administrator also has access to system-wide statistics.</li>
+                </ul>
+
+                <h5 class="fw-semibold mt-4">4) Security</h5>
+                <ul>
+                    <li> Authentication and authorization implemented via <strong>ASP.NET Identity</strong>.</li>
+                    <li> Role-based page protection using <strong>Authorize</strong> attributes.</li>
+                    <li> Form security using <strong>Anti-forgery tokens</strong>.</li>
+                </ul>
+
+                <h5 class="fw-semibold mt-4">5) Data Storage & Retention</h5>
+                <p>
+                    Data is stored in the application's database. The retention period depends on the administrative requirements of the organization using the system. For more information, please contact us at admin@sath-aitisis.local.
+                </p>
+
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <a asp-controller="Home" asp-action="Index" class="text-muted small">← Go back</a>
+        </div>
+    </div>
+</div>
