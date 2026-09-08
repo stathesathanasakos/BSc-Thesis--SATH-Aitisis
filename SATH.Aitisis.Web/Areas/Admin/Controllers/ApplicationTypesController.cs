@@ -13,7 +13,6 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
     {
         private readonly IApplicationTypeService _applicationTypeService;
 
-
         public ApplicationTypesController(IApplicationTypeService applicationTypeService)
         {
             _applicationTypeService = applicationTypeService;
@@ -42,8 +41,6 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
 
             return View(model);
         }
-
-
 
 
 
@@ -85,7 +82,7 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
 
             TempData["SuccessMessage"] = "Application type created successfully.";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Details), new { id = result.ApplicationTypeId });
         }
 
 
@@ -217,7 +214,7 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
 
             return RedirectToAction(
                 nameof(Details),
-                new { id = model.ApplicationTypeId });
+                new { id = model.ApplicationTypeId, page = 2 });
         }
 
 

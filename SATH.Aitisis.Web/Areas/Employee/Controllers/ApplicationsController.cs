@@ -103,12 +103,12 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
             if (!result.Succeeded)
             {
                 TempData["ErrorMessage"] = result.ErrorMessage ?? "The application could not be approved.";
-                return RedirectToAction(nameof(Details), new { id });
+                return RedirectToAction(nameof(Index), new { id });
             }
 
             TempData["SuccessMessage"] = $"Application approved successfully. Protocol number: {result.ProtocolNumber}";
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Index), new { id });
         }
 
 
@@ -138,12 +138,12 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
             {
                 TempData["ErrorMessage"] = result.ErrorMessage ?? "The application could not be rejected.";
 
-                return RedirectToAction(nameof(Details), new { id });
+                return RedirectToAction(nameof(Index), new { id });
             }
 
             TempData["SuccessMessage"] = "Application rejected successfully.";
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Index), new { id });
         }
 
 

@@ -111,7 +111,7 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
             {
                 model = _options.Model,
                 temperature = 0.2,
-                max_tokens = 512,
+                max_tokens = 920,
                 messages = new object[]
                 {
                     new
