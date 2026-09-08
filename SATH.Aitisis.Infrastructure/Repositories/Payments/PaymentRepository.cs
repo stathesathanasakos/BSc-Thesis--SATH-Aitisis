@@ -20,6 +20,8 @@ namespace SATH.Aitisis.Infrastructure.Repositories.Payments
             return await _dbContext.Applications
                 .AsNoTracking()
                 .Include(x => x.ApplicationType)
+                    .ThenInclude(x => x.DocumentRequirements)
+                .Include(x => x.Documents)
                 .Include(x => x.Payment)
                 .FirstOrDefaultAsync(x =>
                     x.Id == applicationId &&

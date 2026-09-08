@@ -17,7 +17,8 @@ namespace SATH.Aitisis.Infrastructure.Repositories.DashboardStatistics
 
         public async Task<AdminDashboardStatistics> GetAdminStatisticsAsync()
         {
-            var totalApplications = await _dbContext.Applications.CountAsync();
+            //var totalApplications = await _dbContext.Applications.CountAsync();
+            var totalApplications = await _dbContext.Applications.CountAsync(x => x.Status != ApplicationStatus.Draft);
 
             var pendingApplications = await _dbContext.Applications.CountAsync(x => x.Status == ApplicationStatus.Submitted &&
                 (
@@ -74,7 +75,8 @@ namespace SATH.Aitisis.Infrastructure.Repositories.DashboardStatistics
 
         public async Task<CitizenDashboardStatistics> GetCitizenStatisticsAsync(string citizenId)
         {
-            var totalApplications = await _dbContext.Applications.CountAsync(x => x.CitizenId == citizenId);
+            //var totalApplications = await _dbContext.Applications.CountAsync(x => x.CitizenId == citizenId);
+            var totalApplications = await _dbContext.Applications.CountAsync(x => x.CitizenId == citizenId && x.Status != ApplicationStatus.Draft);
 
             var pendingApplications = await _dbContext.Applications.CountAsync(x => x.CitizenId == citizenId && x.Status == ApplicationStatus.Submitted);
 

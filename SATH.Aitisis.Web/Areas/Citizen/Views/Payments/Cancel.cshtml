@@ -18,12 +18,16 @@
                         !
                     </div>
 
+                    <span class="citizen-soft-badge citizen-soft-badge-warning mt-4">
+                        Payment Cancelled
+                    </span>
+
                     <h1 class="citizen-page-title mt-3">
                         The payment was cancelled
                     </h1>
 
                     <p class="citizen-page-subtitle mx-auto">
-                        No payment was completed. You can return to the payment page and try again or cancel th application submission process.
+                        No payment was completed. You can return to the payment page and try again or cancel the application submission process.
                     </p>
 
                     <div class="citizen-confirmation-reference">
@@ -59,12 +63,25 @@
 
                     <div class="citizen-confirmation-actions">
 
-                        <a asp-area="Citizen"
-                           asp-controller="Applications"
-                           asp-action="MyApplications"
-                           class="btn btn-outline-secondary">
-                            Back to My Applications
-                        </a>
+                        <form asp-area="Citizen"
+                              asp-controller="Applications"
+                              asp-action="CancelDraft"
+                              method="post"
+                              class="mb-0">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="applicationId"
+                                   value="@Model" />
+
+                            <button type="submit"
+                                    class="btn btn-outline-secondary"
+                                    onclick="return confirm('Are you sure you want to cancel this application draft?');">
+                                Cancel Application
+                            </button>
+
+                        </form>
 
                         <a asp-area="Citizen"
                            asp-controller="Payments"

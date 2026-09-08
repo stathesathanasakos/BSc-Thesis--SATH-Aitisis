@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using SATH.Aitisis.Web.Models;
+using SATH.Aitisis.Web.ViewModels;
 using System.Diagnostics;
 
 namespace SATH.Aitisis.Web.Controllers

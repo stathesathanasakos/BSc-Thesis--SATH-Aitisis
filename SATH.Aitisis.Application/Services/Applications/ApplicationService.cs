@@ -145,7 +145,7 @@ namespace SATH.Aitisis.App.Services.Applications
                         ? null
                         : request.Description.Trim(),
 
-                Status = ApplicationStatus.Submitted,
+                Status = ApplicationStatus.Draft,
                 SubmissionDate = DateTime.UtcNow
             };
 
@@ -297,7 +297,7 @@ namespace SATH.Aitisis.App.Services.Applications
 
         public async Task<ApplicationDocumentsInfo?>GetApplicationDocumentsInfoAsync(int applicationId, string citizenId)
         {
-            var application = await _repository.GetApplicationForDocumentUploadAsync(applicationId,citizenId);
+            var application = await _repository.GetApplicationForSubmissionCompletionAsync(applicationId, citizenId);
 
             if (application == null)
             {
@@ -306,11 +306,7 @@ namespace SATH.Aitisis.App.Services.Applications
 
             var uploadedDocuments = await _repository.GetApplicationDocumentsAsync(applicationId);
 
-            var uploadedRequirementIds =
-                uploadedDocuments
-                    .Where(x => x.DocumentRequirementId.HasValue)
-                    .Select(x => x.DocumentRequirementId!.Value)
-                    .ToHashSet();
+            var uploadedRequirementIds = uploadedDocuments.Where(x => x.DocumentRequirementId.HasValue).Select(x => x.DocumentRequirementId!.Value).ToHashSet();
 
             var documents =
                 application.ApplicationType.DocumentRequirements
@@ -332,8 +328,83 @@ namespace SATH.Aitisis.App.Services.Applications
                 ApplicationTypeId = application.ApplicationTypeId,
                 ApplicationTypeName = application.ApplicationType.Name,
                 RequiresPayment = application.ApplicationType.RequiresPayment,
+                Status = application.Status,
                 Documents = documents
             };
+        }
+
+        public async Task<CompleteApplicationSubmissionResult> CompleteSubmissionAsync(CompleteApplicationSubmissionRequest request)
+        {
+            if (request.ApplicationId <= 0 || string.IsNullOrWhiteSpace(request.CitizenId))
+            {
+                return CompleteApplicationSubmissionResult.Failure("Invalid application information.");
+            }
+
+            var application =
+                await _repository.GetApplicationForSubmissionCompletionAsync(
+                    request.ApplicationId,
+                    request.CitizenId);
+
+            if (application == null)
+            {
+                return CompleteApplicationSubmissionResult.Failure("Application was not found.");
+            }
+
+            if (application.Status == ApplicationStatus.Submitted)
+            {
+                return CompleteApplicationSubmissionResult.Success(application.Id);
+            }
+
+            if (application.Status != ApplicationStatus.Draft)
+            {
+                return CompleteApplicationSubmissionResult.Failure("Only applications in progress can be submitted.");
+            }
+
+            if (!RequiredDocumentsCompleted(application))
+            {
+                return CompleteApplicationSubmissionResult.Failure("Please upload all required documents before continuing.");
+            }
+
+            if (application.ApplicationType.RequiresPayment)
+            {
+                if (application.Payment == null || application.Payment.Status != PaymentStatus.Completed)
+                {
+                    return CompleteApplicationSubmissionResult.Failure("Payment must be completed before the application can be submitted.");
+                }
+            }
+
+            application.Status = ApplicationStatus.Submitted;
+            application.SubmissionDate = DateTime.UtcNow;
+
+            await _repository.SaveChangesAsync();
+
+            return CompleteApplicationSubmissionResult.Success(application.Id);
+        }
+
+
+        public async Task<bool> DeleteDraftApplicationAsync(int applicationId, string citizenId)
+        {
+            if (applicationId <= 0 ||
+                string.IsNullOrWhiteSpace(citizenId))
+            {
+                return false;
+            }
+
+            var application =
+                await _repository.GetDraftApplicationForDeleteAsync(
+                    applicationId,
+                    citizenId);
+
+            if (application == null)
+            {
+                return false;
+            }
+
+            _repository.DeleteApplication(application);
+
+            await _repository.SaveChangesAsync();
+
+            return true;
         }
 
 
@@ -370,9 +441,6 @@ namespace SATH.Aitisis.App.Services.Applications
                  })
                 .ToArray();
         }
-
-
-
 
 
 
@@ -479,9 +547,6 @@ namespace SATH.Aitisis.App.Services.Applications
                 FileName = document.OriginalFileName
             };
         }
-
-
-
 
 
 
@@ -679,8 +744,7 @@ namespace SATH.Aitisis.App.Services.Applications
                 new ApplicationTimelineItem
                 {
                     Title = "Application submitted",
-                    Description =
-                        $"The citizen submitted the application for {application.ApplicationType.Name}.",
+                    Description = $"The citizen submitted the application for {application.ApplicationType.Name}.",
                     OccurredAt = application.SubmissionDate,
                     CssClass = "primary"
                 });
@@ -739,6 +803,29 @@ namespace SATH.Aitisis.App.Services.Applications
                 ProtocolNumber = application.ProtocolNumber,
                 Items = items.OrderBy(x => x.OccurredAt).ToArray()
             };
+        }
+
+
+
+        private static bool RequiredDocumentsCompleted(DomainApplication application)
+        {
+            var requiredRequirementIds = application.ApplicationType
+                .DocumentRequirements
+                .Where(x => x.IsRequired)
+                .Select(x => x.Id)
+                .ToHashSet();
+
+            if (requiredRequirementIds.Count == 0)
+            {
+                return true;
+            }
+
+            var uploadedRequirementIds = application.Documents
+                .Where(x => x.DocumentRequirementId.HasValue)
+                .Select(x => x.DocumentRequirementId!.Value)
+                .ToHashSet();
+
+            return requiredRequirementIds.All(uploadedRequirementIds.Contains);
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace SATH.Aitisis.Web.Models
+namespace SATH.Aitisis.Web.ViewModels
 {
     public class ErrorViewModel
     {

@@ -185,7 +185,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                 return View(model);
             }
 
-            TempData["SuccessMessage"] = "Your application was submitted successfully.";
+            TempData["SuccessMessage"] = "Application information saved. Please upload the required documents.";
 
             //return RedirectToAction(nameof(Index));
             /*
@@ -338,16 +338,37 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                 return NotFound();
             }
 
-            if (paymentDetails.RequiresPayment && paymentDetails.CanStartPayment)
+            if (paymentDetails.RequiresPayment)
             {
-                return RedirectToAction(
-                    "Details",
-                    "Payments",
-                    new
+                if (paymentDetails.CanStartPayment)
+                {
+                    return RedirectToAction(
+                        "Details",
+                        "Payments",
+                        new
+                        {
+                            area = "Citizen",
+                            applicationId
+                        });
+                }
+
+                TempData["ErrorMessag"] = "Payment must be completed before the application can be submitted.";
+
+                return RedirectToAction(nameof(Documents), new { applicationId });
+            }
+
+            var completionResult =
+                await _applicationService.CompleteSubmissionAsync(
+                    new CompleteApplicationSubmissionRequest
                     {
-                        area = "Citizen",
-                        applicationId
+                        ApplicationId = applicationId,
+                        CitizenId = citizenId
                     });
+
+            if (!completionResult.Succeeded)
+            {
+                TempData["ErrorMessage"] = completionResult.ErrorMessage ?? "The application could not be submitted.";
+                return RedirectToAction(nameof(Documents), new { applicationId });
             }
 
             return RedirectToAction(nameof(Confirmation), new { applicationId });
@@ -366,16 +387,16 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                 return Unauthorized();
             }
 
-            var info = await _applicationService.GetApplicationDocumentsInfoAsync(applicationId,citizenId);
+            var info = await _applicationService.GetApplicationDocumentsInfoAsync(applicationId, citizenId);
 
             if (info == null)
             {
                 return NotFound();
             }
 
-            if (!info.RequiredDocumentsCompleted || info.RequiresPayment)
+            if (info.Status != ApplicationStatus.Submitted || !info.RequiredDocumentsCompleted || info.RequiresPayment)
             {
-                return RedirectToAction(nameof(Documents),new { applicationId });
+                return RedirectToAction(nameof(Documents), new { applicationId });
             }
 
             ViewBag.ApplicationId = applicationId;
@@ -429,7 +450,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
 
                     StatusText = x.Status switch
                     {
-                        ApplicationStatus.Submitted => "Pending",
+                        ApplicationStatus.Submitted => "Submitted",
                         ApplicationStatus.Approved => "Approved",
                         ApplicationStatus.Rejected => "Rejected",
                         _ => x.Status.ToString()
@@ -518,6 +539,25 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
             }
 
             return File(certificate.Content, certificate.ContentType, certificate.FileName);
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelDraft(int applicationId)
+        {
+            var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(citizenId))
+            {
+                return Unauthorized();
+            }
+
+            await _applicationService.DeleteDraftApplicationAsync(applicationId, citizenId);
+            TempData["SuccessMessage"] = "Application draft was cancelled.";
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

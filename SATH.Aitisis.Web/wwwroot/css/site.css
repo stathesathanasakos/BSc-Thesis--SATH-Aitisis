@@ -5604,3 +5604,16 @@ textarea.admin-form-control {
     font-size: 0.8rem;
     line-height: 1.35;
 }
+
+
+.citizen-submit-actions form,
+.citizen-confirmation-actions form {
+    margin-bottom: 0;
+}
+
+@media (max-width: 575.98px) {
+    .citizen-confirmation-actions form,
+    .citizen-confirmation-actions form .btn {
+        width: 100%;
+    }
+}

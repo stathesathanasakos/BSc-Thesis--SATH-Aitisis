@@ -6,6 +6,72 @@
 
 <div class="citizen-documents-page">
 
+    <div class="citizen-documents-hero mb-4">
+
+        <div>
+            <span class="citizen-page-eyebrow">
+                Document Upload
+            </span>
+
+            <h1 class="citizen-page-title">
+                Supporting Documents
+            </h1>
+
+            <p class="citizen-page-subtitle">
+                Upload the required PDF documents for <strong>@Model.ApplicationTypeName</strong>.
+            </p>
+        </div>
+
+        <form asp-area="Citizen"
+              asp-controller="Applications"
+              asp-action="CancelDraft"
+              method="post"
+              class="mb-0">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="applicationId"
+                   value="@Model.ApplicationId" />
+
+            <button type="submit"
+                    class="btn btn-outline-secondary citizen-page-main-action"
+                    onclick="return confirm('Are you sure you want to cancel this application draft?');">
+                Back to Applications
+            </button>
+
+        </form>
+
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+            @TempData["SuccessMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+            @TempData["ErrorMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
+
     <div class="card citizen-documents-card">
 
         <div class="citizen-documents-card-header">
@@ -14,6 +80,10 @@
                 <h5 class="mb-1">
                     Document Requirements
                 </h5>
+
+                <p class="mb-0">
+                    Required documents must be uploaded before you can continue.
+                </p>
             </div>
 
             @if (Model.RequiredDocumentsCompleted)
@@ -125,6 +195,7 @@
                                 @if (requirement.IsUploaded)
                                 {
                                     <div class="citizen-uploaded-state">
+
                                         <span class="badge citizen-status-badge citizen-status-approved">
                                             Uploaded ✓
                                         </span>
@@ -132,11 +203,14 @@
                                         <span>
                                             Document successfully received.
                                         </span>
+
                                     </div>
                                 }
                                 else
                                 {
-                                    <form asp-action="UploadDocument"
+                                    <form asp-area="Citizen"
+                                          asp-controller="Applications"
+                                          asp-action="UploadDocument"
                                           method="post"
                                           enctype="multipart/form-data"
                                           class="citizen-upload-form">
@@ -185,17 +259,33 @@
 
         <div class="citizen-submit-actions citizen-documents-actions">
 
-            <a asp-action="Index"
-               class="btn btn-outline-secondary">
-                Cancel
-            </a>
+            <form asp-area="Citizen"
+                  asp-controller="Applications"
+                  asp-action="CancelDraft"
+                  method="post"
+                  class="mb-0">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="applicationId"
+                       value="@Model.ApplicationId" />
+
+                <button type="submit"
+                        class="btn btn-outline-secondary"
+                        onclick="return confirm('Are you sure you want to cancel this application draft?');">
+                    Cancel
+                </button>
+
+            </form>
 
             @if (Model.RequiredDocumentsCompleted)
             {
                 <form asp-area="Citizen"
                       asp-controller="Applications"
                       asp-action="ContinueSubmission"
-                      method="post">
+                      method="post"
+                      class="mb-0">
 
                     @Html.AntiForgeryToken()
 

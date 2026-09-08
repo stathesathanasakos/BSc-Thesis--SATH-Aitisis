@@ -157,10 +157,19 @@ app.UseAuthorization();    // what can that user do?
 
 
 
-
+/*
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+*/
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

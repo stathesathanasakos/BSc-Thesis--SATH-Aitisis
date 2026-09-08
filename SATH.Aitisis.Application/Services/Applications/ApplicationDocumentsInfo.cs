@@ -1,4 +1,6 @@
-﻿namespace SATH.Aitisis.App.Services.Applications
+﻿using SATH.Aitisis.Domain.Enums;
+
+namespace SATH.Aitisis.App.Services.Applications
 {
     public sealed class ApplicationDocumentsInfo
     {
@@ -9,6 +11,8 @@
         public string ApplicationTypeName { get; init; } = string.Empty;
 
         public bool RequiresPayment { get; init; }
+
+        public ApplicationStatus Status { get; init; }
 
         public IReadOnlyCollection<ApplicationDocumentStatusItem>Documents{ get; init; } = Array.Empty<ApplicationDocumentStatusItem>();
 

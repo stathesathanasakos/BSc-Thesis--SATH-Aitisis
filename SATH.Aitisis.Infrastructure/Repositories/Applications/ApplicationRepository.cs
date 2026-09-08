@@ -51,19 +51,6 @@ namespace SATH.Aitisis.Infrastructure.Repositories.Applications
         }
 
 
-
-
-        public async Task<DomainApplication?>GetApplicationForDocumentUploadAsync(int applicationId, string citizenId)
-        {
-            return await _dbContext.Applications
-                .Include(x => x.ApplicationType)
-                    .ThenInclude(x => x.DocumentRequirements)
-                .FirstOrDefaultAsync(x =>
-                    x.Id == applicationId &&
-                    x.CitizenId == citizenId);
-        }
-
-
         public async Task AddDocumentAsync(Document document)
         {
             await _dbContext.Documents.AddAsync(document);
@@ -86,7 +73,14 @@ namespace SATH.Aitisis.Infrastructure.Repositories.Applications
                 .AsNoTracking()
                 .Include(x => x.ApplicationType)
                 .Include(x => x.Payment)
-                .Where(x => x.CitizenId == citizenId)
+                .Where(x =>
+                    x.CitizenId == citizenId &&
+                        (
+                            x.Status == ApplicationStatus.Submitted ||
+                            x.Status == ApplicationStatus.Approved ||
+                            x.Status == ApplicationStatus.Rejected
+                        )
+                 )
                 .OrderByDescending(x => x.SubmissionDate)
                 .ToListAsync();
 
@@ -114,19 +108,6 @@ namespace SATH.Aitisis.Infrastructure.Repositories.Applications
         }
 
 
-        public async Task<DomainApplication?> GetApplicationForReviewAsync(int applicationId)
-        {
-            return await _dbContext.Applications
-                .AsNoTracking()
-                .Include(x => x.ApplicationType)
-                .Include(x => x.FieldValues)
-                    .ThenInclude(x => x.ApplicationTypeField)
-                .Include(x => x.Documents)
-                    .ThenInclude(x => x.DocumentRequirement)
-                .FirstOrDefaultAsync(x => x.Id == applicationId);
-        }
-
-
         public async Task<DomainDocument?> GetDocumentByIdAsync(int documentId)
         {
             return await _dbContext.Documents.AsNoTracking().FirstOrDefaultAsync(x => x.Id == documentId);
@@ -138,35 +119,6 @@ namespace SATH.Aitisis.Infrastructure.Repositories.Applications
         {
             return await _dbContext.Applications.Include(x => x.ApplicationType).FirstOrDefaultAsync(x => x.Id == applicationId);
         }
-
-
-
-        // to use for the timeline of each application for citizen
-        public async Task<DomainApplication?> GetTimelineForCitizenAsync(int applicationId,string citizenId)
-        {
-            return await _dbContext.Applications
-                .AsNoTracking()
-                .Include(x => x.ApplicationType)
-                .Include(x => x.Documents)
-                    .ThenInclude(x => x.DocumentRequirement)
-                .FirstOrDefaultAsync(x =>
-                    x.Id == applicationId &&
-                    x.CitizenId == citizenId);
-        }
-
-
-
-        // to use for the timeline of each application for employee
-        public async Task<DomainApplication?> GetTimelineForEmployeeAsync(int applicationId)
-        {
-            return await _dbContext.Applications
-                .AsNoTracking()
-                .Include(x => x.ApplicationType)
-                .Include(x => x.Documents)
-                    .ThenInclude(x => x.DocumentRequirement)
-                .FirstOrDefaultAsync(x => x.Id == applicationId);
-        }
-
 
 
         // to get the approved application for certificate generation
@@ -183,6 +135,89 @@ namespace SATH.Aitisis.Infrastructure.Repositories.Applications
                     x.DecisionDate.HasValue &&
                     x.ProtocolNumber != null &&
                     x.ReviewedByUserId != null);
+        }
+
+
+
+        public async Task<DomainApplication?> GetApplicationForDocumentUploadAsync(int applicationId, string citizenId)
+        {
+            return await _dbContext.Applications
+                .Include(x => x.ApplicationType)
+                    .ThenInclude(x => x.DocumentRequirements)
+                .Include(x => x.Documents)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == applicationId &&
+                    x.CitizenId == citizenId &&
+                    x.Status == ApplicationStatus.Draft);
+        }
+
+        public async Task<DomainApplication?> GetApplicationForSubmissionCompletionAsync(int applicationId, string citizenId)
+        {
+            return await _dbContext.Applications
+                .Include(x => x.ApplicationType)
+                    .ThenInclude(x => x.DocumentRequirements)
+                .Include(x => x.Documents)
+                .Include(x => x.Payment)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == applicationId &&
+                    x.CitizenId == citizenId);
+        }
+
+        public async Task<DomainApplication?> GetDraftApplicationForDeleteAsync(int applicationId, string citizenId)
+        {
+            return await _dbContext.Applications
+                .FirstOrDefaultAsync(x =>
+                    x.Id == applicationId &&
+                    x.CitizenId == citizenId &&
+                    x.Status == ApplicationStatus.Draft);
+        }
+
+        public void DeleteApplication(DomainApplication application)
+        {
+            _dbContext.Applications.Remove(application);
+        }
+
+
+        public async Task<DomainApplication?> GetApplicationForReviewAsync(int applicationId)
+        {
+            return await _dbContext.Applications
+                .AsNoTracking()
+                .Include(x => x.ApplicationType)
+                .Include(x => x.FieldValues)
+                    .ThenInclude(x => x.ApplicationTypeField)
+                .Include(x => x.Documents)
+                    .ThenInclude(x => x.DocumentRequirement)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == applicationId &&
+                    x.Status == ApplicationStatus.Submitted);
+        }
+
+
+        // to use for the timeline of each application for citizen
+        public async Task<DomainApplication?> GetTimelineForCitizenAsync(int applicationId, string citizenId)
+        {
+            return await _dbContext.Applications
+                .AsNoTracking()
+                .Include(x => x.ApplicationType)
+                .Include(x => x.Documents)
+                    .ThenInclude(x => x.DocumentRequirement)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == applicationId &&
+                    x.CitizenId == citizenId &&
+                    x.Status != ApplicationStatus.Draft);
+        }
+
+        // to use for the timeline of each application for employee
+        public async Task<DomainApplication?> GetTimelineForEmployeeAsync(int applicationId)
+        {
+            return await _dbContext.Applications
+                .AsNoTracking()
+                .Include(x => x.ApplicationType)
+                .Include(x => x.Documents)
+                    .ThenInclude(x => x.DocumentRequirement)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == applicationId &&
+                    x.Status != ApplicationStatus.Draft);
         }
     }
 }

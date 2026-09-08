@@ -8,26 +8,26 @@
 
         Task<SubmitApplicationResult> SubmitApplicationAsync(SubmitApplicationRequest request);
 
-        Task<UploadApplicationDocumentResult>UploadDocumentAsync(UploadApplicationDocumentRequest request);
+        Task<UploadApplicationDocumentResult> UploadDocumentAsync(UploadApplicationDocumentRequest request);
 
-        Task<ApplicationDocumentsInfo?>GetApplicationDocumentsInfoAsync(int applicationId,string citizenId);
+        Task<ApplicationDocumentsInfo?> GetApplicationDocumentsInfoAsync(int applicationId, string citizenId);
+
+        Task<CompleteApplicationSubmissionResult> CompleteSubmissionAsync(CompleteApplicationSubmissionRequest request);
+
+        Task<bool> DeleteDraftApplicationAsync(int applicationId, string citizenId);
 
         Task<IReadOnlyCollection<ApplicationHistoryItem>> GetCitizenApplicationsAsync(string citizenId);
 
-
-        // for cheching the application by an employee
-        Task<IReadOnlyCollection<PendingApplicationItem>>GetPendingApplicationsAsync();
+        // for checking the application by an employee
+        Task<IReadOnlyCollection<PendingApplicationItem>> GetPendingApplicationsAsync();
 
         Task<ApplicationReviewDetails?> GetApplicationForReviewAsync(int applicationId);
 
         Task<ApplicationDocumentFile?> GetDocumentFileAsync(int documentId);
 
-
-
         Task<ApplicationDecisionResult> ApproveApplicationAsync(ApproveApplicationRequest request);
 
         Task<ApplicationDecisionResult> RejectApplicationAsync(RejectApplicationRequest request);
-
 
         Task<ApplicationTimelineDetails?> GetCitizenApplicationTimelineAsync(int applicationId, string citizenId);
 

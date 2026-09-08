@@ -10,6 +10,8 @@
             : Model.PaymentStatusText == "Failed"
                 ? "citizen-status-rejected"
                 : "citizen-status-neutral";
+
+    var paymentCompleted = Model.PaymentStatusText == "Completed";
 }
 
 <div class="citizen-payment-page">
@@ -21,17 +23,46 @@
                 Payment Step
             </span>
 
+            <h1 class="citizen-page-title">
+                Application Payment
+            </h1>
+
             <p class="citizen-page-subtitle">
-                Review the required application fee and feel free continue to the secure Stripe checkout page.
+                Review the required application fee and continue to the secure Stripe checkout page.
             </p>
         </div>
 
-        <a asp-area="Citizen"
-           asp-controller="Applications"
-           asp-action="MyApplications"
-           class="btn btn-outline-secondary citizen-page-main-action">
-            Back to My Applications
-        </a>
+        @if (paymentCompleted)
+        {
+            <a asp-area="Citizen"
+               asp-controller="Applications"
+               asp-action="MyApplications"
+               class="btn btn-outline-secondary citizen-page-main-action">
+                Back to My Applications
+            </a>
+        }
+        else
+        {
+            <form asp-area="Citizen"
+                  asp-controller="Applications"
+                  asp-action="CancelDraft"
+                  method="post"
+                  class="mb-0">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="applicationId"
+                       value="@Model.ApplicationId" />
+
+                <button type="submit"
+                        class="btn btn-outline-secondary citizen-page-main-action"
+                        onclick="return confirm('Are you sure you want to cancel this application draft?');">
+                    Cancel Application
+                </button>
+
+            </form>
+        }
 
     </div>
 
@@ -207,7 +238,7 @@
                             </a>
                         </div>
                     }
-                    else if (Model.PaymentStatusText == "Completed")
+                    else if (paymentCompleted)
                     {
                         <div class="citizen-payment-state-panel citizen-payment-state-success">
 
@@ -252,24 +283,48 @@
 
                         </div>
 
-                        <form asp-area="Citizen"
-                              asp-controller="Payments"
-                              asp-action="Start"
-                              method="post"
-                              class="mt-auto pt-4">
+                        <div class="mt-auto pt-4 d-grid gap-2">
 
-                            @Html.AntiForgeryToken()
+                            <form asp-area="Citizen"
+                                  asp-controller="Payments"
+                                  asp-action="Start"
+                                  method="post"
+                                  class="mb-0">
 
-                            <input type="hidden"
-                                   name="applicationId"
-                                   value="@Model.ApplicationId" />
+                                @Html.AntiForgeryToken()
 
-                            <button type="submit"
-                                    class="btn btn-primary w-100">
-                                Pay Fee with Stripe
-                            </button>
+                                <input type="hidden"
+                                       name="applicationId"
+                                       value="@Model.ApplicationId" />
 
-                        </form>
+                                <button type="submit"
+                                        class="btn btn-primary w-100">
+                                    Pay Fee with Stripe
+                                </button>
+
+                            </form>
+
+                            <form asp-area="Citizen"
+                                  asp-controller="Applications"
+                                  asp-action="CancelDraft"
+                                  method="post"
+                                  class="mb-0">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="applicationId"
+                                       value="@Model.ApplicationId" />
+
+                                <button type="submit"
+                                        class="btn btn-outline-secondary w-100"
+                                        onclick="return confirm('Are you sure you want to cancel this application draft?');">
+                                    Cancel Application
+                                </button>
+
+                            </form>
+
+                        </div>
                     }
                     else
                     {
@@ -290,12 +345,27 @@
                         </div>
 
                         <div class="mt-auto pt-4">
-                            <a asp-area="Citizen"
-                               asp-controller="Applications"
-                               asp-action="MyApplications"
-                               class="btn btn-outline-secondary w-100">
-                                Back to My Applications
-                            </a>
+
+                            <form asp-area="Citizen"
+                                  asp-controller="Applications"
+                                  asp-action="CancelDraft"
+                                  method="post"
+                                  class="mb-0">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="applicationId"
+                                       value="@Model.ApplicationId" />
+
+                                <button type="submit"
+                                        class="btn btn-outline-secondary w-100"
+                                        onclick="return confirm('Are you sure you want to cancel this application draft?');">
+                                    Cancel Application
+                                </button>
+
+                            </form>
+
                         </div>
                     }
 
@@ -307,4 +377,4 @@
 
     </div>
 
-</div>
+</div></div>

@@ -21,9 +21,9 @@ namespace SATH.Aitisis.Domain.Entities
         // Assigned only when the application is approved
         public string? ProtocolNumber { get; set; }
 
-        // New applications always start in the Submitted state
-        public ApplicationStatus Status { get; set; }
-            = ApplicationStatus.Submitted;
+        // New applications always start in the draft state
+        public ApplicationStatus Status { get; set; } = ApplicationStatus.Draft;
+        //public ApplicationStatus Status { get; set; } = ApplicationStatus.Submitted;
 
         public string? Description { get; set; }
 

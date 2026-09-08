@@ -32,6 +32,16 @@ namespace SATH.Aitisis.App.Services.Payments
                 return PaymentStartResult.Failure("The application was not found.");
             }
 
+            if (application.Status != ApplicationStatus.Draft)
+            {
+                return PaymentStartResult.Failure("Payment can only be started for applications in progress.");
+            }
+
+            if (!RequiredDocumentsCompleted(application))
+            {
+                return PaymentStartResult.Failure("Please upload all required documents before starting payment.");
+            }
+
             if (!application.ApplicationType.RequiresPayment)
             {
                 return PaymentStartResult.Failure("This application does not require payment.");
@@ -108,10 +118,10 @@ namespace SATH.Aitisis.App.Services.Payments
             return PaymentStartResult.Success(checkoutResult.CheckoutUrl);
         }
 
+
         public async Task<PaymentCompletionResult> CompletePaymentAsync(CompletePaymentRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.ExternalSessionId) ||
-                string.IsNullOrWhiteSpace(request.CitizenId))
+            if (string.IsNullOrWhiteSpace(request.ExternalSessionId) || string.IsNullOrWhiteSpace(request.CitizenId))
             {
                 return PaymentCompletionResult.Failure("Invalid payment completion request.");
             }
@@ -130,6 +140,13 @@ namespace SATH.Aitisis.App.Services.Payments
 
             if (payment.Status == PaymentStatus.Completed)
             {
+                if (payment.Application.Status == ApplicationStatus.Draft)
+                {
+                    payment.Application.Status = ApplicationStatus.Submitted;
+                    payment.Application.SubmissionDate = DateTime.UtcNow;
+                    await _paymentRepository.SaveChangesAsync();
+                }
+
                 return PaymentCompletionResult.Success(payment.ApplicationId);
             }
 
@@ -138,7 +155,6 @@ namespace SATH.Aitisis.App.Services.Payments
             if (!gatewayStatus.Exists)
             {
                 payment.Status = PaymentStatus.Failed;
-
                 await _paymentRepository.SaveChangesAsync();
 
                 return PaymentCompletionResult.Failure("The external payment session was not found.");
@@ -147,15 +163,19 @@ namespace SATH.Aitisis.App.Services.Payments
             if (!gatewayStatus.IsPaid)
             {
                 payment.Status = PaymentStatus.Failed;
-
                 await _paymentRepository.SaveChangesAsync();
 
-                return PaymentCompletionResult.Failure(
-                    "The payment was not completed.");
+                return PaymentCompletionResult.Failure("The payment was not completed.");
             }
 
             payment.Status = PaymentStatus.Completed;
             payment.PaymentDate = DateTime.UtcNow;
+
+            if (payment.Application.Status == ApplicationStatus.Draft)
+            {
+                payment.Application.Status = ApplicationStatus.Submitted;
+                payment.Application.SubmissionDate = DateTime.UtcNow;
+            }
 
             await _paymentRepository.SaveChangesAsync();
 
@@ -197,6 +217,29 @@ namespace SATH.Aitisis.App.Services.Payments
                 PaymentStatus = paymentStatus,
                 CanStartPayment = canStartPayment
             };
+        }
+
+
+
+        private static bool RequiredDocumentsCompleted(Application application)
+        {
+            var requiredRequirementIds = application.ApplicationType
+                .DocumentRequirements
+                .Where(x => x.IsRequired)
+                .Select(x => x.Id)
+                .ToHashSet();
+
+            if (requiredRequirementIds.Count == 0)
+            {
+                return true;
+            }
+
+            var uploadedRequirementIds = application.Documents
+                .Where(x => x.DocumentRequirementId.HasValue)
+                .Select(x => x.DocumentRequirementId!.Value)
+                .ToHashSet();
+
+            return requiredRequirementIds.All(uploadedRequirementIds.Contains);
         }
     }
 }
