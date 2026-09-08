@@ -50,7 +50,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
 
             await _signInManager.SignOutAsync();
 
-            TempData["SuccessMessage"] ="Your account has been deactivated.";
+            TempData["SuccessMessage"] ="This user's account has been deactivated.";
 
             return RedirectToAction(
                 actionName: "Index",

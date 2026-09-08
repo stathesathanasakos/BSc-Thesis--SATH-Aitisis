@@ -117,35 +117,6 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6 col-xl-4">
-                                    <div class="home-admin-action-block h-100">
-
-                                        <div>
-                                            <span class="home-action-eyebrow">
-                                                Citizen Accounts
-                                            </span>
-
-                                            <h5>
-                                                Manage citizens
-                                            </h5>
-
-                                            <p>
-                                                View registered citizen accounts and reactivate accounts that were deactivated by citizens.
-                                            </p>
-                                        </div>
-
-                                        <div class="home-admin-action-footer">
-                                            <a asp-area="Admin"
-                                               asp-controller="Citizens"
-                                               asp-action="Index"
-                                               class="btn btn-outline-primary">
-                                                View Citizens
-                                            </a>
-                                        </div>
-
-                                    </div>
-                                </div>
-
                                 <div class="col-md-6">
                                     <div class="home-admin-action-block h-100">
 
@@ -177,63 +148,78 @@
 
                             </div>
                         }
-                        else
+                        else if (isEmployee)
                         {
                             <div class="row g-3 mb-4">
 
-                                @if (isEmployee)
-                                {
-                                    <div class="col-md-4">
-                                        <div class="home-step-card">
-                                            <div class="home-step-number">
-                                                1
-                                            </div>
-
-                                            <div class="home-step-title">
-                                                Open pending cases
-                                            </div>
-
-                                            <p class="home-step-text">
-                                                Review applications that are ready for evaluation.
-                                            </p>
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            1
                                         </div>
-                                    </div>
 
-                                    <div class="col-md-4">
-                                        <div class="home-step-card">
-                                            <div class="home-step-number">
-                                                2
-                                            </div>
-
-                                            <div class="home-step-title">
-                                                Inspect documents
-                                            </div>
-
-                                            <p class="home-step-text">
-                                                Compare PDF evidence with submitted field values.
-                                            </p>
+                                        <div class="home-step-title">
+                                            Open pending cases
                                         </div>
+
+                                        <p class="home-step-text">
+                                            Review applications that are ready for evaluation.
+                                        </p>
                                     </div>
+                                </div>
 
-                                    <div class="col-md-4">
-                                        <div class="home-step-card">
-                                            <div class="home-step-number">
-                                                3
-                                            </div>
-
-                                            <div class="home-step-title">
-                                                Use AI assistant
-                                            </div>
-
-                                            <p class="home-step-text">
-                                                Generate a focused review summary when helpful.
-                                            </p>
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            2
                                         </div>
+
+                                        <div class="home-step-title">
+                                            Inspect documents
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Compare PDF evidence with submitted field values.
+                                        </p>
                                     </div>
-                                }
-                                else if (isCitizen)
-                                {
-                                    <div class="col-md-4">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="home-step-card">
+                                        <div class="home-step-number">
+                                            3
+                                        </div>
+
+                                        <div class="home-step-title">
+                                            Use AI assistant
+                                        </div>
+
+                                        <p class="home-step-text">
+                                            Generate a focused review summary when helpful.
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <a asp-area="Employee"
+                                   asp-controller="Applications"
+                                   asp-action="Index"
+                                   class="btn btn-primary">
+                                    Review Applications
+                                </a>
+
+                            </div>
+                        }
+                        else if (isCitizen)
+                        {
+                            <div class="row g-3 mb-0">
+
+                                <div class="col-md-4">
+                                    <div class="home-admin-action-block h-100">
+
                                         <div class="home-step-card">
                                             <div class="home-step-number">
                                                 1
@@ -247,77 +233,76 @@
                                                 Select an available application type and submit your details.
                                             </p>
                                         </div>
-                                    </div>
 
-                                    <div class="col-md-4">
+                                        <div class="home-admin-action-footer">
+                                            <a asp-area="Citizen"
+                                               asp-controller="Applications"
+                                               asp-action="Index"
+                                               class="btn btn-primary">
+                                                New Application
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="home-admin-action-block h-100">
+
                                         <div class="home-step-card">
                                             <div class="home-step-number">
                                                 2
                                             </div>
 
                                             <div class="home-step-title">
-                                                Upload PDFs
+                                                Track applications
                                             </div>
 
                                             <p class="home-step-text">
-                                                Submit the required supporting documents.
+                                                Follow payments, decisions, timelines and certificates.
                                             </p>
                                         </div>
-                                    </div>
 
-                                    <div class="col-md-4">
+                                        <div class="home-admin-action-footer">
+                                            <a asp-area="Citizen"
+                                               asp-controller="Applications"
+                                               asp-action="MyApplications"
+                                               class="btn btn-outline-primary">
+                                                My Applications
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="home-admin-action-block h-100">
+
                                         <div class="home-step-card">
                                             <div class="home-step-number">
                                                 3
                                             </div>
 
                                             <div class="home-step-title">
-                                                Track progress
+                                                View notifications
                                             </div>
 
                                             <p class="home-step-text">
-                                                Follow payments, decisions and certificates.
+                                                Read important updates about your submitted applications.
                                             </p>
                                         </div>
+
+                                        <div class="home-admin-action-footer">
+                                            <a asp-area="Citizen"
+                                               asp-controller="Notifications"
+                                               asp-action="Index"
+                                               class="btn btn-outline-secondary">
+                                                Notifications
+                                            </a>
+                                        </div>
+
                                     </div>
-                                }
-
-                            </div>
-
-                            <div class="d-flex flex-wrap gap-2">
-
-                                @if (isEmployee)
-                                {
-                                    <a asp-area="Employee"
-                                       asp-controller="Applications"
-                                       asp-action="Index"
-                                       class="btn btn-primary">
-                                        Review Applications
-                                    </a>
-                                }
-                                else if (isCitizen)
-                                {
-                                    <a asp-area="Citizen"
-                                       asp-controller="Applications"
-                                       asp-action="Index"
-                                       class="btn btn-primary">
-                                        New Application
-                                    </a>
-
-                                    <a asp-area="Citizen"
-                                       asp-controller="Applications"
-                                       asp-action="MyApplications"
-                                       class="btn btn-outline-primary">
-                                        My Applications
-                                    </a>
-
-                                    <a asp-area="Citizen"
-                                       asp-controller="Notifications"
-                                       asp-action="Index"
-                                       class="btn btn-outline-secondary">
-                                        Notifications
-                                    </a>
-                                }
+                                </div>
 
                             </div>
                         }
