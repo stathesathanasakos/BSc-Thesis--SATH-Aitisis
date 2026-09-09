@@ -4,8 +4,7 @@
     {
         public int Id { get; init; }
 
-        public string ApplicationTypeName { get; init; }
-            = string.Empty;
+        public string ApplicationTypeName { get; init; } = string.Empty;
 
         public DateTime SubmissionDate { get; init; }
     }

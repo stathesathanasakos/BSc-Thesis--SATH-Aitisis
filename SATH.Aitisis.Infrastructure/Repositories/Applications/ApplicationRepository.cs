@@ -163,18 +163,62 @@ namespace SATH.Aitisis.Infrastructure.Repositories.Applications
                     x.CitizenId == citizenId);
         }
 
+        // to get the draft application for delete, to be used by the citizen
         public async Task<DomainApplication?> GetDraftApplicationForDeleteAsync(int applicationId, string citizenId)
         {
             return await _dbContext.Applications
+                .Include(x => x.Documents)
+                .Include(x => x.FieldValues)
+                .Include(x => x.Payment)
                 .FirstOrDefaultAsync(x =>
                     x.Id == applicationId &&
                     x.CitizenId == citizenId &&
                     x.Status == ApplicationStatus.Draft);
         }
 
+
+        // to get all the draft applications that are older than a certain date, to be deleted by a background job
+        public async Task<IReadOnlyCollection<DomainApplication>> GetDraftApplicationsOlderThanAsync(DateTime cutoffUtc)
+        {
+            return await _dbContext.Applications
+                .Include(x => x.Documents)
+                .Include(x => x.FieldValues)
+                .Include(x => x.Payment)
+                .Where(x =>
+                    x.Status == ApplicationStatus.Draft &&
+                    x.SubmissionDate < cutoffUtc)
+                .ToListAsync();
+        }
+
+        // to delete an application and all its related entities, to be used by the citizen or by a background job
         public void DeleteApplication(DomainApplication application)
         {
+            if (application.Payment != null)
+            {
+                _dbContext.Payments.Remove(application.Payment);
+            }
+
+            if (application.FieldValues.Count > 0)
+            {
+                _dbContext.ApplicationFieldValues.RemoveRange(application.FieldValues);
+            }
+
+            if (application.Documents.Count > 0)
+            {
+                _dbContext.Documents.RemoveRange(application.Documents);
+            }
+
             _dbContext.Applications.Remove(application);
+        }
+
+
+        // to delete multiple draft applications and all their related entities, to be used by a background job
+        public void DeleteApplications(IEnumerable<DomainApplication> applications)
+        {
+            foreach (var application in applications)
+            {
+                DeleteApplication(application);
+            }
         }
 
 

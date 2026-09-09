@@ -53,5 +53,26 @@ namespace SATH.Aitisis.Infrastructure.Storage
 
             return Task.FromResult<Stream?>(stream);
         }
+
+
+
+        // to delete a file belongs to a draft applicartion from the storage
+        public Task DeleteAsync(string storedFileName)
+        {
+            if (string.IsNullOrWhiteSpace(storedFileName))
+            {
+                return Task.CompletedTask;
+            }
+
+            var safeFileName = Path.GetFileName(storedFileName);
+            var filePath = Path.Combine(_storagePath, safeFileName);
+
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+
+            return Task.CompletedTask;
+        }
     }
 }

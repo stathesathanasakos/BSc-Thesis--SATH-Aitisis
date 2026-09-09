@@ -49,8 +49,7 @@ namespace SATH.Aitisis.App.Services.Applications
         {
             var applicationType = await _repository.GetApplicationTypeWithConfigurationAsync(applicationTypeId);
 
-            if (applicationType == null ||
-                !applicationType.IsActive)
+            if (applicationType == null || !applicationType.IsActive)
             {
                 return null;
             }
@@ -100,8 +99,7 @@ namespace SATH.Aitisis.App.Services.Applications
 
             var applicationType = await _repository.GetApplicationTypeWithConfigurationAsync(request.ApplicationTypeId);
 
-            if (applicationType == null ||
-                !applicationType.IsActive)
+            if (applicationType == null || !applicationType.IsActive)
             {
                 return Failure("The selected application type is not available.");
             }
@@ -125,13 +123,9 @@ namespace SATH.Aitisis.App.Services.Applications
                 }
             }
 
-            var validFieldIds = applicationType.Fields
-                .Select(x => x.Id)
-                .ToHashSet();
+            var validFieldIds = applicationType.Fields.Select(x => x.Id).ToHashSet();
 
-            if (request.FieldValues.Any(
-                x => !validFieldIds.Contains(
-                    x.ApplicationTypeFieldId)))
+            if (request.FieldValues.Any(x => !validFieldIds.Contains(x.ApplicationTypeFieldId)))
             {
                 return Failure("One or more submitted fields are invalid.");
             }
@@ -150,7 +144,6 @@ namespace SATH.Aitisis.App.Services.Applications
             };
 
             await _repository.AddApplicationAsync(application);
-
             await _repository.SaveChangesAsync();
 
             var fieldValues = request.FieldValues
@@ -382,6 +375,8 @@ namespace SATH.Aitisis.App.Services.Applications
         }
 
 
+
+        // to delete a draft application and its associated documents
         public async Task<bool> DeleteDraftApplicationAsync(int applicationId, string citizenId)
         {
             if (applicationId <= 0 ||
@@ -390,21 +385,60 @@ namespace SATH.Aitisis.App.Services.Applications
                 return false;
             }
 
-            var application =
-                await _repository.GetDraftApplicationForDeleteAsync(
-                    applicationId,
-                    citizenId);
+            var application = await _repository.GetDraftApplicationForDeleteAsync(applicationId, citizenId);
 
             if (application == null)
             {
                 return false;
             }
 
+            await DeleteStoredDocumentsAsync(application.Documents);
             _repository.DeleteApplication(application);
-
             await _repository.SaveChangesAsync();
 
             return true;
+        }
+
+        // and its util method 
+        public async Task<int> DeleteExpiredDraftApplicationsAsync(TimeSpan draftLifetime)
+        {
+            if (draftLifetime <= TimeSpan.Zero)
+            {
+                return 0;
+            }
+
+            var cutoffUtc = DateTime.UtcNow.Subtract(draftLifetime);
+            var expiredDrafts = await _repository.GetDraftApplicationsOlderThanAsync(cutoffUtc);
+
+            if (expiredDrafts.Count == 0)
+            {
+                return 0;
+            }
+
+            foreach (var draft in expiredDrafts)
+            {
+                await DeleteStoredDocumentsAsync(draft.Documents);
+            }
+
+            _repository.DeleteApplications(expiredDrafts);
+            await _repository.SaveChangesAsync();
+
+            return expiredDrafts.Count;
+        }
+
+
+        private async Task DeleteStoredDocumentsAsync(IEnumerable<Document> documents)
+        {
+            var storedFileNames = documents
+                .Select(x => x.StoredFileName)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            foreach (var storedFileName in storedFileNames)
+            {
+                await _fileStorageService.DeleteAsync(storedFileName);
+            }
         }
 
 

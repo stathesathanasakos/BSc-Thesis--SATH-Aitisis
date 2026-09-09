@@ -46,5 +46,12 @@ namespace SATH.Aitisis.App.Services.Applications
 
         // to get the approved application for certificate generation
         Task<DomainApplication?> GetApprovedApplicationForCertificateAsync(int applicationId, string citizenId);
+
+
+
+        // to delete expired draft applications and their documents
+        Task<IReadOnlyCollection<DomainApplication>> GetDraftApplicationsOlderThanAsync(DateTime cutoffUtc);
+
+        void DeleteApplications(IEnumerable<DomainApplication> applications);
     }
 }

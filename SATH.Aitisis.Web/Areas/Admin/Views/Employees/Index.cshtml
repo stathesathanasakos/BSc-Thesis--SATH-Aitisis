@@ -3,8 +3,7 @@
 @{
     ViewData["Title"] = "Employee Management";
 
-    const int pageSize = 3;
-
+    const int pageSize = 4;
     var pageQuery = Context.Request.Query["page"].ToString();
 
     var currentPage = int.TryParse(pageQuery, out var parsedPage) && parsedPage > 0

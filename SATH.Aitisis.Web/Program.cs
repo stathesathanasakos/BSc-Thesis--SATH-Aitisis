@@ -26,6 +26,8 @@ using SATH.Aitisis.App.Services.Citizens;
 using SATH.Aitisis.Infrastructure.Services.Citizens;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using SATH.Aitisis.Web.BackgroundServices;
+
 
 
 
@@ -113,6 +115,9 @@ builder.Services.AddHttpClient<IAiReviewAssistant, GroqAiReviewAssistantAdapter>
 
 // Admin can reactivate citizens that have been deactivated
 builder.Services.AddScoped<ICitizenManagementService, CitizenManagementService>();
+
+// Background service to clean up expired draft applications and their associated documents
+builder.Services.AddHostedService<DraftApplicationCleanupHostedService>();
 
 // Add services to the container
 builder.Services.AddControllersWithViews();

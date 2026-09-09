@@ -4,6 +4,7 @@ using SATH.Aitisis.App.Common.Constants;
 using SATH.Aitisis.App.Services.Employees;
 using SATH.Aitisis.Web.Areas.Admin.ViewModels.Employees;
 
+
 namespace SATH.Aitisis.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
@@ -12,13 +13,10 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
     {
         private readonly IEmployeeManagementService _employeeService;
 
-        public EmployeesController(
-            IEmployeeManagementService employeeService)
+        public EmployeesController(IEmployeeManagementService employeeService)
         {
             _employeeService = employeeService;
         }
-
-
 
 
 
@@ -46,8 +44,7 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
                 Password = model.Password
             };
 
-            var result =
-                await _employeeService.CreateEmployeeAsync(request);
+            var result = await _employeeService.CreateEmployeeAsync(request);
 
             if (!result.Succeeded)
             {
@@ -61,9 +58,8 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
 
             TempData["SuccessMessage"] = "Employee created successfully.";
 
-            return RedirectToAction(nameof(Create));
+            return RedirectToAction(nameof(Index));
         }
-
 
 
 
@@ -73,7 +69,6 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var employees = await _employeeService.GetEmployeesAsync();
-
             var model = employees
                 .Select(x => new EmployeeListViewModel
                 {
@@ -92,13 +87,11 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
 
 
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(string id)
         {
-            var succeeded =
-                await _employeeService.DeactivateEmployeeAsync(id);
+            var succeeded = await _employeeService.DeactivateEmployeeAsync(id);
 
             if (!succeeded)
             {
@@ -118,18 +111,15 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reactivate(string id)
         {
-            var succeeded =
-                await _employeeService.ReactivateEmployeeAsync(id);
+            var succeeded = await _employeeService.ReactivateEmployeeAsync(id);
 
             if (!succeeded)
             {
-                TempData["ErrorMessage"] =
-                    "Employee could not be reactivated.";
+                TempData["ErrorMessage"] = "Employee could not be reactivated.";
             }
             else
             {
-                TempData["SuccessMessage"] =
-                    "Employee reactivated successfully.";
+                TempData["SuccessMessage"] = "Employee reactivated successfully.";
             }
 
             return RedirectToAction(nameof(Index));

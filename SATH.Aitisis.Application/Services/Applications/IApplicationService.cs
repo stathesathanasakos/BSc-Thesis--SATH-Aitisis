@@ -16,6 +16,8 @@
 
         Task<bool> DeleteDraftApplicationAsync(int applicationId, string citizenId);
 
+        Task<int> DeleteExpiredDraftApplicationsAsync(TimeSpan draftLifetime);
+
         Task<IReadOnlyCollection<ApplicationHistoryItem>> GetCitizenApplicationsAsync(string citizenId);
 
         // for checking the application by an employee
