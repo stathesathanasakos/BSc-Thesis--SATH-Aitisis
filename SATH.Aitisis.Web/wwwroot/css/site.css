@@ -5617,3 +5617,42 @@ textarea.admin-form-control {
         width: 100%;
     }
 }
+
+
+.app-sidebar-brand {
+    justify-content: flex-start;
+    gap: 0;
+    padding: 1.35rem 1.6rem;
+}
+
+.app-brand-title {
+    font-size: 1.45rem;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+.app-brand-subtitle {
+    margin-top: 0.35rem;
+    font-size: 0.95rem;
+    font-weight: 505;
+    line-height: 1.25;
+}
+
+@media (max-width: 992.98px) {
+    .app-sidebar-brand {
+        padding: 1.1rem 1.25rem;
+    }
+
+    .app-brand-title {
+        font-size: 1.3rem;
+    }
+
+    .app-brand-subtitle {
+        font-size: 0.93rem;
+    }
+}
+
+.app-sidebar-link.active {
+    box-shadow: none;
+}
