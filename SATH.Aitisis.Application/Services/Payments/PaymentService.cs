@@ -1,5 +1,7 @@
 ﻿using SATH.Aitisis.Domain.Entities;
 using SATH.Aitisis.Domain.Enums;
+using Microsoft.Extensions.Logging;
+
 
 namespace SATH.Aitisis.App.Services.Payments
 {
@@ -8,12 +10,15 @@ namespace SATH.Aitisis.App.Services.Payments
         private const string PaymentProvider = "Stripe";
         private readonly IPaymentRepository _paymentRepository;
         private readonly IPaymentGateway _paymentGateway;
+        private readonly ILogger<PaymentService> _logger;
 
-        public PaymentService(IPaymentRepository paymentRepository, IPaymentGateway paymentGateway)
+        public PaymentService(IPaymentRepository paymentRepository, IPaymentGateway paymentGateway, ILogger<PaymentService> logger)
         {
             _paymentRepository = paymentRepository;
             _paymentGateway = paymentGateway;
+            _logger = logger;
         }
+
 
         public async Task<PaymentStartResult> StartPaymentAsync(StartPaymentRequest request)
         {
@@ -54,6 +59,9 @@ namespace SATH.Aitisis.App.Services.Payments
             }
 
             var amount = application.ApplicationType.FeeAmount.Value;
+
+            // Log the payment start attempt with relevant details
+            _logger.LogInformation("Starting payment checkout for application {ApplicationId}. Amount: {Amount} {Currency}.", application.Id, amount, "eur");
 
             var payment = await _paymentRepository.GetPaymentByApplicationIdAsync(application.Id);
 
@@ -103,9 +111,11 @@ namespace SATH.Aitisis.App.Services.Payments
             if (!checkoutResult.Succeeded || string.IsNullOrWhiteSpace(checkoutResult.ExternalSessionId) || string.IsNullOrWhiteSpace(checkoutResult.CheckoutUrl))
             {
                 payment.Status = PaymentStatus.Failed;
-
                 await _paymentRepository.SaveChangesAsync();
 
+                // Log the failure of the payment checkout session creation with relevant details
+                _logger.LogWarning("Payment checkout session creation failed for application {ApplicationId}.", application.Id);
+                
                 return PaymentStartResult.Failure(checkoutResult.ErrorMessage ?? "The payment session could not be created.");
             }
 
@@ -115,8 +125,12 @@ namespace SATH.Aitisis.App.Services.Payments
 
             await _paymentRepository.SaveChangesAsync();
 
+            // Log the successful creation of the payment checkout session with relevant details
+            _logger.LogInformation("Payment checkout session created for application {ApplicationId} and payment {PaymentId}.", application.Id, payment.Id);
+
             return PaymentStartResult.Success(checkoutResult.CheckoutUrl);
         }
+
 
 
         public async Task<PaymentCompletionResult> CompletePaymentAsync(CompletePaymentRequest request)
@@ -157,6 +171,9 @@ namespace SATH.Aitisis.App.Services.Payments
                 payment.Status = PaymentStatus.Failed;
                 await _paymentRepository.SaveChangesAsync();
 
+                // Log a warning indicating that the external payment session was not found for the given payment
+                _logger.LogWarning("External payment session was not found for payment {PaymentId}.", payment.Id);
+
                 return PaymentCompletionResult.Failure("The external payment session was not found.");
             }
 
@@ -164,6 +181,9 @@ namespace SATH.Aitisis.App.Services.Payments
             {
                 payment.Status = PaymentStatus.Failed;
                 await _paymentRepository.SaveChangesAsync();
+
+                // Log a warning indicating that the payment was not completed for the given application
+                _logger.LogWarning("Payment was not completed for application {ApplicationId}.", payment.ApplicationId);
 
                 return PaymentCompletionResult.Failure("The payment was not completed.");
             }
@@ -178,6 +198,9 @@ namespace SATH.Aitisis.App.Services.Payments
             }
 
             await _paymentRepository.SaveChangesAsync();
+
+            // Log the successful completion of the payment with relevant details
+            _logger.LogInformation("Payment completed for application {ApplicationId}.", payment.ApplicationId);
 
             return PaymentCompletionResult.Success(payment.ApplicationId);
         }

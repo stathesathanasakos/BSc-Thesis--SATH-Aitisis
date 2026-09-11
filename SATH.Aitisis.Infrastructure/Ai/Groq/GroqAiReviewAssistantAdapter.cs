@@ -4,6 +4,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 using SATH.Aitisis.App.Services.AiReview;
+using Microsoft.Extensions.Logging;
+
+
 
 namespace SATH.Aitisis.Infrastructure.Ai.Groq
 {
@@ -11,11 +14,13 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
     {
         private readonly HttpClient _httpClient;
         private readonly GroqAiOptions _options;
+        private readonly ILogger<GroqAiReviewAssistantAdapter> _logger;
 
-        public GroqAiReviewAssistantAdapter(HttpClient httpClient, IOptions<GroqAiOptions> options)
+        public GroqAiReviewAssistantAdapter(HttpClient httpClient, IOptions<GroqAiOptions> options, ILogger<GroqAiReviewAssistantAdapter> logger)
         {
             _httpClient = httpClient;
             _options = options.Value;
+            _logger = logger;
         }
 
         public async Task<AiReviewResult> GenerateReviewAsync(AiReviewRequest request)
@@ -30,14 +35,14 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
                 return AiReviewResult.Failure("Groq model is not configured.");
             }
 
+            // Log the start of the AI review generation process
+            _logger.LogInformation("Starting AI review generation for application {ApplicationId}.", request.ApplicationId);
+
+            // I create the endpoint URL for the Groq API request
             var endpoint = $"{_options.BaseUrl.TrimEnd('/')}/chat/completions";
-
             using var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
-
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
-
             var payload = BuildPayload(request);
-
             httpRequest.Content = JsonContent.Create(payload);
 
             try
@@ -55,6 +60,9 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
 
                 if (string.IsNullOrWhiteSpace(content))
                 {
+                    // Log a warning if the Groq response is empty
+                    _logger.LogWarning("Groq AI review returned empty content for application {ApplicationId}.", request.ApplicationId);
+                    
                     return AiReviewResult.Failure("Groq returned an empty response.");
                 }
 
@@ -62,8 +70,14 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
 
                 if (structuredResult == null)
                 {
+                    // Log a warning if the Groq response could not be parsed into the expected structured format
+                    _logger.LogWarning("Groq AI review response could not be parsed for application {ApplicationId}.", request.ApplicationId);
+
                     return AiReviewResult.Failure("Groq response could not be parsed.");
                 }
+
+                // Log the successful completion of the AI review generation process
+                _logger.LogInformation("AI review generation completed for application {ApplicationId}.", request.ApplicationId);
 
                 return AiReviewResult.Success(
                     structuredResult.Summary,

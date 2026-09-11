@@ -28,8 +28,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using SATH.Aitisis.Web.BackgroundServices;
 using SATH.Aitisis.App.Services.DocumentGuidance;
-using SATH.Aitisis.Infrastructure.Ai.Groq;
-
+using SATH.Aitisis.Infrastructure.Caching;
 
 
 
@@ -40,8 +39,7 @@ var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddDbContext<SathAitisisDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+builder.Services.AddDbContext<SathAitisisDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 
 
@@ -64,10 +62,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 
 
+
 // the IEmployeeManagementService interface is implemented by the EmployeeManagementService class which is registered as a scoped service in the dependency injection container
 // This means that a new instance of EmployeeManagementService will be created for each HTTP request, and it will be shared across the components that require it within that request.
 builder.Services.AddScoped<IEmployeeManagementService, EmployeeManagementService>();
-
 
 // the IApplicationTypeService interface is implemented by the ApplicationTypeService class that is registered
 // as a scoped service in the dependency injection container
@@ -78,12 +76,10 @@ builder.Services.AddScoped<IApplicationTypeService, ApplicationTypeService>();
 // that way the ApplicationTypeService can use the ApplicationTypeRepository to access the database for the CRUD operations on ApplicationType entities
 builder.Services.AddScoped<IApplicationTypeRepository, ApplicationTypeRepository>();
 
-
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
-
-
 builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
 
+// the IFileStorageService interface is implemented by the LocalFileStorageService class that is registered
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
 builder.Services.AddScoped<IUserLookupService, UserLookupService>();
@@ -91,9 +87,23 @@ builder.Services.AddScoped<IUserLookupService, UserLookupService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
+//builder.Services.AddScoped<IDashboardStatisticsService, DashboardStatisticsService>();
+//builder.Services.AddScoped<IDashboardStatisticsRepository, DashboardStatisticsRepository>();
 
-builder.Services.AddScoped<IDashboardStatisticsService, DashboardStatisticsService>();
+// add the caching layer for the dashboard statistics service
+// the CachedStatisticsService class is registered as a scoped service that implements the IDashboardStatisticsService interface
+// so when the IDashboardStatisticsService is requested, the CachedStatisticsService will be provided,
+// which internally uses the DashboardStatisticsService and the IMemoryCache to cache the results of the statistics queries for a certain duration
 builder.Services.AddScoped<IDashboardStatisticsRepository, DashboardStatisticsRepository>();
+builder.Services.AddScoped<DashboardStatisticsService>();
+builder.Services.AddScoped<IDashboardStatisticsService>(serviceProvider =>
+{
+    var innerService = serviceProvider.GetRequiredService<DashboardStatisticsService>();
+    var cache = serviceProvider.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>();
+    var logger = serviceProvider.GetRequiredService<ILogger<CachedStatisticsService>>();
+
+    return new CachedStatisticsService(innerService, cache, logger);
+});
 
 // to handle the transition of application statuses independently of the application service class
 builder.Services.AddScoped<IApplicationStatusTransitionPolicy, ApplicationStatusTransitionPolicy>();
@@ -102,13 +112,11 @@ builder.Services.AddScoped<IApplicationStatusTransitionPolicy, ApplicationStatus
 builder.Services.AddScoped<IApprovalCertificateService, ApprovalCertificateService>();
 builder.Services.AddScoped<IApprovalCertificatePdfGenerator, QuestPdfApprovalCertificateGenerator>();
 
-
 // for the payments
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPaymentGateway, StripePaymentGatewayAdapter>();
 builder.Services.Configure<StripePaymentOptions>(builder.Configuration.GetSection("Stripe"));
-
 
 // for the AI review feature
 builder.Services.Configure<GroqAiOptions>(builder.Configuration.GetSection("Groq"));
@@ -130,9 +138,15 @@ builder.Services.AddScoped<IApplicationDocumentGuidanceService, ApplicationDocum
 builder.Services.AddHttpClient<ICitizenDocumentGuidanceAssistant, GroqCitizenDocumentGuidanceAssistantAdapter>();
 
 
-
+// InMemory caching runs on the web server's memory 
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
+
+
+
+
+
 
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
@@ -147,20 +161,19 @@ app.UseStaticFiles();
 
 
 
+
+
 // Seeds the predefined application roles on startup (the predifined role is actually the Admin)
 using (var scope = app.Services.CreateScope())
 {
     // from SATH.Aitisis.Infrastructure.Identity.IdentitySeeder
-    var roleManager =
-        scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    var userManager =
-        scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
     await IdentitySeeder.SeedRolesAsync(roleManager);
     await IdentitySeeder.SeedAdminAsync(userManager);
 }
-
 
 // to use localization in the application and avoid amount like 5.00 to be presented as 500 euros
 var supportedCultures = new[]

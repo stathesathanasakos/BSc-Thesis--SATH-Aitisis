@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 using SATH.Aitisis.App.Services.DocumentGuidance;
+using Microsoft.Extensions.Logging;
+
 
 namespace SATH.Aitisis.Infrastructure.Ai.Groq
 {
@@ -11,11 +13,13 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
     {
         private readonly HttpClient _httpClient;
         private readonly GroqAiOptions _options;
+        private readonly ILogger<GroqCitizenDocumentGuidanceAssistantAdapter> _logger;
 
-        public GroqCitizenDocumentGuidanceAssistantAdapter(HttpClient httpClient, IOptions<GroqAiOptions> options)
+        public GroqCitizenDocumentGuidanceAssistantAdapter(HttpClient httpClient, IOptions<GroqAiOptions> options, ILogger<GroqCitizenDocumentGuidanceAssistantAdapter> logger)
         {
             _httpClient = httpClient;
             _options = options.Value;
+            _logger = logger;
         }
 
 
@@ -32,6 +36,9 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
                 return DocumentGuidanceResult.Failure("Groq model is not configured.");
             }
 
+            // Log the start of the guidance generation process
+            _logger.LogInformation("Starting AI document guidance generation for application {ApplicationId}.", request.ApplicationId);
+
             var endpoint = $"{_options.BaseUrl.TrimEnd('/')}/chat/completions";
             using var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
@@ -46,6 +53,9 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
                 {
                     var errorContent =await response.Content.ReadAsStringAsync();
 
+                    // log the failure with status code and error content
+                    _logger.LogWarning("Groq AI document guidance request failed for application {ApplicationId} with status code {StatusCode}.", request.ApplicationId, (int)response.StatusCode);
+
                     return DocumentGuidanceResult.Failure($"Groq request failed with status {(int)response.StatusCode}: {errorContent}");
                 }
 
@@ -54,16 +64,19 @@ namespace SATH.Aitisis.Infrastructure.Ai.Groq
 
                 if (string.IsNullOrWhiteSpace(content))
                 {
+                    // log the empty response content
+                    _logger.LogWarning("Groq AI document guidance returned empty content for application {ApplicationId}.", request.ApplicationId);
+
                     return DocumentGuidanceResult.Failure("Groq returned an empty response.");
                 }
 
-                var structuredResult =
-                    JsonSerializer.Deserialize<GroqDocumentGuidanceResponse>(
-                        content,
-                        JsonOptions());
+                var structuredResult = JsonSerializer.Deserialize<GroqDocumentGuidanceResponse>(content, JsonOptions());
 
                 if (structuredResult == null)
                 {
+                    // log the failure to parse the response
+                    _logger.LogWarning("Groq AI document guidance response could not be parsed for application {ApplicationId}.", request.ApplicationId);
+
                     return DocumentGuidanceResult.Failure("Groq response could not be parsed.");
                 }
 

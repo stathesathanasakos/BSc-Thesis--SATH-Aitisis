@@ -1,4 +1,6 @@
 ﻿using SATH.Aitisis.App.Services.Applications;
+using Microsoft.Extensions.Hosting;
+
 
 namespace SATH.Aitisis.Web.BackgroundServices
 {
@@ -34,6 +36,9 @@ namespace SATH.Aitisis.Web.BackgroundServices
             }
         }
 
+
+
+        // Runs scheduled maintenance and logs only meaningful cleanup results or errors.
         private async Task RunCleanupAsync(CancellationToken stoppingToken)
         {
             if (stoppingToken.IsCancellationRequested){

@@ -5,6 +5,7 @@ using DomainDocument = SATH.Aitisis.Domain.Entities.Document;
 using SATH.Aitisis.App.Common.Users;
 using SATH.Aitisis.App.Services.Notifications;
 using SATH.Aitisis.App.Services.Applications.StatusTransitions;
+using Microsoft.Extensions.Logging;
 
 
 
@@ -17,15 +18,16 @@ namespace SATH.Aitisis.App.Services.Applications
         private readonly IUserLookupService _userLookupService;
         private readonly INotificationService _notificationService;
         private readonly IApplicationStatusTransitionPolicy _transitionPolicy;
+        private readonly ILogger<ApplicationService> _logger;
 
-
-        public ApplicationService(IApplicationRepository repository, IFileStorageService fileStorageService, IUserLookupService userLookupService, INotificationService notificationService, IApplicationStatusTransitionPolicy transitionPolicy)
+        public ApplicationService(IApplicationRepository repository, IFileStorageService fileStorageService, IUserLookupService userLookupService, INotificationService notificationService, IApplicationStatusTransitionPolicy transitionPolicy, ILogger<ApplicationService> logger)
         {
-            _repository           = repository;
-            _fileStorageService   = fileStorageService;
-            _userLookupService    = userLookupService;
-            _notificationService  = notificationService;
-            _transitionPolicy     = transitionPolicy;
+            _repository = repository;
+            _fileStorageService = fileStorageService;
+            _userLookupService = userLookupService;
+            _notificationService = notificationService;
+            _transitionPolicy = transitionPolicy;
+            _logger = logger;
         }
 
         public async Task<IReadOnlyCollection<AvailableApplicationTypeItem>> GetAvailableApplicationTypesAsync()
@@ -104,10 +106,7 @@ namespace SATH.Aitisis.App.Services.Applications
                 return Failure("The selected application type is not available.");
             }
 
-            var submittedValues =
-                request.FieldValues.ToDictionary(
-                    x => x.ApplicationTypeFieldId,
-                    x => x.Value);
+            var submittedValues = request.FieldValues.ToDictionary(x => x.ApplicationTypeFieldId, x => x.Value);
 
             foreach (var field in applicationType.Fields)
             {
@@ -145,6 +144,8 @@ namespace SATH.Aitisis.App.Services.Applications
 
             await _repository.AddApplicationAsync(application);
             await _repository.SaveChangesAsync();
+            // Log the creation of the draft application
+            _logger.LogInformation("Draft application {ApplicationId} created for citizen {CitizenId}.", application.Id, request.CitizenId);
 
             var fieldValues = request.FieldValues
                 .Where(x => !string.IsNullOrWhiteSpace(x.Value))
@@ -161,6 +162,8 @@ namespace SATH.Aitisis.App.Services.Applications
             {
                 await _repository.AddFieldValuesAsync(fieldValues);
                 await _repository.SaveChangesAsync();
+                // Log the way the field values were saved for the draft application
+                _logger.LogInformation("Saved {FieldValueCount} field value(s) for draft application {ApplicationId}.", fieldValues.Length, application.Id);
             }
 
             return new SubmitApplicationResult
@@ -264,22 +267,18 @@ namespace SATH.Aitisis.App.Services.Applications
             {
                 ApplicationId = application.Id,
                 DocumentRequirementId = request.DocumentRequirementId,
-
                 UploadedByUserId = request.CitizenId,
-
                 OriginalFileName = Path.GetFileName(request.OriginalFileName),
-
                 StoredFileName = storedFileName,
-
                 ContentType = request.ContentType,
-
                 FileSize = request.FileSize,
-
                 UploadDate = DateTime.UtcNow
             };
 
             await _repository.AddDocumentAsync(document);
             await _repository.SaveChangesAsync();
+            // Log the successful upload of the document and its metadata
+            _logger.LogInformation("Document metadata saved for application {ApplicationId}. Document requirement id: {DocumentRequirementId}. File size: {FileSize} bytes.", application.Id, request.DocumentRequirementId, request.FileSize);
 
             return new UploadApplicationDocumentResult
             {
@@ -333,10 +332,7 @@ namespace SATH.Aitisis.App.Services.Applications
                 return CompleteApplicationSubmissionResult.Failure("Invalid application information.");
             }
 
-            var application =
-                await _repository.GetApplicationForSubmissionCompletionAsync(
-                    request.ApplicationId,
-                    request.CitizenId);
+            var application = await _repository.GetApplicationForSubmissionCompletionAsync(request.ApplicationId, request.CitizenId);
 
             if (application == null)
             {
@@ -370,6 +366,8 @@ namespace SATH.Aitisis.App.Services.Applications
             application.SubmissionDate = DateTime.UtcNow;
 
             await _repository.SaveChangesAsync();
+            // Log the successful submission of the application
+            _logger.LogInformation("Application {ApplicationId} submitted successfully by citizen {CitizenId}.", application.Id, request.CitizenId);
 
             return CompleteApplicationSubmissionResult.Success(application.Id);
         }
@@ -379,8 +377,7 @@ namespace SATH.Aitisis.App.Services.Applications
         // to delete a draft application and its associated documents
         public async Task<bool> DeleteDraftApplicationAsync(int applicationId, string citizenId)
         {
-            if (applicationId <= 0 ||
-                string.IsNullOrWhiteSpace(citizenId))
+            if (applicationId <= 0 || string.IsNullOrWhiteSpace(citizenId))
             {
                 return false;
             }
@@ -395,6 +392,9 @@ namespace SATH.Aitisis.App.Services.Applications
             await DeleteStoredDocumentsAsync(application.Documents);
             _repository.DeleteApplication(application);
             await _repository.SaveChangesAsync();
+
+            // Log the deletion of the draft application and its associated documents
+            _logger.LogInformation("Draft application {ApplicationId} cancelled and deleted for citizen {CitizenId}.", applicationId, citizenId);
 
             return true;
         }
@@ -422,6 +422,9 @@ namespace SATH.Aitisis.App.Services.Applications
 
             _repository.DeleteApplications(expiredDrafts);
             await _repository.SaveChangesAsync();
+
+            // Log the deletion of expired draft applications and their associated documents (also from the hosted service)
+            _logger.LogInformation("Deleted {ExpiredDraftCount} expired draft application(s).", expiredDrafts.Count);
 
             return expiredDrafts.Count;
         }
@@ -610,18 +613,16 @@ namespace SATH.Aitisis.App.Services.Applications
             }
 
             var decisionDate = DateTime.UtcNow;
-
             var protocolNumber = GenerateProtocolNumber(application.Id,decisionDate);
-
             application.Status = ApplicationStatus.Approved;
-
             application.ReviewedByUserId = request.EmployeeId;
-
             application.DecisionDate = decisionDate;
-
             application.ProtocolNumber = protocolNumber;
 
             await _repository.SaveChangesAsync();
+
+            // Log the approval of the application with relevant details
+            _logger.LogInformation("Application {ApplicationId} approved by employee {EmployeeId}. Protocol number: {ProtocolNumber}.", application.Id, request.EmployeeId, protocolNumber);
 
             await _notificationService.CreateAsync(new CreateNotificationRequest
                 {
@@ -662,14 +663,14 @@ namespace SATH.Aitisis.App.Services.Applications
             }
 
             application.Status = ApplicationStatus.Rejected;
-
             application.ReviewedByUserId = request.EmployeeId;
-
             application.DecisionDate = DateTime.UtcNow;
-
             application.ProtocolNumber = null;
 
             await _repository.SaveChangesAsync();
+
+            // Log the rejection of the application with relevant details
+            _logger.LogInformation("Application {ApplicationId} rejected by employee {EmployeeId}.", application.Id, request.EmployeeId);
 
             await _notificationService.CreateAsync(new CreateNotificationRequest
                 {
