@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Citizen Management";
 
-    const int pageSize = 4;
+    const int pageSize = 3;
 
     var pageQuery = Context.Request.Query["page"].ToString();
 
@@ -40,7 +40,6 @@
 <div class="admin-list-page">
 
     <div class="admin-list-hero mb-4">
-
         <div>
             <span class="admin-list-eyebrow">
                 Administration – Citizen Management
@@ -50,14 +49,6 @@
                 View citizen accounts registered in the system and reactivate accounts that were deactivated by citizens.
             </p>
         </div>
-
-        <a asp-area="Admin"
-           asp-controller="Employees"
-           asp-action="Index"
-           class="btn btn-outline-primary admin-list-main-action">
-            View Employees
-        </a>
-
     </div>
 
     <div class="row g-3 mb-4">
@@ -71,10 +62,6 @@
                 <div class="admin-stat-value">
                     @totalItems
                 </div>
-
-                <div class="admin-stat-note">
-                    Registered citizen accounts.
-                </div>
             </div>
         </div>
 
@@ -87,10 +74,6 @@
                 <div class="admin-stat-value">
                     @activeCount
                 </div>
-
-                <div class="admin-stat-note">
-                    Accounts that can currently sign in.
-                </div>
             </div>
         </div>
 
@@ -102,10 +85,6 @@
 
                 <div class="admin-stat-value">
                     @inactiveCount
-                </div>
-
-                <div class="admin-stat-note">
-                    Accounts that can be reactivated.
                 </div>
             </div>
         </div>

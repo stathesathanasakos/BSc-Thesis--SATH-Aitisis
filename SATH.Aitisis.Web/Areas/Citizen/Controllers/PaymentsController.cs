@@ -79,8 +79,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                 },
                 Request.Scheme);
 
-            if (string.IsNullOrWhiteSpace(successBaseUrl) ||
-                string.IsNullOrWhiteSpace(cancelUrl))
+            if (string.IsNullOrWhiteSpace(successBaseUrl) || string.IsNullOrWhiteSpace(cancelUrl))
             {
                 TempData["ErrorMessage"] = "Payment redirect URLs could not be created.";
 
@@ -99,8 +98,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                         CancelUrl = cancelUrl
                     });
 
-            if (!result.Succeeded ||
-                string.IsNullOrWhiteSpace(result.CheckoutUrl))
+            if (!result.Succeeded || string.IsNullOrWhiteSpace(result.CheckoutUrl))
             {
                 TempData["ErrorMessage"] = result.ErrorMessage ?? "The payment could not be started.";
 

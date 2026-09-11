@@ -491,8 +491,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                 return Unauthorized();
             }
 
-            var timeline =
-                await _applicationService.GetCitizenApplicationTimelineAsync(id, citizenId);
+            var timeline = await _applicationService.GetCitizenApplicationTimelineAsync(id, citizenId);
 
             if (timeline == null)
             {
