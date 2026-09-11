@@ -9,6 +9,7 @@ using System.Security.Claims;
 using SATH.Aitisis.Web.ViewModels.Applications;
 using SATH.Aitisis.App.Services.ApprovalCertificates;
 using SATH.Aitisis.App.Services.Payments;
+using SATH.Aitisis.App.Services.DocumentGuidance;
 
 
 
@@ -21,12 +22,14 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         private readonly IApplicationService _applicationService;
         private readonly IApprovalCertificateService _approvalCertificateService;
         private readonly IPaymentService _paymentService;
+        private readonly IApplicationDocumentGuidanceService _documentGuidanceService;
 
-        public ApplicationsController(IApplicationService applicationService, IApprovalCertificateService approvalCertificateService, IPaymentService paymentService)
+        public ApplicationsController(IApplicationService applicationService, IApprovalCertificateService approvalCertificateService, IPaymentService paymentService, IApplicationDocumentGuidanceService documentGuidanceService)
         {
             _applicationService = applicationService;
             _approvalCertificateService = approvalCertificateService;
             _paymentService = paymentService;
+            _documentGuidanceService = documentGuidanceService;
         }
 
 
@@ -97,8 +100,33 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
 
 
 
+        // to show the documents upload page for the application
         [HttpGet]
         public async Task<IActionResult> Documents(int applicationId)
+        {
+            var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var info = await _applicationService.GetApplicationDocumentsInfoAsync(applicationId, citizenId);
+
+            if (string.IsNullOrWhiteSpace(citizenId))
+            {
+                return Unauthorized();
+            }
+
+            if (info == null)
+            {
+                return NotFound();
+            }
+
+            var model = MapDocumentsViewModel(info);
+
+            return View(model);
+        }
+
+
+        // to generate AI document guidance for the application
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateDocumentGuidance(int applicationId)
         {
             var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -107,38 +135,38 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                 return Unauthorized();
             }
 
-            var info = await _applicationService.GetApplicationDocumentsInfoAsync(applicationId,citizenId);
+            var info = await _applicationService.GetApplicationDocumentsInfoAsync(applicationId, citizenId);
 
             if (info == null)
             {
                 return NotFound();
             }
 
-            var model = new ApplicationDocumentsViewModel
-            {
-                ApplicationId = info.ApplicationId,
-                ApplicationTypeId = info.ApplicationTypeId,
-                ApplicationTypeName = info.ApplicationTypeName,
-                RequiresPayment = info.RequiresPayment,
-                RequiredDocumentsCompleted =
-                    info.RequiredDocumentsCompleted,
+            var model = MapDocumentsViewModel(info);
+            var result = await _documentGuidanceService.GenerateForApplicationAsync(applicationId, citizenId);
 
-                DocumentRequirements = info.Documents
-                    .Select(x => new DocumentRequirementUploadItemViewModel
+            if (!result.Succeeded)
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage ?? "AI document guidance could not be generated.";
+                return View("Documents", model);
+            }
+
+            model.AiDocumentGuidance = new AiDocumentGuidanceViewModel
+            {
+                Summary = result.Summary,
+                GeneralAdvice = result.GeneralAdvice,
+                Disclaimer = result.Disclaimer,
+                Items = result.Items
+                    .Select(x => new AiDocumentGuidanceItemViewModel
                     {
-                        Id = x.DocumentRequirementId,
-                        Name = x.Name,
-                        Description = x.Description,
-                        IsRequired = x.IsRequired,
-                        DisplayOrder = x.DisplayOrder,
-                        IsUploaded = x.IsUploaded
+                        DocumentName = x.DocumentName,
+                        Steps = x.Steps.ToList()
                     })
                     .ToList()
             };
 
-            return View(model);
+            return View("Documents", model);
         }
-
 
 
 
@@ -205,7 +233,6 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                             applicationId = result.ApplicationId!.Value
                         });
         }
-
 
 
 
@@ -558,5 +585,34 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+
+
+
+        // this is a helper method to map the ApplicationDocumentsInfo to ApplicationDocumentsViewModel
+        private static ApplicationDocumentsViewModel MapDocumentsViewModel(ApplicationDocumentsInfo info)
+        {
+            return new ApplicationDocumentsViewModel
+            {
+                ApplicationId = info.ApplicationId,
+                ApplicationTypeId = info.ApplicationTypeId,
+                ApplicationTypeName = info.ApplicationTypeName,
+                RequiresPayment = info.RequiresPayment,
+                RequiredDocumentsCompleted = info.RequiredDocumentsCompleted,
+
+                DocumentRequirements = info.Documents
+                    .Select(x => new DocumentRequirementUploadItemViewModel
+                    {
+                        Id = x.DocumentRequirementId,
+                        Name = x.Name,
+                        Description = x.Description,
+                        IsRequired = x.IsRequired,
+                        DisplayOrder = x.DisplayOrder,
+                        IsUploaded = x.IsUploaded
+                    })
+                    .ToList()
+            };
+        }
+
     }
 }

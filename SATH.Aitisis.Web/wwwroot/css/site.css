@@ -5656,3 +5656,72 @@ textarea.admin-form-control {
 .app-sidebar-link.active {
     box-shadow: none;
 }
+
+
+
+
+/* citizen AI document guidance modal */
+
+.citizen-ai-guidance-modal {
+    border: 0;
+    border-radius: 1.2rem;
+    overflow: hidden;
+    box-shadow: 0 1.4rem 3rem rgba(31, 48, 83, 0.22);
+}
+
+.citizen-ai-guidance-modal-header {
+    align-items: flex-start;
+    padding: 1.15rem 1.35rem;
+    border-bottom: 1px solid var(--sath-card-border);
+    background: radial-gradient(circle at top right, rgba(47, 85, 151, 0.10), transparent 14rem), linear-gradient(135deg, #ffffff, #f9fbfd);
+}
+
+    .citizen-ai-guidance-modal-header .modal-title {
+        margin-top: 0.25rem;
+        color: var(--sath-text);
+        font-weight: 900;
+    }
+
+.citizen-ai-guidance-modal-body {
+    padding: 1.25rem;
+    background-color: #f9fbfd;
+}
+
+.citizen-ai-guidance-modal-summary {
+    margin-bottom: 1rem;
+    padding: 0.95rem 1rem;
+    border-radius: 1rem;
+    background-color: #ffffff;
+    border: 1px solid var(--sath-card-border);
+    color: var(--sath-muted);
+    line-height: 1.5;
+}
+
+.citizen-ai-guidance-modal-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--sath-card-border);
+    background-color: #ffffff;
+}
+
+.citizen-documents-secondary-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+    .citizen-documents-secondary-actions form {
+        margin-bottom: 0;
+    }
+
+@media (max-width: 575.98px) {
+    .citizen-documents-secondary-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .citizen-documents-secondary-actions .btn {
+            width: 100%;
+        }
+}

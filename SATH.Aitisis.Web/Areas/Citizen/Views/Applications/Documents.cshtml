@@ -7,15 +7,10 @@
 <div class="citizen-documents-page">
 
     <div class="citizen-documents-hero mb-4">
-
         <div>
             <span class="citizen-page-eyebrow">
-                Document Upload
+                Document Upload - Supporting documents
             </span>
-
-            <h1 class="citizen-page-title">
-                Supporting Documents
-            </h1>
 
             <p class="citizen-page-subtitle">
                 Upload the required PDF documents for <strong>@Model.ApplicationTypeName</strong>.
@@ -24,7 +19,7 @@
 
         <form asp-area="Citizen"
               asp-controller="Applications"
-              asp-action="CancelDraft"
+              asp-action="GenerateDocumentGuidance"
               method="post"
               class="mb-0">
 
@@ -35,14 +30,13 @@
                    value="@Model.ApplicationId" />
 
             <button type="submit"
-                    class="btn btn-outline-secondary citizen-page-main-action"
-                    onclick="return confirm('Are you sure you want to cancel this application draft?');">
-                Back to Applications
+                    class="btn btn-outline-primary citizen-page-main-action">
+                Get AI Document Guidance
             </button>
 
         </form>
-
     </div>
+
 
     @if (TempData["SuccessMessage"] != null)
     {
@@ -82,7 +76,7 @@
                 </h5>
 
                 <p class="mb-0">
-                    Required documents must be uploaded before you can continue.
+                    Required documents must be uploaded before you can continue. Only PDF files up to 10 MB are accepted.
                 </p>
             </div>
 
@@ -103,23 +97,119 @@
 
         <div class="card-body p-4">
 
-            <div class="citizen-upload-help-panel mb-4">
+            @if (Model.AiDocumentGuidance != null)
+            {
+                <div class="modal fade"
+                     id="aiDocumentGuidanceModal"
+                     tabindex="-1"
+                     aria-labelledby="aiDocumentGuidanceModalLabel"
+                     aria-hidden="true">
 
-                <div class="citizen-upload-help-icon">
-                    PDF
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+
+                        <div class="modal-content citizen-ai-guidance-modal">
+
+                            <div class="modal-header citizen-ai-guidance-modal-header">
+
+                                <div>
+                                    <span class="citizen-page-eyebrow">
+                                        AI Document Guidance
+                                    </span>
+
+                                    <h5 class="modal-title"
+                                        id="aiDocumentGuidanceModalLabel">
+                                        Suggested preparation steps
+                                    </h5>
+                                </div>
+
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close">
+                                </button>
+
+                            </div>
+
+                            <div class="modal-body citizen-ai-guidance-modal-body">
+
+                                @if (!string.IsNullOrWhiteSpace(Model.AiDocumentGuidance.Summary))
+                                {
+                                    <div class="citizen-ai-guidance-modal-summary">
+                                        @Model.AiDocumentGuidance.Summary
+                                    </div>
+                                }
+
+                                <div class="citizen-ai-guidance-list">
+
+                                    @foreach (var item in Model.AiDocumentGuidance.Items)
+                                    {
+                                        <div class="citizen-ai-guidance-item">
+
+                                            <h6>
+                                                @item.DocumentName
+                                            </h6>
+
+                                            @if (item.Steps.Count == 0)
+                                            {
+                                                <p class="mb-0 text-muted">
+                                                    No specific steps were returned for this document.
+                                                </p>
+                                            }
+                                            else
+                                            {
+                                                <ol>
+                                                    @foreach (var step in item.Steps)
+                                                    {
+                                                        <li>
+                                                            @step
+                                                        </li>
+                                                    }
+                                                </ol>
+                                            }
+
+                                        </div>
+                                    }
+
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.AiDocumentGuidance.GeneralAdvice))
+                                {
+                                    <div class="citizen-ai-guidance-note mt-3">
+                                        <strong>
+                                            General advice
+                                        </strong>
+
+                                        <p>
+                                            @Model.AiDocumentGuidance.GeneralAdvice
+                                        </p>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(Model.AiDocumentGuidance.Disclaimer))
+                                {
+                                    <div class="citizen-ai-guidance-disclaimer mt-3">
+                                        @Model.AiDocumentGuidance.Disclaimer
+                                    </div>
+                                }
+
+                            </div>
+
+                            <div class="modal-footer citizen-ai-guidance-modal-footer">
+
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        data-bs-dismiss="modal">
+                                    Close
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 </div>
-
-                <div>
-                    <strong>
-                        Only PDF files up to 10 MB are accepted.
-                    </strong>
-
-                    <p>
-                        Upload each required document separately. Once all required documents are uploaded, you can continue to the next step.
-                    </p>
-                </div>
-
-            </div>
+            }
 
             @if (Model.DocumentRequirements.Count == 0)
             {
@@ -259,25 +349,49 @@
 
         <div class="citizen-submit-actions citizen-documents-actions">
 
-            <form asp-area="Citizen"
-                  asp-controller="Applications"
-                  asp-action="CancelDraft"
-                  method="post"
-                  class="mb-0">
+            <div class="citizen-documents-secondary-actions">
 
-                @Html.AntiForgeryToken()
+                <form asp-area="Citizen"
+                      asp-controller="Applications"
+                      asp-action="CancelDraft"
+                      method="post"
+                      class="mb-0">
 
-                <input type="hidden"
-                       name="applicationId"
-                       value="@Model.ApplicationId" />
+                    @Html.AntiForgeryToken()
 
-                <button type="submit"
-                        class="btn btn-outline-secondary"
-                        onclick="return confirm('Are you sure you want to cancel this application draft?');">
-                    Cancel
-                </button>
+                    <input type="hidden"
+                           name="applicationId"
+                           value="@Model.ApplicationId" />
 
-            </form>
+                    <button type="submit"
+                            class="btn btn-outline-secondary"
+                            onclick="return confirm('Are you sure you want to cancel this application draft?');">
+                        Cancel
+                    </button>
+
+                </form>
+
+                <form asp-area="Citizen"
+                      asp-controller="Applications"
+                      asp-action="CancelDraft"
+                      method="post"
+                      class="mb-0">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="applicationId"
+                           value="@Model.ApplicationId" />
+
+                    <button type="submit"
+                            class="btn btn-outline-secondary"
+                            onclick="return confirm('Going back will cancel this application draft. Continue?');">
+                        Back to Applications
+                    </button>
+
+                </form>
+
+            </div>
 
             @if (Model.RequiredDocumentsCompleted)
             {
@@ -313,11 +427,21 @@
 
     </div>
 
-    @if (!Model.RequiredDocumentsCompleted)
-    {
-        <div class="citizen-documents-warning mt-4">
-            Please upload all required documents before continuing.
-        </div>
-    }
-
 </div>
+
+
+@if (Model.AiDocumentGuidance != null)
+{
+    @section Scripts {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const modalElement = document.getElementById('aiDocumentGuidanceModal');
+
+                if (modalElement) {
+                    const modal = new bootstrap.Modal(modalElement);
+                    modal.show();
+                }
+            });
+        </script>
+    }
+}

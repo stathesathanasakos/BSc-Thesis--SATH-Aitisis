@@ -27,6 +27,8 @@ using SATH.Aitisis.Infrastructure.Services.Citizens;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using SATH.Aitisis.Web.BackgroundServices;
+using SATH.Aitisis.App.Services.DocumentGuidance;
+using SATH.Aitisis.Infrastructure.Ai.Groq;
 
 
 
@@ -122,6 +124,12 @@ builder.Services.AddHostedService<DraftApplicationCleanupHostedService>();
 // Add services to the container
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+// for the document AI guidance feature
+builder.Services.AddScoped<IApplicationDocumentGuidanceService, ApplicationDocumentGuidanceService>();
+builder.Services.AddHttpClient<ICitizenDocumentGuidanceAssistant, GroqCitizenDocumentGuidanceAssistantAdapter>();
+
+
 
 
 var app = builder.Build();

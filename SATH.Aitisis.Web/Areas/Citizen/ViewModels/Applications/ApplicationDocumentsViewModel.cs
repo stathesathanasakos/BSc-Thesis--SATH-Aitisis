@@ -12,7 +12,9 @@
 
         public bool RequiredDocumentsCompleted { get; set; }
 
-        public List<DocumentRequirementUploadItemViewModel>DocumentRequirements{ get; set; } = new();
+        public List<DocumentRequirementUploadItemViewModel> DocumentRequirements { get; set; } = new();
+
+        public AiDocumentGuidanceViewModel? AiDocumentGuidance { get; set; }
     }
 
     public sealed class DocumentRequirementUploadItemViewModel
@@ -28,5 +30,24 @@
         public int DisplayOrder { get; set; }
 
         public bool IsUploaded { get; set; }
+    }
+
+    public sealed class AiDocumentGuidanceViewModel
+    {
+        public string Summary { get; set; } = string.Empty;
+
+        public List<AiDocumentGuidanceItemViewModel> Items { get; set; }
+            = new();
+
+        public string GeneralAdvice { get; set; } = string.Empty;
+
+        public string Disclaimer { get; set; } = string.Empty;
+    }
+
+    public sealed class AiDocumentGuidanceItemViewModel
+    {
+        public string DocumentName { get; set; } = string.Empty;
+
+        public List<string> Steps { get; set; } = new();
     }
 }
