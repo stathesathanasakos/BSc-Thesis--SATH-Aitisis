@@ -61,8 +61,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 
 
-
-
 // the IEmployeeManagementService interface is implemented by the EmployeeManagementService class which is registered as a scoped service in the dependency injection container
 // This means that a new instance of EmployeeManagementService will be created for each HTTP request, and it will be shared across the components that require it within that request.
 builder.Services.AddScoped<IEmployeeManagementService, EmployeeManagementService>();

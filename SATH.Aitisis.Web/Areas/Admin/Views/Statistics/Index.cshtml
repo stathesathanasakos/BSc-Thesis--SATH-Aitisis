@@ -5,9 +5,7 @@
     ViewData["Title"] = "Statistics";
 
     var pageQuery = Context.Request.Query["page"].ToString();
-
     var currentPage = pageQuery == "2" ? 2 : 1;
-
     var statusTotal = Model.PendingApplications + Model.ApprovedApplications + Model.RejectedApplications;
 
     var pendingPercent = statusTotal == 0
@@ -63,12 +61,15 @@
             </h1>
         </div>
 
-        <a asp-area="Admin"
-           asp-controller="ApplicationTypes"
-           asp-action="Index"
-           class="btn btn-outline-primary">
-            Manage Application Types
-        </a>
+        @if (currentPage == 1)
+        {
+            <a asp-area="Admin"
+               asp-controller="ApplicationTypes"
+               asp-action="Index"
+               class="btn btn-outline-primary">
+                Manage Application Types
+            </a>
+        }
     </div>
 
     @if (currentPage == 1)
@@ -159,69 +160,6 @@
 
                         <div class="statistics-section-heading mb-4">
                             <div>
-                                <h5 class="mb-1">Administrative Snapshot</h5>
-                            </div>
-
-                        </div>
-
-                        <div class="statistics-progress-panel">
-                            <div class="statistics-progress-main">
-                                <span>@approvalRateText%</span>
-                                <small>approval rate</small>
-                            </div>
-
-                            <div class="statistics-progress-track">
-                                <div class="statistics-progress-fill"
-                                     style="width: @approvalRateText%;">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="statistics-mini-grid mt-4">
-                            <div class="statistics-mini-card">
-                                <span>Finalized</span>
-                                <strong>@completionTotal</strong>
-                            </div>
-
-                            <div class="statistics-mini-card">
-                                <span>Active types</span>
-                                <strong>@Model.ActiveApplicationTypes</strong>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="statistics-page-nav">
-            <div class="statistics-page-indicator">
-                <span class="statistics-page-dot"></span>
-                <span><strong>Page 1 of 2</strong> — Overview</span>
-            </div>
-
-            <div class="statistics-page-actions">
-                <a asp-area="Admin"
-                   asp-controller="Statistics"
-                   asp-action="Index"
-                   asp-route-page="2"
-                   class="btn btn-primary">
-                    Next
-                </a>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="row g-4">
-
-            <div class="col-xl-7">
-                <div class="card statistics-card h-100">
-                    <div class="card-body p-4">
-
-                        <div class="statistics-section-heading mb-4">
-                            <div>
                                 <h5 class="mb-1">Applications by Status</h5>
                                 <p class="text-muted mb-0">
                                     Vertical comparison using the highest status count as the visual baseline.
@@ -296,23 +234,35 @@
                 </div>
             </div>
 
-            <div class="col-xl-5">
+        </div>
+
+        <div class="statistics-page-nav">
+            <div class="statistics-page-indicator">
+                <span class="statistics-page-dot"></span>
+                <span><strong>Page 1 of 2</strong> — Overview</span>
+            </div>
+
+            <div class="statistics-page-actions">
+                <a asp-area="Admin"
+                   asp-controller="Statistics"
+                   asp-action="Index"
+                   asp-route-page="2"
+                   class="btn btn-primary">
+                    Next
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            <div class="col-xl-7">
                 <div class="card statistics-card h-100">
+
                     <div class="card-body p-4">
 
-                        <h5 class="mb-1">Application Type Coverage</h5>
-
-                        <p class="text-muted mb-4">
-                            Active application types currently available for citizen submissions.
-                        </p>
-
-                        <div class="statistics-compact-number-row">
-                            <div>
-                                <div class="statistics-large-number">@Model.ActiveApplicationTypes</div>
-                                <div class="statistics-large-label">active application types</div>
-                            </div>
-
-                        </div>
+                        <h5 class="mb-1"> Interesting Fact</h5>
 
                         <div class="statistics-popular-type-panel mt-4">
                             <div class="statistics-popular-type-label">
@@ -348,10 +298,73 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="statistics-popular-type-footnote mt-3">
+                                    Based on @Model.SubmittedApplicationsLastMonth submitted application(s)
+                                    during the last 30 days.
+                                </div>
                             }
                         </div>
 
                     </div>
+
+                </div>
+            </div>
+
+            <div class="col-xl-5">
+                <div class="card statistics-card h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="statistics-section-heading mb-4">
+                            <div>
+                                <h5 class="mb-1">Administrative Snapshot</h5>
+                            </div>
+                        </div>
+
+                        <div class="statistics-progress-panel">
+                            <div class="statistics-progress-main">
+                                <span>@approvalRateText%</span>
+                                <small>approval rate</small>
+                            </div>
+
+                            <div class="statistics-progress-track">
+                                <div class="statistics-progress-fill"
+                                     style="width: @approvalRateText%;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="statistics-mini-grid mt-4">
+                            <div class="statistics-mini-card">
+                                <span>Finalized</span>
+                                <strong>@completionTotal</strong>
+                            </div>
+
+                            <div class="statistics-mini-card">
+                                <span>Active types</span>
+                                <strong>@Model.ActiveApplicationTypes</strong>
+                            </div>
+                        </div>
+
+                        @if (statusTotal == 0)
+                        {
+                            <div class="statistics-empty-state mt-4">
+                                No application status data is available yet.
+                            </div>
+                        }
+
+                        <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+                            <a asp-area="Admin"
+                               asp-controller="ApplicationTypes"
+                               asp-action="Index"
+                               class="btn btn-outline-primary">
+                                Manage Application Types
+                            </a>
+                        </div>
+
+                    </div>
+
                 </div>
             </div>
 
