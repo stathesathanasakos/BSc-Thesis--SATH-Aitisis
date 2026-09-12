@@ -5,11 +5,7 @@
     ViewData["Title"] = "Statistics";
 
     var pageQuery = Context.Request.Query["page"].ToString();
-
-    var currentPage = pageQuery == "2"
-        ? 2
-        : 1;
-
+    var currentPage = pageQuery == "2" ? 2 : 1;
     var statusTotal = Model.PendingApplications + Model.ApprovedApplications + Model.RejectedApplications;
 
     var pendingPercent = statusTotal == 0
@@ -46,14 +42,18 @@
         ? 0
         : Math.Round((double)finalizedTotal / Model.TotalApplications * 100, 1);
 
+    // Calculate the percentage of approved applications out of the total applications
+    var approvedOfTotalPercent = Model.TotalApplications == 0
+    ? 0
+    : Math.Round((double)Model.ApprovedApplications / Model.TotalApplications * 100, 1);
+
+    var approvedOfTotalPercentText = approvedOfTotalPercent.ToString("0.#", CultureInfo.InvariantCulture);
     var pendingPercentText = pendingPercent.ToString("0.#", CultureInfo.InvariantCulture);
     var approvedPercentText = approvedPercent.ToString("0.#", CultureInfo.InvariantCulture);
     var rejectedPercentText = rejectedPercent.ToString("0.#", CultureInfo.InvariantCulture);
-
     var pendingHeightText = pendingHeight.ToString("0.#", CultureInfo.InvariantCulture);
     var approvedHeightText = approvedHeight.ToString("0.#", CultureInfo.InvariantCulture);
     var rejectedHeightText = rejectedHeight.ToString("0.#", CultureInfo.InvariantCulture);
-
     var finalizedPercentText = finalizedPercent.ToString("0.#", CultureInfo.InvariantCulture);
 }
 
@@ -172,68 +172,6 @@
 
                         <div class="statistics-section-heading mb-4">
                             <div>
-                                <h5 class="mb-1">Personal Snapshot</h5>
-                            </div>
-                        </div>
-
-                        <div class="statistics-progress-panel">
-                            <div class="statistics-progress-main">
-                                <span>@finalizedPercentText%</span>
-                                <small>finalized</small>
-                            </div>
-
-                            <div class="statistics-progress-track">
-                                <div class="statistics-progress-fill"
-                                     style="width: @finalizedPercentText%;">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="statistics-mini-grid mt-4">
-                            <div class="statistics-mini-card">
-                                <span>Finalized</span>
-                                <strong>@finalizedTotal</strong>
-                            </div>
-
-                            <div class="statistics-mini-card">
-                                <span>Total</span>
-                                <strong>@Model.TotalApplications</strong>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="statistics-page-nav">
-            <div class="statistics-page-indicator">
-                <span class="statistics-page-dot"></span>
-                <span><strong>Page 1 of 2</strong> — Overview</span>
-            </div>
-
-            <div class="statistics-page-actions">
-                <a asp-area="Citizen"
-                   asp-controller="Statistics"
-                   asp-action="Index"
-                   asp-route-page="2"
-                   class="btn btn-primary">
-                    Next
-                </a>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="row g-4">
-
-            <div class="col-xl-7">
-                <div class="card statistics-card h-100">
-                    <div class="card-body p-4">
-
-                        <div class="statistics-section-heading mb-4">
-                            <div>
                                 <h5 class="mb-1">Applications by Status</h5>
                                 <p class="text-muted mb-0">
                                     Vertical comparison of your application outcomes.
@@ -301,6 +239,81 @@
                 </div>
             </div>
 
+        </div>
+
+        <div class="statistics-page-nav">
+            <div class="statistics-page-indicator">
+                <span class="statistics-page-dot"></span>
+                <span><strong>Page 1 of 2</strong> — Overview</span>
+            </div>
+
+            <div class="statistics-page-actions">
+                <a asp-area="Citizen"
+                   asp-controller="Statistics"
+                   asp-action="Index"
+                   asp-route-page="2"
+                   class="btn btn-primary">
+                    Next
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            <div class="col-xl-7">
+                <div class="card statistics-card h-100">
+                    <div class="card-body p-4">
+
+                        <div class="statistics-section-heading mb-4">
+                            <div>
+                                <h5 class="mb-1">Personal Snapshot</h5>
+                            </div>
+                        </div>
+
+                        <div class="statistics-progress-panel">
+                            <div class="statistics-progress-main">
+                                <span>@approvedOfTotalPercentText%</span>
+                                <small>approved</small>
+                            </div>
+
+                            <div class="statistics-progress-track">
+                                <div class="statistics-progress-fill statistics-progress-fill-success"
+                                     style="width: @approvedOfTotalPercentText%;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="statistics-mini-grid mt-4">
+                            <div class="statistics-mini-card">
+                                <span>Approved</span>
+                                <strong>@Model.ApprovedApplications</strong>
+                            </div>
+
+                            <div class="statistics-mini-card">
+                                <span>Submitted</span>
+                                <strong>@Model.PendingApplications</strong>
+                            </div>
+
+                            <div class="statistics-mini-card">
+                                <span>Rejected</span>
+                                <strong>@Model.RejectedApplications</strong>
+                            </div>
+
+                            <div class="statistics-mini-card">
+                                <span>Total</span>
+                                <strong>@Model.TotalApplications</strong>
+                            </div>
+                        </div>
+
+                        <div class="statistics-popular-type-footnote mt-3">
+                            Approval rate is calculated from your approved applications over your total submitted applications.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-xl-5">
                 <div class="card statistics-card h-100">
                     <div class="card-body p-4">
@@ -331,19 +344,24 @@
                             </div>
                         </div>
 
+                        <div class="statistics-mini-grid mt-4">
+                            <div class="statistics-mini-card">
+                                <span>Finalized</span>
+                                <strong>@finalizedTotal</strong>
+                            </div>
+
+                            <div class="statistics-mini-card">
+                                <span>Total</span>
+                                <strong>@Model.TotalApplications</strong>
+                            </div>
+                        </div>
+
                         <div class="d-flex flex-wrap gap-2 mt-4">
                             <a asp-area="Citizen"
                                asp-controller="Applications"
                                asp-action="Index"
                                class="btn btn-primary">
                                 New Application
-                            </a>
-
-                            <a asp-area="Citizen"
-                               asp-controller="Applications"
-                               asp-action="MyApplications"
-                               class="btn btn-outline-primary">
-                                View My Applications
                             </a>
                         </div>
 

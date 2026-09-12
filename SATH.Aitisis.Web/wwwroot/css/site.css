@@ -5760,3 +5760,7 @@ textarea.admin-form-control {
         color: var(--sath-text);
         font-weight: 900;
     }
+
+.statistics-progress-fill-success {
+    background: linear-gradient(90deg, #198754, #39b980);
+}
