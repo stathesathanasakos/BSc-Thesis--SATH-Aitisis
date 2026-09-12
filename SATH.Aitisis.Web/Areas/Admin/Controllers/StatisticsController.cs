@@ -17,6 +17,7 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
             _dashboardStatisticsService = dashboardStatisticsService;
         }
 
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -28,7 +29,13 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
                 PendingApplications = statistics.PendingApplications,
                 ApprovedApplications = statistics.ApprovedApplications,
                 RejectedApplications = statistics.RejectedApplications,
-                ActiveApplicationTypes = statistics.ActiveApplicationTypes
+                ActiveApplicationTypes = statistics.ActiveApplicationTypes,
+
+                // to show the most popular application type in the statistics page
+                MostPopularApplicationTypeName = statistics.MostPopularApplicationTypeName,
+                MostPopularApplicationTypeCount = statistics.MostPopularApplicationTypeCount,
+                MostPopularApplicationTypePercentage = statistics.MostPopularApplicationTypePercentage,
+                SubmittedApplicationsLastMonth = statistics.SubmittedApplicationsLastMonth
             };
 
             return View(model);

@@ -6,9 +6,7 @@
 
     var pageQuery = Context.Request.Query["page"].ToString();
 
-    var currentPage = pageQuery == "2"
-        ? 2
-        : 1;
+    var currentPage = pageQuery == "2" ? 2 : 1;
 
     var statusTotal = Model.PendingApplications + Model.ApprovedApplications + Model.RejectedApplications;
 
@@ -49,12 +47,11 @@
     var pendingPercentText = pendingPercent.ToString("0.#", CultureInfo.InvariantCulture);
     var approvedPercentText = approvedPercent.ToString("0.#", CultureInfo.InvariantCulture);
     var rejectedPercentText = rejectedPercent.ToString("0.#", CultureInfo.InvariantCulture);
-
     var pendingHeightText = pendingHeight.ToString("0.#", CultureInfo.InvariantCulture);
     var approvedHeightText = approvedHeight.ToString("0.#", CultureInfo.InvariantCulture);
     var rejectedHeightText = rejectedHeight.ToString("0.#", CultureInfo.InvariantCulture);
-
     var approvalRateText = approvalRate.ToString("0.#", CultureInfo.InvariantCulture);
+    var mostPopularApplicationTypePercentageText = Model.MostPopularApplicationTypePercentage.ToString("0.#", CultureInfo.InvariantCulture);
 }
 
 <div class="statistics-page">
@@ -315,12 +312,43 @@
                                 <div class="statistics-large-label">active application types</div>
                             </div>
 
-                            <a asp-area="Admin"
-                               asp-controller="ApplicationTypes"
-                               asp-action="Index"
-                               class="btn btn-primary">
-                                Review Types
-                            </a>
+                        </div>
+
+                        <div class="statistics-popular-type-panel mt-4">
+                            <div class="statistics-popular-type-label">
+                                Most popular type · Last 30 days
+                            </div>
+
+                            @if (Model.SubmittedApplicationsLastMonth == 0 || string.IsNullOrWhiteSpace(Model.MostPopularApplicationTypeName))
+                            {
+                                <div class="statistics-empty-state mt-3">
+                                    No submitted application data is available for the last 30 days.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="statistics-popular-type-name">
+                                    @Model.MostPopularApplicationTypeName
+                                </div>
+
+                                <div class="statistics-popular-type-meta">
+                                    <strong>@Model.MostPopularApplicationTypeCount</strong>
+                                    application(s)
+                                </div>
+
+                                <div class="statistics-progress-panel mt-3">
+                                    <div class="statistics-progress-main">
+                                        <span>@mostPopularApplicationTypePercentageText%</span>
+                                        <small>of last 30 days submissions</small>
+                                    </div>
+
+                                    <div class="statistics-progress-track">
+                                        <div class="statistics-progress-fill"
+                                             style="width: @mostPopularApplicationTypePercentageText%;">
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
 
                     </div>

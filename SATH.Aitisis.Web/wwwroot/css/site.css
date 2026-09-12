@@ -5725,3 +5725,38 @@ textarea.admin-form-control {
             width: 100%;
         }
 }
+
+
+.statistics-popular-type-panel {
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: #f9fbfd;
+    border: 1px solid var(--sath-card-border);
+}
+
+.statistics-popular-type-label {
+    color: var(--sath-primary);
+    font-size: 0.75rem;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.statistics-popular-type-name {
+    margin-top: 0.55rem;
+    color: var(--sath-text);
+    font-size: 1.15rem;
+    font-weight: 900;
+    line-height: 1.25;
+}
+
+.statistics-popular-type-meta {
+    margin-top: 0.35rem;
+    color: var(--sath-muted);
+    font-size: 0.92rem;
+}
+
+    .statistics-popular-type-meta strong {
+        color: var(--sath-text);
+        font-weight: 900;
+    }

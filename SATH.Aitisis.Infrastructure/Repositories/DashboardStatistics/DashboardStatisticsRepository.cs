@@ -30,10 +30,39 @@ namespace SATH.Aitisis.Infrastructure.Repositories.DashboardStatistics
             ));
 
             var approvedApplications = await _dbContext.Applications.CountAsync(x => x.Status == ApplicationStatus.Approved);
-
             var rejectedApplications = await _dbContext.Applications.CountAsync(x => x.Status == ApplicationStatus.Rejected);
-
             var activeApplicationTypes = await _dbContext.ApplicationTypes.CountAsync(x => x.IsActive);
+
+            // for the most popular application type
+            var lastMonthCutoffUtc = DateTime.UtcNow.AddMonths(-1);
+            var submittedApplicationsLastMonthQuery = _dbContext.Applications.Where(x => x.Status != ApplicationStatus.Draft && x.SubmissionDate >= lastMonthCutoffUtc);
+            var submittedApplicationsLastMonth = await submittedApplicationsLastMonthQuery.CountAsync();
+
+            var mostPopularApplicationType =
+                await submittedApplicationsLastMonthQuery
+                    .GroupBy(x => new
+                    {
+                        x.ApplicationTypeId,
+                        x.ApplicationType.Name
+                    })
+                    .Select(x => new
+                    {
+                        ApplicationTypeName = x.Key.Name,
+                        Count = x.Count()
+                    })
+                    .OrderByDescending(x => x.Count)
+                    .ThenBy(x => x.ApplicationTypeName)
+                    .FirstOrDefaultAsync();
+
+            var mostPopularApplicationTypePercentage =
+                submittedApplicationsLastMonth > 0 &&
+                mostPopularApplicationType != null
+                    ? Math.Round(
+                        (decimal)mostPopularApplicationType.Count /
+                        submittedApplicationsLastMonth *
+                        100,
+                        1)
+                    : 0m;
 
             return new AdminDashboardStatistics
             {
@@ -41,7 +70,11 @@ namespace SATH.Aitisis.Infrastructure.Repositories.DashboardStatistics
                 PendingApplications = pendingApplications,
                 ApprovedApplications = approvedApplications,
                 RejectedApplications = rejectedApplications,
-                ActiveApplicationTypes = activeApplicationTypes
+                ActiveApplicationTypes = activeApplicationTypes,
+                MostPopularApplicationTypeName = mostPopularApplicationType?.ApplicationTypeName,
+                MostPopularApplicationTypeCount = mostPopularApplicationType?.Count ?? 0,
+                MostPopularApplicationTypePercentage = mostPopularApplicationTypePercentage,
+                SubmittedApplicationsLastMonth = submittedApplicationsLastMonth
             };
         }
 
