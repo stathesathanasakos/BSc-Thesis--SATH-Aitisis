@@ -65,13 +65,6 @@
                 My Statistics
             </h1>
         </div>
-
-        <a asp-area="Citizen"
-           asp-controller="Applications"
-           asp-action="MyApplications"
-           class="btn btn-outline-primary">
-            My Applications
-        </a>
     </div>
 
     @if (currentPage == 1)
@@ -359,9 +352,9 @@
                         <div class="d-flex flex-wrap gap-2 mt-4">
                             <a asp-area="Citizen"
                                asp-controller="Applications"
-                               asp-action="Index"
-                               class="btn btn-primary">
-                                New Application
+                               asp-action="MyApplications"
+                               class="btn btn-outline-primary">
+                                My Applications
                             </a>
                         </div>
 

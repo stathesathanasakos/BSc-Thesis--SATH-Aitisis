@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SATH.Aitisis.Domain.Enums
 {
     // this enum is used to represent the status of an application in the system
-    // and it is stored as an integer in the database
+    // it is stored as an integer in the database
     public enum ApplicationStatus
     {
         Submitted,       // 0 
