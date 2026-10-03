@@ -487,3 +487,6 @@ appsettings.Development.json
 **/SATH.Aitisis.web.Storage/
 
 **/Storage/
+
+# Ignore GitHub specific configuration/copilot instructions
+.github/

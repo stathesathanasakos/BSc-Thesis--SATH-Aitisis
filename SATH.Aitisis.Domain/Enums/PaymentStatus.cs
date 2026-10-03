@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SATH.Aitisis.Domain.Enums
 {
-    // the enums are beeing stored as integers in th DB
+    // the enums are beeing stored as integers in the DB
     public enum PaymentStatus
     {
         Pending,        // 0 

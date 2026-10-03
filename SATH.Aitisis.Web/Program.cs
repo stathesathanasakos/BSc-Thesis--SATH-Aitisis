@@ -91,6 +91,7 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 // the CachedStatisticsService class is registered as a scoped service that implements the IDashboardStatisticsService interface
 // so when the IDashboardStatisticsService is requested, the CachedStatisticsService will be provided,
 // which internally uses the DashboardStatisticsService and the IMemoryCache to cache the results of the statistics queries for a certain duration
+
 builder.Services.AddScoped<IDashboardStatisticsRepository, DashboardStatisticsRepository>();
 builder.Services.AddScoped<DashboardStatisticsService>();
 builder.Services.AddScoped<IDashboardStatisticsService>(serviceProvider =>

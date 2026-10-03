@@ -22,7 +22,6 @@ namespace SATH.Aitisis.Infrastructure.Repositories.ApplicationTypes
         }
 
 
-
         public async Task<IReadOnlyCollection<ApplicationType>> GetAllAsync()
         {
             // AsNoTracking because I am only reading data and not modifying it
@@ -58,14 +57,12 @@ namespace SATH.Aitisis.Infrastructure.Repositories.ApplicationTypes
         // Adds a new field to an application type
         public async Task AddFieldAsync(ApplicationTypeField field)
         {
-            await _dbContext.ApplicationTypeFields
-                .AddAsync(field);
+            await _dbContext.ApplicationTypeFields.AddAsync(field);
         }
 
         public async Task AddDocumentRequirementAsync(DocumentRequirement documentRequirement)
         {
-            await _dbContext.DocumentRequirements
-                .AddAsync(documentRequirement);
+            await _dbContext.DocumentRequirements.AddAsync(documentRequirement);
         }
 
 
@@ -77,8 +74,7 @@ namespace SATH.Aitisis.Infrastructure.Repositories.ApplicationTypes
 
         public async Task<ApplicationType?> GetByIdForUpdateAsync(int id)
         {
-            return await _dbContext.ApplicationTypes
-                .FirstOrDefaultAsync(x => x.Id == id);
+            return await _dbContext.ApplicationTypes.FirstOrDefaultAsync(x => x.Id == id);
         }
 
     }

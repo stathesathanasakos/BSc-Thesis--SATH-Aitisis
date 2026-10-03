@@ -27,14 +27,12 @@ namespace SATH.Aitisis.Infrastructure.Payments.Stripe
                 return PaymentCheckoutResult.Failure("Payment amount must be greater than zero.");
             }
 
-            if (string.IsNullOrWhiteSpace(request.SuccessUrl) ||
-                string.IsNullOrWhiteSpace(request.CancelUrl))
+            if (string.IsNullOrWhiteSpace(request.SuccessUrl) || string.IsNullOrWhiteSpace(request.CancelUrl))
             {
                 return PaymentCheckoutResult.Failure("Payment redirect URLs are not configured.");
             }
 
             StripeConfiguration.ApiKey = _options.SecretKey;
-
             var amountInCents = ConvertAmountToMinorUnits(request.Amount);
 
             var options = new SessionCreateOptions
@@ -71,7 +69,6 @@ namespace SATH.Aitisis.Infrastructure.Payments.Stripe
             try
             {
                 var service = new SessionService();
-
                 var session = await service.CreateAsync(options);
 
                 if (string.IsNullOrWhiteSpace(session.Id) || string.IsNullOrWhiteSpace(session.Url))
@@ -104,7 +101,6 @@ namespace SATH.Aitisis.Infrastructure.Payments.Stripe
             try
             {
                 var service = new SessionService();
-
                 var session = await service.GetAsync(externalSessionId);
 
                 if (session == null || string.IsNullOrWhiteSpace(session.Id))
