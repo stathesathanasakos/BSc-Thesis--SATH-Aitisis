@@ -1,4 +1,4 @@
-# Bachelor's Thesis: SATH- Aitisis
+# Bachelor's Thesis:  SATH-Aitisis
 
 SATH-Aitisis is a web application, developed as a part of  My Bachelor's Thesis in the Department of Informatics, University of Piraeus. It is designed to help citizens easily submit applications for benefits and services with end-to-end tracking from submission to completion. The system aims to digitize, streamline, and accelerate the submission, review, and protocol assignment processes for citizen applications (such as social benefits and certificates). Built with ASP.NET Core 8.0, EF Core and ASP.NET Identity, it integrates external payment and AI APIs. 4-layer Clean Architecture (Domain, App, Infrastructure, Web), SOLID principles (e.g SRP & OCP) & Design Patterns (e.g Adapter & Cache-Aside).
 
