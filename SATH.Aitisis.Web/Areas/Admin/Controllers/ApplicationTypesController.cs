@@ -19,8 +19,6 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         }
 
 
-
-
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -41,8 +39,6 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
 
             return View(model);
         }
-
-
 
 
         [HttpGet]
@@ -91,6 +87,11 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var details = await _applicationTypeService.GetDetailsAsync(id);
 
             if (details == null)
@@ -135,12 +136,16 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         }
 
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddField(AddApplicationTypeFieldViewModel model)
         {
+            if (model.ApplicationTypeId <= 0)
+            {
+                // Invalid application type ID, return a bad request response
+                return BadRequest();
+            }
+
             if (!ModelState.IsValid)
             {
                 TempData["ErrorMessage"] = "Please provide valid field information.";
@@ -170,9 +175,7 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
                 TempData["SuccessMessage"] ="Field added successfully.";
             }
 
-            return RedirectToAction(
-                nameof(Details),
-                new { id = model.ApplicationTypeId });
+            return RedirectToAction(nameof(Details), new { id = model.ApplicationTypeId });
         }
 
 
@@ -183,13 +186,16 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddDocumentRequirement(AddDocumentRequirementViewModel model)
         {
+            if (model.ApplicationTypeId <= 0)
+            {
+                return BadRequest();
+            }
+
             if (!ModelState.IsValid)
             {
                 TempData["ErrorMessage"] = "Please provide valid document requirement information.";
 
-                return RedirectToAction(
-                    nameof(Details),
-                    new { id = model.ApplicationTypeId });
+                return RedirectToAction(nameof(Details), new { id = model.ApplicationTypeId });
             }
 
             var request = new AddDocumentRequirementRequest
@@ -200,8 +206,7 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
                 IsRequired = model.IsRequired
             };
 
-            var succeeded =
-                await _applicationTypeService.AddDocumentRequirementAsync(request);
+            var succeeded = await _applicationTypeService.AddDocumentRequirementAsync(request);
 
             if (!succeeded)
             {
@@ -225,6 +230,11 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var succeeded = await _applicationTypeService.DeactivateAsync(id);
 
             if (!succeeded)
@@ -243,6 +253,11 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reactivate(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var succeeded = await _applicationTypeService.ReactivateAsync(id);
 
             if (!succeeded)

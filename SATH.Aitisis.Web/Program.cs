@@ -56,6 +56,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<SathAitisisDbContext>()   // I tell Identity to use my special DbContext
     .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
+
 // Identity -> ApplicationUser / IdentityRole -> SathAitisisDbContext -> MySQL
 
 
@@ -145,7 +151,6 @@ var app = builder.Build();
 
 
 
-
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
@@ -153,6 +158,10 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseStatusCodePagesWithReExecute(
+    "/Home/StatusCodePage",
+    "?code={0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -166,7 +175,6 @@ using (var scope = app.Services.CreateScope())
 {
     // from SATH.Aitisis.Infrastructure.Identity.IdentitySeeder
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
     await IdentitySeeder.SeedRolesAsync(roleManager);

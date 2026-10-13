@@ -41,6 +41,11 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reactivate(string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
             var succeeded = await _citizenManagementService.ReactivateCitizenAsync(id);
 
             if (!succeeded)

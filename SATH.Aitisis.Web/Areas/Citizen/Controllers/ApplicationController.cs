@@ -55,6 +55,12 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(int id)
         {
+            if (id <= 0)
+            {
+                // return a bad request response if the application type ID is invalid
+                return BadRequest();
+            }
+
             var form = await _applicationService.GetSubmissionFormAsync(id);
 
             if (form == null)
@@ -104,13 +110,19 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         [HttpGet]
         public async Task<IActionResult> Documents(int applicationId)
         {
-            var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var info = await _applicationService.GetApplicationDocumentsInfoAsync(applicationId, citizenId);
+            if (applicationId <= 0)
+            {
+                // return a bad request response if the application ID is invalid
+                return BadRequest();
+            }
 
+            var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(citizenId))
             {
                 return Unauthorized();
             }
+
+            var info = await _applicationService.GetApplicationDocumentsInfoAsync(applicationId, citizenId);
 
             if (info == null)
             {
@@ -128,6 +140,11 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GenerateDocumentGuidance(int applicationId)
         {
+            if (applicationId <= 0)
+            {
+                return BadRequest();
+            }
+
             var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrWhiteSpace(citizenId))
@@ -241,6 +258,11 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadDocument(UploadDocumentViewModel model)
         {
+            if (model.ApplicationId <= 0)
+            {
+                return BadRequest();
+            }
+
             if (!ModelState.IsValid || model.File == null)
             {
                 TempData["ErrorMessage"] = "Please select a PDF file.";
@@ -267,15 +289,10 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
             {
                 ApplicationId = model.ApplicationId,
                 CitizenId = citizenId,
-
                 DocumentRequirementId = model.DocumentRequirementId,
-
                 OriginalFileName = model.File.FileName,
-
                 ContentType = model.File.ContentType,
-
                 FileSize = model.File.Length,
-
                 Content = stream
             };
 
@@ -338,6 +355,11 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ContinueSubmission(int applicationId)
         {
+            if (applicationId <= 0)
+            {
+                return BadRequest();
+            }
+
             var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrWhiteSpace(citizenId))
@@ -379,7 +401,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                         });
                 }
 
-                TempData["ErrorMessag"] = "Payment must be completed before the application can be submitted.";
+                TempData["ErrorMessage"] = "Payment must be completed before the application can be submitted.";
 
                 return RedirectToAction(nameof(Documents), new { applicationId });
             }
@@ -400,7 +422,6 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
 
             return RedirectToAction(nameof(Confirmation), new { applicationId });
         }
-
 
 
 
@@ -506,11 +527,16 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
 
 
 
-
         // for the timeline of the application
         [HttpGet]
         public async Task<IActionResult> Timeline(int id)
         {
+            if (id <= 0)
+            {
+                // return a bad request response if the application ID is invalid
+                return BadRequest();
+            }
+
             var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrWhiteSpace(citizenId))
@@ -550,6 +576,11 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         [HttpGet]
         public async Task<IActionResult> DownloadCertificate(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrWhiteSpace(citizenId))

@@ -187,9 +187,14 @@ namespace SATH.Aitisis.Web.Controllers
         }
 
 
-
-
-
-
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            // Set the response status code to 403 Forbidden to indicate that the user doesn't
+            // have permission to access the requested resource
+            Response.StatusCode = StatusCodes.Status403Forbidden;
+            return View();
+        }
     }
 }

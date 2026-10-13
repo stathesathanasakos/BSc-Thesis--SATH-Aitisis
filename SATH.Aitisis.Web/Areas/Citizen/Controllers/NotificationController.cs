@@ -52,6 +52,11 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAsRead(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrWhiteSpace(userId))

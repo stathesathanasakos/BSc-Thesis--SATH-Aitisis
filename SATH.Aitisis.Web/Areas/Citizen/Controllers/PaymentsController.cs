@@ -22,6 +22,11 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int applicationId)
         {
+            if (applicationId <= 0)
+            {
+                return BadRequest();
+            }
+
             var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrWhiteSpace(citizenId))
@@ -44,8 +49,7 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
                 Currency = details.Currency,
                 RequiresPayment = details.RequiresPayment,
                 CanStartPayment = details.CanStartPayment,
-                PaymentStatusText = details.PaymentStatus?.ToString()
-                    ?? "Not started"
+                PaymentStatusText = details.PaymentStatus?.ToString() ?? "Not started"
             };
 
             return View(model);
@@ -56,6 +60,11 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Start(int applicationId)
         {
+            if (applicationId <= 0)
+            {
+                return BadRequest();
+            }
+
             var citizenId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrWhiteSpace(citizenId))
@@ -82,7 +91,6 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
             if (string.IsNullOrWhiteSpace(successBaseUrl) || string.IsNullOrWhiteSpace(cancelUrl))
             {
                 TempData["ErrorMessage"] = "Payment redirect URLs could not be created.";
-
                 return RedirectToAction(nameof(Details), new { applicationId });
             }
 
@@ -101,12 +109,12 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
             if (!result.Succeeded || string.IsNullOrWhiteSpace(result.CheckoutUrl))
             {
                 TempData["ErrorMessage"] = result.ErrorMessage ?? "The payment could not be started.";
-
                 return RedirectToAction(nameof(Details), new { applicationId });
             }
 
             return Redirect(result.CheckoutUrl);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Success(string sessionId)
@@ -143,9 +151,15 @@ namespace SATH.Aitisis.Web.Areas.Citizen.Controllers
             return View(result.ApplicationId.Value);
         }
 
+
         [HttpGet]
         public IActionResult Cancel(int applicationId)
         {
+            if (applicationId <= 0)
+            {
+                return BadRequest();
+            }
+
             TempData["ErrorMessage"] = "The payment was cancelled before completion.";
 
             return View(applicationId);

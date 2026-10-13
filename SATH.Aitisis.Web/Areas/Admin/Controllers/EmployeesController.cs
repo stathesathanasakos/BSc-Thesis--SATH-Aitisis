@@ -19,7 +19,6 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         }
 
 
-
         [HttpGet]
         public IActionResult Create()
         {
@@ -91,6 +90,11 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
             var succeeded = await _employeeService.DeactivateEmployeeAsync(id);
 
             if (!succeeded)
@@ -111,6 +115,11 @@ namespace SATH.Aitisis.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reactivate(string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
             var succeeded = await _employeeService.ReactivateEmployeeAsync(id);
 
             if (!succeeded)

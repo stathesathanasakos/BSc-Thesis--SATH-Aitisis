@@ -48,6 +48,11 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var application = await _applicationService.GetApplicationForReviewAsync(id);
 
             if (application == null)
@@ -66,6 +71,11 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewDocument(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var document = await _applicationService.GetDocumentFileAsync(id);
 
             if (document == null)
@@ -84,6 +94,11 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id, string? employeeMessage)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var employeeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrWhiteSpace(employeeId))
@@ -118,6 +133,11 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id, string? employeeMessage)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var employeeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrWhiteSpace(employeeId))
@@ -152,6 +172,11 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
         [HttpGet]
         public async Task<IActionResult> Timeline(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var timeline = await _applicationService.GetEmployeeApplicationTimelineAsync(id);
 
             if (timeline == null)
@@ -186,6 +211,11 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GenerateAiReviewSummary(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
             var application = await _applicationService.GetApplicationForReviewAsync(id);
 
             if (application == null)
