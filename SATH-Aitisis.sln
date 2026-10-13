@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.37411.7 d17.14
+VisualStudioVersion = 17.14.37411.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SATH.Aitisis.Domain", "SATH.Aitisis.Domain\SATH.Aitisis.Domain.csproj", "{A0AECAD6-7B80-41C9-894C-AFB999444CB2}"
 EndProject
@@ -10,6 +10,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SATH.Aitisis.Infrastructure", "SATH.Aitisis.Infrastructure\SATH.Aitisis.Infrastructure.csproj", "{786FE8FD-271C-4D05-B799-274FC4EAECA9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SATH.Aitisis.Web", "SATH.Aitisis.Web\SATH.Aitisis.Web.csproj", "{2A4DEFFF-8691-4659-99A1-327897F0B095}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SATH.Aitisis.Tests", "SATH.Aitisis.Tests\SATH.Aitisis.Tests.csproj", "{69D6713C-06AA-429D-A265-CC2FC1443306}"
+	ProjectSection(ProjectDependencies) = postProject
+		{57B66E8E-730B-443B-A715-C510D4540568} = {57B66E8E-730B-443B-A715-C510D4540568}
+		{A0AECAD6-7B80-41C9-894C-AFB999444CB2} = {A0AECAD6-7B80-41C9-894C-AFB999444CB2}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +39,10 @@ Global
 		{2A4DEFFF-8691-4659-99A1-327897F0B095}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A4DEFFF-8691-4659-99A1-327897F0B095}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A4DEFFF-8691-4659-99A1-327897F0B095}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69D6713C-06AA-429D-A265-CC2FC1443306}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69D6713C-06AA-429D-A265-CC2FC1443306}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69D6713C-06AA-429D-A265-CC2FC1443306}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69D6713C-06AA-429D-A265-CC2FC1443306}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
