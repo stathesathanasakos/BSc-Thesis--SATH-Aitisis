@@ -11,7 +11,6 @@ public class ApplicationStatusTransitionTests
     {
         // Arrange: prepare the object to test.
         var policy = new ApplicationStatusTransitionPolicy();
-
         // Act: execute the operation.
         var result = policy.CanApprove(ApplicationStatus.Submitted);
 
@@ -23,7 +22,6 @@ public class ApplicationStatusTransitionTests
     public void CanReject_SubmittedApplication_ReturnsTrue()
     {
         var policy = new ApplicationStatusTransitionPolicy();
-
         var result = policy.CanReject(ApplicationStatus.Submitted);
 
         Assert.True(result);
@@ -33,7 +31,6 @@ public class ApplicationStatusTransitionTests
     public void CanApprove_DraftApplication_ReturnsFalse()
     {
         var policy = new ApplicationStatusTransitionPolicy();
-
         var result = policy.CanApprove(ApplicationStatus.Draft);
 
         Assert.False(result);
@@ -43,7 +40,6 @@ public class ApplicationStatusTransitionTests
     public void CanReject_DraftApplication_ReturnsFalse()
     {
         var policy = new ApplicationStatusTransitionPolicy();
-
         var result = policy.CanReject(ApplicationStatus.Draft);
 
         Assert.False(result);
@@ -53,10 +49,7 @@ public class ApplicationStatusTransitionTests
     public void CanTransition_ApprovedToRejected_ReturnsFalse()
     {
         var policy = new ApplicationStatusTransitionPolicy();
-
-        var result = policy.CanTransition(
-            ApplicationStatus.Approved,
-            ApplicationStatus.Rejected);
+        var result = policy.CanTransition(ApplicationStatus.Approved, ApplicationStatus.Rejected);
 
         Assert.False(result);
     }
@@ -65,10 +58,7 @@ public class ApplicationStatusTransitionTests
     public void CanTransition_RejectedToApproved_ReturnsFalse()
     {
         var policy = new ApplicationStatusTransitionPolicy();
-
-        var result = policy.CanTransition(
-            ApplicationStatus.Rejected,
-            ApplicationStatus.Approved);
+        var result = policy.CanTransition(ApplicationStatus.Rejected, ApplicationStatus.Approved);
 
         Assert.False(result);
     }

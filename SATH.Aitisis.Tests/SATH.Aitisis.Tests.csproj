@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SATH.Aitisis.Application\SATH.Aitisis.App.csproj" />
     <ProjectReference Include="..\SATH.Aitisis.Domain\SATH.Aitisis.Domain.csproj" />
+	<ProjectReference Include="..\SATH.Aitisis.Web\SATH.Aitisis.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

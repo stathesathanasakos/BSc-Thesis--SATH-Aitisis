@@ -12,7 +12,6 @@ public class PaymentServiceTests
     [Fact]
     public async Task StartPaymentAsync_MissingRequiredDocument_ReturnsFailure()
     {
-        // Arrange
         var repository = new Mock<IPaymentRepository>();
         var gateway = new Mock<IPaymentGateway>();
 
@@ -37,7 +36,7 @@ public class PaymentServiceTests
             }
         };
 
-        // No documents have been uploaded.
+        // No documents have been uploaded
         repository
             .Setup(r => r.GetApplicationForPaymentAsync(1, "citizen-1"))
             .ReturnsAsync(application);
@@ -45,7 +44,8 @@ public class PaymentServiceTests
         var service = new PaymentService(
             repository.Object,
             gateway.Object,
-            NullLogger<PaymentService>.Instance);
+            NullLogger<PaymentService>.Instance
+        );
 
         var request = new StartPaymentRequest
         {
@@ -55,10 +55,9 @@ public class PaymentServiceTests
             CancelUrl = "https://example.com/cancel"
         };
 
-        // Act
         var result = await service.StartPaymentAsync(request);
 
-        // Assert
+        // Assert that the result indicates failure and that no payment was created
         Assert.False(result.Succeeded);
         Assert.Equal("Please upload all required documents before starting payment.", result.ErrorMessage);
 
@@ -71,7 +70,6 @@ public class PaymentServiceTests
     [Fact]
     public async Task CompletePaymentAsync_DifferentCitizen_ReturnsFailure()
     {
-        // Arrange
         var repository = new Mock<IPaymentRepository>();
         var gateway = new Mock<IPaymentGateway>();
 
@@ -98,7 +96,8 @@ public class PaymentServiceTests
         var service = new PaymentService(
             repository.Object,
             gateway.Object,
-            NullLogger<PaymentService>.Instance);
+            NullLogger<PaymentService>.Instance
+        );
 
         var request = new CompletePaymentRequest
         {
@@ -106,13 +105,11 @@ public class PaymentServiceTests
             CitizenId = "citizen-other"
         };
 
-        // Act
         var result = await service.CompletePaymentAsync(request);
 
-        // Assert
+        // Assert that the result indicates failure and that the payment status remains unchanged
         Assert.False(result.Succeeded);
         Assert.Equal("The payment does not belong to the current user.", result.ErrorMessage);
-
         Assert.Equal(PaymentStatus.Pending, payment.Status);
         Assert.Equal(ApplicationStatus.Draft, application.Status);
 
@@ -125,7 +122,7 @@ public class PaymentServiceTests
     [Fact]
     public async Task CompletePaymentAsync_UnpaidSession_ReturnsFailure()
     {
-        // Arrange
+        // Arrange the mocks and set up the test data
         var repository = new Mock<IPaymentRepository>();
         var gateway = new Mock<IPaymentGateway>();
 
@@ -165,13 +162,11 @@ public class PaymentServiceTests
             CitizenId = "citizen-1"
         };
 
-        // Act
         var result = await service.CompletePaymentAsync(request);
 
-        // Assert
+        // Assert that the result indicates failure and that the payment status is updated to Failed
         Assert.False(result.Succeeded);
         Assert.Equal("The payment was not completed.", result.ErrorMessage);
-
         Assert.Equal(PaymentStatus.Failed, payment.Status);
         Assert.Null(payment.PaymentDate);
         Assert.Equal(ApplicationStatus.Draft, application.Status);

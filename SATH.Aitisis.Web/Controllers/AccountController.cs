@@ -26,7 +26,6 @@ namespace SATH.Aitisis.Web.Controllers
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-
             return View();
         }
 
@@ -52,10 +51,7 @@ namespace SATH.Aitisis.Web.Controllers
 
             if (user == null || !user.IsActive)
             {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Invalid login attempt!");
-
+                ModelState.AddModelError(string.Empty, "Invalid login attempt!");
                 return View(model);
             }
 
@@ -73,21 +69,13 @@ namespace SATH.Aitisis.Web.Controllers
                     return Redirect(returnUrl);
                 }
 
-                return RedirectToAction(
-                    "Index",
-                    "Home");
+                return RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError(
-                string.Empty,
-                "Invalid login attempt!");
+            ModelState.AddModelError(string.Empty, "Invalid login attempt!");
 
             return View(model);
         }
-
-
-
-
 
 
 
@@ -105,10 +93,6 @@ namespace SATH.Aitisis.Web.Controllers
                 "Index",
                 "Home");
         }
-
-
-
-
 
 
 

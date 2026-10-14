@@ -118,12 +118,11 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
             if (!result.Succeeded)
             {
                 TempData["ErrorMessage"] = result.ErrorMessage ?? "The application could not be approved.";
-                return RedirectToAction(nameof(Index), new { id });
+                return RedirectToAction(nameof(Index));
             }
 
             TempData["SuccessMessage"] = $"Application approved successfully. Protocol number: {result.ProtocolNumber}";
-
-            return RedirectToAction(nameof(Index), new { id });
+            return RedirectToAction(nameof(Index));
         }
 
 
@@ -157,13 +156,11 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
             if (!result.Succeeded)
             {
                 TempData["ErrorMessage"] = result.ErrorMessage ?? "The application could not be rejected.";
-
-                return RedirectToAction(nameof(Index), new { id });
+                return RedirectToAction(nameof(Index));
             }
 
             TempData["SuccessMessage"] = "Application rejected successfully.";
-
-            return RedirectToAction(nameof(Index), new { id });
+            return RedirectToAction(nameof(Index));
         }
 
 
@@ -224,13 +221,11 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
             }
 
             var model = MapToApplicationReviewDetailsViewModel(application);
-
             var aiResult = await _applicationAiReviewService.GenerateForApplicationAsync(id);
 
             if (!aiResult.Succeeded)
             {
                 TempData["ErrorMessage"] = aiResult.ErrorMessage ?? "The AI assistant is currently unavailable!";
-
                 return View("Details", model);
             }
 
@@ -244,7 +239,6 @@ namespace SATH.Aitisis.Web.Areas.Employee.Controllers
 
             return View("Details", model);
         }
-
 
 
 
